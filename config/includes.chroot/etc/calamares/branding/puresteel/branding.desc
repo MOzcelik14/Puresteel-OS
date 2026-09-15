@@ -1,0 +1,34 @@
+---
+componentName:   puresteel
+welcomeStyleCalamares: true
+welcomeExpandingLogo: true
+windowExpanding: normal
+windowSize: 800px,580px
+windowPlacement: center
+
+strings:
+    productName:         Puresteel OS
+    shortProductName:    Puresteel
+    version:             1.0
+    shortVersion:        1.0
+    versionedName:       Puresteel OS 1.0
+    shortVersionedName:  Puresteel 1.0
+    bootloaderEntryName: Puresteel OS
+
+sidebar: widget
+navigation: widget
+
+images:
+    productLogo:         "puresteel-logo.png"
+    productIcon:         "puresteel-logo.png"
+    productWelcome:      "welcome.png"
+
+slideshow:               "show.qml"
+
+style:
+   SidebarBackground:    "#26475b"
+   SidebarText:          "#FFFFFF"
+   SidebarTextCurrent:   "#fbfbfb"
+   SidebarBackgroundCurrent: "#265370"
+
+slideshowAPI: 2

@@ -1,0 +1,6 @@
+#!/bin/sh
+set -e
+
+flatpak remote-add --system --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+
+flatpak install --system -y flathub org.kde.kdenlive app.zen_browser.zen org.audacityteam.Audacity org.nickvision.tubeconverter org.onlyoffice.desktopeditors net.davidotek.pupgui2 com.heroicgameslauncher.hgl

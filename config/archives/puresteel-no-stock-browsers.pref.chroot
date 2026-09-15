@@ -1,0 +1,3 @@
+Package: firefox-esr firefox-esr-l10n-* chromium epiphany-browser
+Pin: version *
+Pin-Priority: -1

@@ -1,0 +1,9 @@
+nvidia-driver
+nvidia-settings
+switcheroo-control
+firmware-nvidia-graphics
+firmware-intel-graphics
+firmware-intel-misc
+intel-microcode
+intel-media-va-driver-non-free
+linux-headers-amd64

@@ -1,0 +1,19 @@
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name=Install Puresteel OS
+Name[tr]=Puresteel OS'u Kur
+Name[tr_TR]=Puresteel OS'u Kur
+GenericName=System Installer
+GenericName[tr]=Sistem Kurucusu
+GenericName[tr_TR]=Sistem Kurucusu
+Comment=Install Puresteel OS on this computer
+Comment[tr]=Puresteel OS'u bu bilgisayara kur
+Comment[tr_TR]=Puresteel OS'u bu bilgisayara kur
+Exec=puresteel-installer
+Keywords=puresteel;calamares;system;install;installer;
+Icon=puresteel-installer
+Terminal=false
+Categories=Qt;System;
+StartupWMClass=calamares
+StartupNotify=true

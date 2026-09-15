@@ -1,0 +1,19 @@
+*.iso
+*.qcow2
+chroot/
+binary/
+cache/
+.build/
+build.log
+
+# live-build generated files
+/binary.modified_timestamps
+/binary.packages
+/chroot.files
+/chroot.headers
+/chroot.packages.*
+/live-image-*
+/wget-log*
+/Puresteel-OS-*.iso
+/Puresteel-OS-*.iso.sha256
+/Puresteel-OS-*-packages.txt
