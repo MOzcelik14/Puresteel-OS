@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE wallpapers SYSTEM "gnome-wp-list.dtd">
+<wallpapers>
+  <wallpaper deleted="false"><name>Puresteel Default</name><filename>/usr/share/backgrounds/puresteel/wallpaper.png</filename><options>zoom</options><pcolor>#08111d</pcolor><scolor>#08111d</scolor></wallpaper>
+  <wallpaper deleted="false"><name>Puresteel Arc</name><filename>/usr/share/backgrounds/puresteel/puresteel-arc.svg</filename><options>zoom</options><pcolor>#07111c</pcolor><scolor>#07111c</scolor></wallpaper>
+  <wallpaper deleted="false"><name>Puresteel Orbit</name><filename>/usr/share/backgrounds/puresteel/puresteel-orbit.svg</filename><options>zoom</options><pcolor>#09131f</pcolor><scolor>#09131f</scolor></wallpaper>
+  <wallpaper deleted="false"><name>Puresteel Horizon</name><filename>/usr/share/backgrounds/puresteel/puresteel-horizon.svg</filename><options>zoom</options><pcolor>#08121d</pcolor><scolor>#08121d</scolor></wallpaper>
+  <wallpaper deleted="false"><name>Puresteel Grid</name><filename>/usr/share/backgrounds/puresteel/puresteel-grid.svg</filename><options>zoom</options><pcolor>#07111b</pcolor><scolor>#07111b</scolor></wallpaper>
+  <wallpaper deleted="false"><name>Puresteel Drift</name><filename>/usr/share/backgrounds/puresteel/puresteel-drift.svg</filename><options>zoom</options><pcolor>#0a1420</pcolor><scolor>#0a1420</scolor></wallpaper>
+  <wallpaper deleted="false"><name>Puresteel Monolith</name><filename>/usr/share/backgrounds/puresteel/puresteel-monolith.svg</filename><options>zoom</options><pcolor>#070d14</pcolor><scolor>#070d14</scolor></wallpaper>
+  <wallpaper deleted="false"><name>Puresteel Contour</name><filename>/usr/share/backgrounds/puresteel/puresteel-contour.svg</filename><options>zoom</options><pcolor>#08121d</pcolor><scolor>#08121d</scolor></wallpaper>
+  <wallpaper deleted="false"><name>Puresteel Signal</name><filename>/usr/share/backgrounds/puresteel/puresteel-signal.svg</filename><options>zoom</options><pcolor>#08121c</pcolor><scolor>#08121c</scolor></wallpaper>
+  <wallpaper deleted="false"><name>Puresteel Midnight</name><filename>/usr/share/backgrounds/puresteel/puresteel-midnight.svg</filename><options>zoom</options><pcolor>#050b12</pcolor><scolor>#050b12</scolor></wallpaper>
+</wallpapers>
