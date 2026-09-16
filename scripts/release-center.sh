@@ -80,7 +80,7 @@ mkdir -p \
 cp "$APTROOT/puresteel-archive-keyring.asc" \
   config/includes.chroot/usr/share/keyrings/puresteel-archive-keyring.asc
 
-PAGES_BASE="${PURESTEEL_PAGES_BASE:-https://MOzcelik14.github.io/Puresteel-OS}"
+PAGES_BASE="${PURESTEEL_PAGES_BASE:-https://mozcelik14.github.io/Puresteel-OS}"
 cat > config/includes.chroot/etc/apt/sources.list.d/puresteel.sources <<EOF
 Types: deb
 URIs: ${PAGES_BASE}/apt
