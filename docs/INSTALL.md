@@ -1,78 +1,130 @@
-# Installing Puresteel OS 1.0 "Burak"
+# Installing Puresteel
 
-## Requirements
+> Development line: **Puresteel 1.0 "Burak"**  
+> Base: Debian 13 (Trixie) · Desktop: KDE Plasma · Installer: Calamares
 
-Recommended minimum:
+Puresteel is distributed as a hybrid live/install ISO. You can boot it from USB, test the live environment, and install it with Calamares.
+
+## Recommended requirements
 
 - x86-64 CPU
-- 8 GB RAM
-- 40 GB free storage
+- 8 GB RAM or more
+- 40 GB or more free storage
 - UEFI-capable system
 - Internet connection recommended
 
-## Create installation media
+Lower-spec systems may still boot, but the recommended values leave enough headroom for KDE Plasma, Flatpak applications and gaming/creator workloads.
 
-Write the ISO to a USB drive using a raw-image capable tool such as GNOME Disks, Fedora Media Writer, Balena Etcher, Rufus in DD mode, or `dd`.
+## Write the ISO to USB
 
-Example on Linux:
+Use a raw-image capable tool such as:
+
+- GNOME Disks
+- KDE ISO Image Writer
+- Fedora Media Writer
+- Balena Etcher
+- Rufus in DD mode
+- `dd` on Linux
+
+Example:
 
 ```bash
-sudo dd if=Puresteel-OS-1.0-Burak-RC1-amd64.iso of=/dev/sdX bs=4M status=progress oflag=sync
+sudo dd if=live-image-amd64.hybrid.iso of=/dev/sdX bs=4M status=progress oflag=sync
 ```
 
-Replace `/dev/sdX` with the whole USB device, not a partition.
+Replace `/dev/sdX` with the **whole USB device**, not a partition such as `/dev/sdX1`.
 
-## Boot
+> `dd` overwrites the selected device. Verify the target device before running the command.
+
+## Boot the live system
 
 1. Boot the USB in UEFI mode.
 2. Start the Puresteel live environment.
-3. Verify networking, display and input devices.
-4. Launch **Install Puresteel OS**.
+3. Confirm that keyboard, networking, display and audio work.
+4. If relevant, check your graphics hardware before installing.
+5. Launch the Puresteel installer from the desktop/application menu.
 
-## Calamares installation
+## Install with Calamares
 
-The installer guides you through:
+Calamares guides you through:
 
 - language and locale
 - keyboard layout
+- time zone
 - partitioning
 - user creation
 - bootloader installation
 
-For a clean installation, automatic partitioning is the simplest option. Advanced users may use manual partitioning.
+For a clean installation, automatic partitioning is the simplest option. Manual partitioning is available for users who need custom layouts or multi-boot setups.
 
-## After installation
+Always back up important files before changing disk partitions.
 
-Recommended checks:
+## Graphics notes
 
-```bash
-cat /etc/os-release
-zramctl
-swapon --show
-sysctl vm.swappiness
-flatpak list
-wine --version
-dpkg --print-foreign-architectures
-```
+Puresteel includes support for Intel, AMD and NVIDIA systems.
 
-On systems with NVIDIA hardware:
+### Intel
+
+Intel integrated graphics and newer Intel discrete graphics use the Linux kernel/Mesa graphics stack together with Intel firmware packages.
+
+### AMD
+
+AMD APUs and discrete Radeon GPUs use the Linux kernel/Mesa stack, primarily through the `amdgpu` driver on supported hardware.
+
+### NVIDIA
+
+Puresteel includes Debian's proprietary NVIDIA driver stack and related hybrid-graphics components.
+
+After booting or installing on NVIDIA hardware, you can verify the driver with:
 
 ```bash
 nvidia-smi
 ```
 
-For hybrid-GPU offload:
+For detailed graphics diagnostics, open **Puresteel Center → Drivers**.
+
+## After installation
+
+Useful checks:
 
 ```bash
-puresteel-nvidia-run <application>
+cat /etc/os-release
+uname -r
+zramctl
+swapon --show
+sysctl vm.swappiness
+flatpak list
+dpkg --print-foreign-architectures
 ```
 
-Example:
+Check the Puresteel APT repository:
 
 ```bash
-puresteel-nvidia-run glxinfo
+cat /etc/apt/sources.list.d/puresteel.sources
+sudo apt update
 ```
 
-## RC1 note
+Puresteel-owned packages, including Puresteel Center, can then be updated through normal APT upgrades.
 
-This is a release candidate. Back up important data before installing on production hardware.
+```bash
+sudo apt full-upgrade
+```
+
+## Puresteel Center
+
+Puresteel Center provides a graphical interface for:
+
+- updates
+- applications
+- graphics/driver status
+- software sources
+- backups
+- system reports
+
+See [PURESTEEL_CENTER.md](PURESTEEL_CENTER.md).
+
+## Troubleshooting
+
+If the system does not behave as expected, see [TROUBLESHOOTING.md](TROUBLESHOOTING.md).
+
+For pre-release images, real-hardware testing is strongly recommended before relying on Puresteel for critical work.
