@@ -31,5 +31,9 @@ cinnamon-core
 cinnamon-l10n
 lightdm
 slick-greeter
+gnome-terminal
+nemo
+gnome-themes-extra
+gvfs-fuse
 xdg-desktop-portal-xapp
 dconf-cli
