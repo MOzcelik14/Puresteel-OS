@@ -16,13 +16,25 @@ Puresteel is an independent Debian 13 (Trixie) based Linux distribution built ar
 
 ## Build the ISO with one command
 
+### Linux
+
 On a Debian, Ubuntu or Linux Mint style host:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/MOzcelik14/Puresteel-OS/main/bootstrap.sh | bash
 ```
 
-The bootstrap script installs the required host tools, fetches the stable Puresteel source, builds the hybrid ISO and writes the ISO plus its SHA256 checksum to the directory where the command was started.
+### Windows 10 / 11
+
+Run this in PowerShell:
+
+```powershell
+irm https://raw.githubusercontent.com/MOzcelik14/Puresteel-OS/main/windows-build.ps1 | iex
+```
+
+The Windows builder uses WSL2 and a Debian/Ubuntu environment automatically. If WSL is not installed yet, the first run starts the Windows WSL/Debian setup. Windows may ask for one restart or for initial Linux-user setup; afterwards, running the same command again continues the Puresteel build. The final ISO and SHA256 file are copied to the Windows folder where PowerShell was opened.
+
+The Linux bootstrap script installs the required host tools, fetches the stable Puresteel source, builds the hybrid ISO and writes the ISO plus its SHA256 checksum to the directory where the command was started.
 
 For manual and development builds, see [docs/BUILD.md](docs/BUILD.md).
 
