@@ -1,0 +1,10 @@
+intel-microcode
+amd64-microcode
+firmware-intel-graphics
+firmware-intel-misc
+firmware-amd-graphics
+intel-media-va-driver-non-free
+mesa-vulkan-drivers
+mesa-va-drivers
+libgl1-mesa-dri
+xserver-xorg-video-amdgpu

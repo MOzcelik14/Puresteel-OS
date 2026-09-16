@@ -1,0 +1,43 @@
+\
+QMainWindow,QWidget#Root{background:#0a1422;color:#eaf2fa;font-family:"Inter","Noto Sans",sans-serif;font-size:14px}
+QFrame#Sidebar{background:#061326;border-right:1px solid #17324d}
+QLabel#BrandText{background:transparent;color:#f7fbff;font-size:18px;font-weight:800}
+QListWidget#Navigation{background:transparent;color:#adc2d5;border:none;outline:none}
+QListWidget#Navigation::item{background:transparent;border-radius:9px;padding-left:14px;margin:1px}
+QListWidget#Navigation::item:hover{background:#102a46;color:#fff}
+QListWidget#Navigation::item:selected{background:#edf5fc;color:#071326;font-weight:800}
+QFrame#LanguageBox{background:#0b2038;border:1px solid #173957;border-radius:11px}
+QLabel#SidebarCaption{background:transparent;color:#7e9ab4;font-size:11px;font-weight:700}
+QPushButton#LanguageButton{background:#102c49;color:#9fb8cf;border:1px solid #1c456b;border-radius:7px;padding:7px;font-weight:800}
+QPushButton#LanguageButton:checked{background:#edf5fc;color:#071326;border-color:#edf5fc}
+QLabel#VersionLabel{background:transparent;color:#627e98;font-size:11px}
+QStackedWidget#Pages,QWidget#ContentPage{background:#0a1422}
+QFrame#HeroPanel{background:#0e1d2e;border:1px solid #1a3551;border-radius:18px}
+QLabel#Eyebrow{background:transparent;color:#6fa6da;font-size:11px;font-weight:800}
+QLabel#PageTitle{background:transparent;color:#f8fbfe;font-size:34px;font-weight:800}
+QLabel#Lead{background:transparent;color:#9fb3c6;font-size:15px}
+QLabel#HeroLogo{background:transparent}
+QFrame#Card{background:#0e1d2e;border:1px solid #1a3551;border-radius:14px}
+QFrame#Card:hover{background:#11243a;border-color:#315c85}
+QLabel#CardNumber{background:transparent;color:#5f9cd7;font-size:11px;font-weight:800}
+QLabel#CardTitle{background:transparent;color:#f1f6fb;font-size:17px;font-weight:800}
+QLabel#CardText{background:transparent;color:#91a8bd}
+QPushButton#PrimaryButton{background:#dcecf9;color:#071326;border:none;border-radius:9px;padding:10px 16px;font-weight:800}
+QPushButton#PrimaryButton:hover{background:#fff}
+QPushButton#SecondaryButton{background:#102c49;color:#d9e8f5;border:1px solid #24557f;border-radius:9px;padding:10px 16px;font-weight:700}
+QPushButton#SecondaryButton:hover{background:#173957}
+QLabel#StatusLabel{background:transparent;color:#86a5c0}
+QFrame#Notice{background:#0c2035;border:1px solid #1c456b;border-radius:11px}
+QFrame#Notice QLabel{background:transparent;color:#a8bfd4}
+QListWidget#DataList,QListWidget#UpdateList,QTextEdit#ReportText,QTextEdit,QTableWidget#DataTable,QTabWidget::pane{
+ background:#0c1928;color:#d9e6f1;border:1px solid #1a3551;border-radius:12px;outline:none}
+QListWidget#DataList::item,QListWidget#UpdateList::item{min-height:28px;padding-left:6px}
+QTableWidget#DataTable{gridline-color:#18324d;selection-background-color:#173957}
+QHeaderView::section{background:#10243a;color:#cfe0ef;border:none;border-right:1px solid #18324d;padding:8px;font-weight:700}
+QLineEdit,QComboBox{background:#0c1928;color:#e8f1f8;border:1px solid #23445f;border-radius:8px;padding:8px;selection-background-color:#2e6a9e}
+QCheckBox{color:#d6e4ef;spacing:8px}
+QTabBar::tab{background:#0c1928;color:#91abc0;border:1px solid #1a3551;padding:9px 16px}
+QTabBar::tab:selected{background:#173957;color:#fff}
+QScrollBar:vertical{background:#0a1422;width:10px}
+QScrollBar::handle:vertical{background:#294968;min-height:30px;border-radius:5px}
+QScrollBar::add-line:vertical,QScrollBar::sub-line:vertical{height:0}

@@ -1,0 +1,3 @@
+#!/bin/sh
+cd /usr/share/puresteel-center
+exec python3 /usr/share/puresteel-center/main.py "$@"

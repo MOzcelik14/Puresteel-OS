@@ -1,0 +1,42 @@
+#!/usr/bin/env python3
+import os, re, subprocess, sys
+
+def run(cmd):
+    print("+", " ".join(cmd), flush=True)
+    return subprocess.call(cmd)
+
+def safe_pkg(value):
+    return bool(re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9+._:-]*", value))
+
+def main():
+    if os.geteuid() != 0:
+        print("This helper must run as root.", file=sys.stderr); return 1
+    if len(sys.argv) < 2:
+        print("Missing action", file=sys.stderr); return 2
+    action=sys.argv[1]
+    if action=="apt-upgrade":
+        if run(["apt-get","update"]) != 0:return 1
+        return run(["apt-get","full-upgrade","-y"])
+    if action in ("apt-install","apt-remove"):
+        if len(sys.argv)!=3 or not safe_pkg(sys.argv[2]):
+            print("Invalid package name",file=sys.stderr);return 2
+        op="install" if action=="apt-install" else "remove"
+        return run(["apt-get",op,"-y",sys.argv[2]])
+    if action=="nvidia-reinstall":
+        if run(["apt-get","update"]) != 0:return 1
+        return run(["apt-get","install","--reinstall","-y","nvidia-driver","nvidia-settings","switcheroo-control"])
+    if action=="graphics-repair-intel":
+        if run(["apt-get","update"]) != 0:return 1
+        return run(["apt-get","install","--reinstall","-y",
+                    "firmware-intel-graphics","firmware-intel-misc",
+                    "intel-media-va-driver-non-free","mesa-vulkan-drivers",
+                    "mesa-va-drivers","libvulkan1"]) 
+    if action=="graphics-repair-amd":
+        if run(["apt-get","update"]) != 0:return 1
+        return run(["apt-get","install","--reinstall","-y",
+                    "firmware-amd-graphics","mesa-vulkan-drivers",
+                    "mesa-va-drivers","libvulkan1","xserver-xorg-video-amdgpu"])
+    print("Unknown action",file=sys.stderr);return 2
+
+if __name__=="__main__":
+    raise SystemExit(main())

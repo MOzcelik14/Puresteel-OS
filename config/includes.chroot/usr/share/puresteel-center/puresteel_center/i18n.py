@@ -1,0 +1,131 @@
+\
+TRANSLATIONS = {
+    "tr": {
+        "app_title":"Puresteel Center",
+        "home":"Ana Sayfa","updates":"Güncellemeler","applications":"Uygulamalar",
+        "drivers":"Sürücüler","sources":"Yazılım Kaynakları","backup":"Yedekleme",
+        "reports":"Sistem Raporları","about":"Hakkında","language":"Dil",
+        "version":"Puresteel Center 0.9",
+
+        "welcome_kicker":"PURESTEEL",
+        "welcome_title":"Puresteel'e hoş geldin",
+        "welcome_subtitle":"Güncelleme, uygulama, sürücü, kaynak, yedek ve sistem raporlarını tek yerden yönet.",
+        "quick_updates":"Güncellemeleri denetle","quick_drivers":"Sürücü durumunu aç",
+        "home_updates":"Güncellemeler","home_updates_text":"APT ve Flatpak güncellemelerini denetle ve kur.",
+        "home_apps":"Uygulamalar","home_apps_text":"APT ve Flatpak yazılımlarını ara, kur veya kaldır.",
+        "home_drivers":"Sürücüler","home_drivers_text":"NVIDIA, DKMS, nouveau ve hibrit grafik durumunu izle.",
+        "home_reports":"Raporlar","home_reports_text":"Servis, günlük, disk ve donanım durumunu incele.",
+
+        "updates_title":"Güncellemeler","updates_intro":"APT ve Flatpak güncellemelerini tek ekranda yönet.",
+        "check_now":"Şimdi denetle","install_all":"Tümünü kur","refresh":"Yenile",
+        "checking":"Güncellemeler denetleniyor…","installing":"Güncellemeler kuruluyor…",
+        "apt_updates":"APT güncellemeleri","flatpak_updates":"Flatpak güncellemeleri",
+        "up_to_date":"✓ Sistem güncel.","updates_found":"{count} güncelleme bulundu.",
+        "updates_note":"Sistem paketi kurulumu Polkit/pkexec ile yetki yükselterek çalışır.",
+
+        "apps_title":"Uygulamalar","apps_intro":"APT ve Flatpak kataloglarında uygulama ara.",
+        "search":"Ara","search_placeholder":"Örn. blender, kdenlive, inkscape…",
+        "source":"Kaynak","package":"Paket","install":"Kur","remove":"Kaldır",
+        "no_results":"Sonuç bulunamadı.","installed":"Kurulu","not_installed":"Kurulu değil",
+
+        "drivers_title":"Sürücüler","drivers_intro":"GPU ve kernel sürücülerinin durumunu denetle.",
+        "gpu":"GPU","nvidia_driver":"NVIDIA sürücüsü","kernel_module":"Kernel modülü",
+        "dkms":"DKMS","hybrid":"Hibrit grafik","nouveau":"Nouveau",
+        "firmware":"Firmware","active":"Etkin","inactive":"Etkin değil",
+        "loaded":"Yüklü","not_loaded":"Yüklü değil","disabled":"Devre dışı","enabled":"Etkin",
+        "reinstall_nvidia":"NVIDIA sürücüsünü yeniden kur","driver_refresh":"Durumu yenile",
+        "driver_action_note":"Sürücü kurulumu root yetkisi gerektirir ve Polkit ile onay ister.",
+        "gpu_vendor":"Üretici","gpu_model":"Model","gpu_driver":"Kernel sürücüsü","graphics_stack":"Grafik yığını",
+        "repair_intel":"Intel grafik yığınını onar","repair_amd":"AMD grafik yığınını onar","repair_nvidia":"NVIDIA grafik yığınını onar",
+        "vulkan":"Vulkan","vaapi":"VA-API","detected_gpus":"Algılanan GPU'lar",
+
+        "sources_title":"Yazılım Kaynakları","sources_intro":"APT kaynaklarını ve Flatpak remote'larını görüntüle.",
+        "apt_sources":"APT kaynakları","flatpak_remotes":"Flatpak remote'ları",
+        "add_flatpak":"Flatpak remote ekle","remote_name":"Ad","remote_url":"URL",
+        "add":"Ekle","remove_selected":"Seçileni kaldır",
+        "sources_note":"Puresteel Center sistem APT dosyalarını burada salt-okunur gösterir; yanlış repo düzenlemelerini önlemek için doğrudan silmez.",
+
+        "backup_title":"Yedekleme","backup_intro":"Kişisel dosyaları ve sistem bilgilerini arşivle.",
+        "backup_documents":"Belgeler","backup_pictures":"Resimler","backup_music":"Müzik",
+        "backup_config":"Kullanıcı ayarları (.config)","backup_packages":"Paket listeleri",
+        "choose_folder":"Hedef klasör","browse":"Gözat","create_backup":"Yedek oluştur",
+        "backup_done":"Yedek oluşturuldu: {path}","backup_error":"Yedekleme hatası: {error}",
+
+        "reports_title":"Sistem Raporları","reports_intro":"Sistem sağlığı ve hata ayıklama bilgilerini topla.",
+        "generate_report":"Rapor oluştur","save_report":"Raporu kaydet",
+        "report_ready":"Rapor hazır.","report_sections":"Kernel, disk, bellek, GPU, başarısız servisler ve journal hataları toplanır.",
+
+        "about_title":"Puresteel hakkında",
+        "about_text":"Puresteel, Debian tabanı üzerinde KDE Plasma kullanan bağımsız bir Linux dağıtımıdır.",
+        "about_center":"Puresteel Center; Mint araçlarının tek tek sunduğu temel yönetim işlevlerini Puresteel için tek uygulamada birleştirmeyi amaçlar.",
+        "github":"GitHub deposu",
+        "status_ok":"Tamam","status_warn":"Uyarı","status_missing":"Bulunamadı",
+        "operation_failed":"İşlem başarısız","operation_done":"İşlem tamamlandı",
+    },
+    "en": {
+        "app_title":"Puresteel Center",
+        "home":"Home","updates":"Updates","applications":"Applications",
+        "drivers":"Drivers","sources":"Sources","backup":"Backup",
+        "reports":"System Reports","about":"About","language":"Language",
+        "version":"Puresteel Center 0.9",
+
+        "welcome_kicker":"PURESTEEL",
+        "welcome_title":"Welcome to Puresteel",
+        "welcome_subtitle":"Manage updates, applications, drivers, sources, backups and system reports from one place.",
+        "quick_updates":"Check updates","quick_drivers":"Open driver status",
+        "home_updates":"Updates","home_updates_text":"Check and install APT and Flatpak updates.",
+        "home_apps":"Applications","home_apps_text":"Search, install or remove APT and Flatpak software.",
+        "home_drivers":"Drivers","home_drivers_text":"Inspect NVIDIA, DKMS, nouveau and hybrid graphics state.",
+        "home_reports":"Reports","home_reports_text":"Inspect services, logs, storage and hardware status.",
+
+        "updates_title":"Updates","updates_intro":"Manage APT and Flatpak updates from one screen.",
+        "check_now":"Check now","install_all":"Install all","refresh":"Refresh",
+        "checking":"Checking for updates…","installing":"Installing updates…",
+        "apt_updates":"APT updates","flatpak_updates":"Flatpak updates",
+        "up_to_date":"✓ System is up to date.","updates_found":"{count} update(s) found.",
+        "updates_note":"System package installation elevates through Polkit/pkexec.",
+
+        "apps_title":"Applications","apps_intro":"Search the APT and Flatpak catalogs.",
+        "search":"Search","search_placeholder":"e.g. blender, kdenlive, inkscape…",
+        "source":"Source","package":"Package","install":"Install","remove":"Remove",
+        "no_results":"No results found.","installed":"Installed","not_installed":"Not installed",
+
+        "drivers_title":"Drivers","drivers_intro":"Inspect GPU and kernel driver state.",
+        "gpu":"GPU","nvidia_driver":"NVIDIA driver","kernel_module":"Kernel module",
+        "dkms":"DKMS","hybrid":"Hybrid graphics","nouveau":"Nouveau",
+        "firmware":"Firmware","active":"Active","inactive":"Inactive",
+        "loaded":"Loaded","not_loaded":"Not loaded","disabled":"Disabled","enabled":"Enabled",
+        "reinstall_nvidia":"Reinstall NVIDIA driver","driver_refresh":"Refresh status",
+        "driver_action_note":"Driver installation requires root privileges and asks for approval via Polkit.",
+        "gpu_vendor":"Vendor","gpu_model":"Model","gpu_driver":"Kernel driver","graphics_stack":"Graphics stack",
+        "repair_intel":"Repair Intel graphics stack","repair_amd":"Repair AMD graphics stack","repair_nvidia":"Repair NVIDIA graphics stack",
+        "vulkan":"Vulkan","vaapi":"VA-API","detected_gpus":"Detected GPUs",
+
+        "sources_title":"Software Sources","sources_intro":"View APT sources and manage Flatpak remotes.",
+        "apt_sources":"APT sources","flatpak_remotes":"Flatpak remotes",
+        "add_flatpak":"Add Flatpak remote","remote_name":"Name","remote_url":"URL",
+        "add":"Add","remove_selected":"Remove selected",
+        "sources_note":"Puresteel Center shows system APT files read-only here to avoid unsafe repository edits.",
+
+        "backup_title":"Backup","backup_intro":"Archive personal files and system information.",
+        "backup_documents":"Documents","backup_pictures":"Pictures","backup_music":"Music",
+        "backup_config":"User settings (.config)","backup_packages":"Package lists",
+        "choose_folder":"Destination folder","browse":"Browse","create_backup":"Create backup",
+        "backup_done":"Backup created: {path}","backup_error":"Backup error: {error}",
+
+        "reports_title":"System Reports","reports_intro":"Collect system health and troubleshooting information.",
+        "generate_report":"Generate report","save_report":"Save report",
+        "report_ready":"Report ready.","report_sections":"Collects kernel, disk, memory, GPU, failed services and journal errors.",
+
+        "about_title":"About Puresteel",
+        "about_text":"Puresteel is an independent Debian-based Linux distribution using KDE Plasma.",
+        "about_center":"Puresteel Center aims to combine the core management jobs commonly split across Mint utilities into a single Puresteel application.",
+        "github":"GitHub repository",
+        "status_ok":"OK","status_warn":"Warning","status_missing":"Missing",
+        "operation_failed":"Operation failed","operation_done":"Operation completed",
+    }
+}
+
+def t(lang, key, **kwargs):
+    value = TRANSLATIONS.get(lang, TRANSLATIONS["en"]).get(key, key)
+    return value.format(**kwargs) if kwargs else value

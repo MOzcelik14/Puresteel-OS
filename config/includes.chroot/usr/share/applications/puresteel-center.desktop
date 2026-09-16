@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=Puresteel Center
+Name[tr]=Puresteel Center
+Comment=Manage Puresteel
+Comment[tr]=Puresteel sistemini yönet
+Exec=puresteel-center
+Icon=puresteel
+Terminal=false
+Categories=System;Settings;
+StartupNotify=true
