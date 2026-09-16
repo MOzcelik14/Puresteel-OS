@@ -16,13 +16,25 @@ Puresteel; KDE Plasma merkezli, Debian 13 (Trixie) tabanlı bağımsız bir Linu
 
 ## ISO'yu tek komutla oluştur
 
+### Linux
+
 Debian, Ubuntu veya Linux Mint benzeri APT tabanlı bir sistemde:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/MOzcelik14/Puresteel-OS/main/bootstrap.sh | bash
 ```
 
-Bootstrap betiği gerekli host araçlarını kurar, kararlı Puresteel kaynağını indirir, hybrid ISO'yu oluşturur ve ISO ile SHA256 dosyasını komutun çalıştırıldığı dizine bırakır.
+### Windows 10 / 11
+
+PowerShell'de şunu çalıştır:
+
+```powershell
+irm https://raw.githubusercontent.com/MOzcelik14/Puresteel-OS/main/windows-build.ps1 | iex
+```
+
+Windows betiği WSL2 ve Debian/Ubuntu ortamını otomatik kullanır. WSL kurulu değilse ilk çalıştırma Windows'un WSL/Debian kurulumunu başlatır. Windows bir kez yeniden başlatma veya ilk Linux kullanıcısını oluşturma isteyebilir; sonrasında aynı komutu tekrar çalıştırman yeterlidir. Oluşan ISO ve SHA256 dosyası PowerShell'i açtığın Windows klasörüne kopyalanır.
+
+Linux bootstrap betiği gerekli host araçlarını kurar, kararlı Puresteel kaynağını indirir, hybrid ISO'yu oluşturur ve ISO ile SHA256 dosyasını komutun çalıştırıldığı dizine bırakır.
 
 Elle veya geliştirme amaçlı build için [docs/BUILD.md](docs/BUILD.md) belgesine bakabilirsiniz.
 
