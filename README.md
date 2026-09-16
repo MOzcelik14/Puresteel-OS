@@ -10,9 +10,9 @@
 
 ---
 
-Puresteel is an independent Debian 13 (Trixie) based Linux distribution focused on a clean desktop, gaming and creator tooling, broad graphics support, a graphical installer, and Puresteel's own system-management and update infrastructure. The current development line uses **Cinnamon with LightDM and Slick Greeter**.
+Puresteel is an independent Debian 13 (Trixie) based Linux distribution focused on a clean desktop, gaming and creator tooling, broad graphics support, a graphical installer, and Puresteel's own system-management and update infrastructure.
 
-**Current stable release: Puresteel 1.0 "Burak" (KDE Plasma).** The next development release is migrating the desktop to Cinnamon.
+The current Puresteel desktop stack is **Cinnamon + LightDM + Slick Greeter on X11**.
 
 ## Build the ISO with one command
 
@@ -32,9 +32,7 @@ Run this in PowerShell:
 irm https://raw.githubusercontent.com/MOzcelik14/Puresteel-OS/main/windows-build.ps1 | iex
 ```
 
-The Windows builder uses WSL2 and a Debian/Ubuntu environment automatically. If WSL is not installed yet, the first run starts the Windows WSL/Debian setup. Windows may ask for one restart or for initial Linux-user setup; afterwards, running the same command again continues the Puresteel build. The final ISO and SHA256 file are copied to the Windows folder where PowerShell was opened.
-
-The Linux bootstrap script installs the required host tools, fetches the stable Puresteel source, builds the hybrid ISO and writes the ISO plus its SHA256 checksum to the directory where the command was started.
+The Windows builder uses WSL2 and a Debian/Ubuntu environment automatically. If WSL is not installed yet, the first run starts the Windows WSL/Debian setup. Windows may ask for one restart or initial Linux-user setup; afterwards, run the same command again.
 
 For manual and development builds, see [docs/BUILD.md](docs/BUILD.md).
 
@@ -43,8 +41,8 @@ For manual and development builds, see [docs/BUILD.md](docs/BUILD.md).
 | | |
 |---|---|
 | **Base** | Debian 13 (Trixie) |
-| **Architecture** | amd64 + i386 multiarch for compatibility |
-| **Desktop** | Cinnamon / LightDM / Slick Greeter on the development line; stable 1.0 uses KDE Plasma / SDDM |
+| **Architecture** | amd64 + i386 multiarch |
+| **Desktop** | Cinnamon / LightDM / Slick Greeter / X11 |
 | **Installer** | Calamares |
 | **Init** | systemd |
 | **Graphics** | Intel, AMD and NVIDIA; hybrid-GPU support |
@@ -54,35 +52,18 @@ For manual and development builds, see [docs/BUILD.md](docs/BUILD.md).
 
 ## Puresteel Center
 
-Puresteel ships its own Qt 6 / PySide6 system management application. It brings everyday administration tasks into one interface:
-
-| Module | Purpose |
-|---|---|
-| **Updates** | Check and install APT and Flatpak updates through Polkit-protected actions |
-| **Applications** | Search, install and remove APT and Flatpak software |
-| **Drivers** | Inspect Intel, AMD and NVIDIA GPUs, kernel drivers, firmware, DKMS, Vulkan and VA-API |
-| **Sources** | Inspect APT sources and manage Flatpak remotes |
-| **Backup** | Back up user data, settings and package lists |
-| **System Reports** | Collect kernel, disk, memory, GPU, service and journal diagnostics |
-
-Puresteel Center supports Turkish and English and is packaged independently so it can be updated without rebuilding the ISO.
+Puresteel ships its own Qt 6 / PySide6 system management application with modules for updates, applications, drivers, sources, backup and system reports. Turkish and English interfaces are supported.
 
 [Puresteel Center documentation →](docs/PURESTEEL_CENTER.md)
 
-## Package updates
-
-Puresteel-owned packages are distributed through a signed APT repository hosted with GitHub Pages. The ISO bundles the current Puresteel packages locally; installed systems receive newer Puresteel packages through normal APT updates.
-
-[Update and repository documentation →](docs/UPDATES.md)
-
 ## Graphics support
 
-- **Intel** — integrated graphics and Arc-class discrete graphics through the Linux/Mesa stack
+- **Intel** — integrated graphics and Arc-class discrete graphics through Linux/Mesa
 - **AMD** — integrated and discrete Radeon graphics through `amdgpu` / Mesa
 - **NVIDIA** — Debian proprietary driver stack, DKMS, Vulkan and hybrid graphics integration
-- **Hybrid systems** — Intel + NVIDIA, AMD + NVIDIA and other multi-GPU layouts supported by the underlying Linux stack
+- **Hybrid systems** — Intel + NVIDIA, AMD + NVIDIA and other multi-GPU layouts supported by the Linux graphics stack
 
-The 1.0 live image has been validated on an Intel + NVIDIA laptop with an RTX 3050, including successful `nvidia-smi` operation in the live environment.
+The Cinnamon live environment has been validated on an Intel + NVIDIA laptop with an RTX 3050, including successful `nvidia-smi` operation.
 
 [Hardware documentation →](docs/HARDWARE.md)
 
@@ -96,7 +77,7 @@ Puresteel includes Fish, Starship, Fastfetch, btop, htop, Git, curl, wget, Vim, 
 
 ## Desktop and branding
 
-The development line uses Cinnamon on X11 with LightDM/Slick Greeter, Puresteel wallpaper defaults, the Puresteel application-menu icon, and Puresteel GRUB, Plymouth, icon and Calamares branding. Stable 1.0 remains the released KDE Plasma/SDDM build.
+Puresteel uses Cinnamon on X11 with LightDM/Slick Greeter, Puresteel wallpaper defaults, the Puresteel application-menu icon, and Puresteel GRUB, Plymouth, icon and Calamares branding. System language switching is available through Puresteel Language Settings.
 
 ## Installation
 
@@ -116,9 +97,9 @@ Write the generated hybrid ISO to a USB drive, boot the Puresteel live environme
 - [Changelog](CHANGELOG.md)
 - [Release notes](RELEASE_NOTES.md)
 
-## Release status
+## Release history
 
-Puresteel 1.0 "Burak" is the first stable release and remains reproducible from the `v1.0.0` tag. Development after 1.0 is moving the desktop from KDE Plasma to Cinnamon; the Cinnamon line should be treated as development until its own release is published.
+The published `v1.0.0` tag is preserved as the original Puresteel 1.0 "Burak" release. Current development on `main` uses Cinnamon and does not rewrite that historical release.
 
 ## Licensing
 
