@@ -10,9 +10,9 @@
 
 ---
 
-Puresteel; temiz bir masaüstü deneyimi, oyun ve içerik üretimi araçları, geniş ekran kartı desteği, grafiksel kurulum aracı ve kendi sistem yönetimi/güncelleme altyapısına odaklanan Debian 13 (Trixie) tabanlı bağımsız bir Linux dağıtımıdır. Güncel geliştirme hattı **Cinnamon + LightDM + Slick Greeter** kullanır.
+Puresteel; temiz bir masaüstü deneyimi, oyun ve içerik üretimi araçları, geniş ekran kartı desteği, grafiksel kurulum aracı ve kendi sistem yönetimi/güncelleme altyapısına odaklanan Debian 13 (Trixie) tabanlı bağımsız bir Linux dağıtımıdır.
 
-**Mevcut kararlı sürüm: Puresteel 1.0 "Burak" (KDE Plasma).** Bir sonraki geliştirme sürümünde masaüstü Cinnamon'a taşınmaktadır.
+Puresteel'in güncel masaüstü yığını **Cinnamon + LightDM + Slick Greeter + X11** şeklindedir.
 
 ## ISO'yu tek komutla oluştur
 
@@ -32,9 +32,7 @@ PowerShell'de şunu çalıştır:
 irm https://raw.githubusercontent.com/MOzcelik14/Puresteel-OS/main/windows-build.ps1 | iex
 ```
 
-Windows betiği WSL2 ve Debian/Ubuntu ortamını otomatik kullanır. WSL kurulu değilse ilk çalıştırma Windows'un WSL/Debian kurulumunu başlatır. Windows bir kez yeniden başlatma veya ilk Linux kullanıcısını oluşturma isteyebilir; sonrasında aynı komutu tekrar çalıştırman yeterlidir. Oluşan ISO ve SHA256 dosyası PowerShell'i açtığın Windows klasörüne kopyalanır.
-
-Linux bootstrap betiği gerekli host araçlarını kurar, kararlı Puresteel kaynağını indirir, hybrid ISO'yu oluşturur ve ISO ile SHA256 dosyasını komutun çalıştırıldığı dizine bırakır.
+Windows betiği WSL2 ve Debian/Ubuntu ortamını otomatik kullanır. WSL kurulu değilse ilk çalıştırma Windows'un WSL/Debian kurulumunu başlatır. Windows bir kez yeniden başlatma veya ilk Linux kullanıcısını oluşturma isteyebilir; sonrasında aynı komutu tekrar çalıştırmanız yeterlidir.
 
 Elle veya geliştirme amaçlı build için [docs/BUILD.md](docs/BUILD.md) belgesine bakabilirsiniz.
 
@@ -43,8 +41,8 @@ Elle veya geliştirme amaçlı build için [docs/BUILD.md](docs/BUILD.md) belges
 | | |
 |---|---|
 | **Taban** | Debian 13 (Trixie) |
-| **Mimari** | amd64 + uyumluluk için i386 multiarch |
-| **Masaüstü** | Geliştirme hattında Cinnamon / LightDM / Slick Greeter; kararlı 1.0'da KDE Plasma / SDDM |
+| **Mimari** | amd64 + i386 multiarch |
+| **Masaüstü** | Cinnamon / LightDM / Slick Greeter / X11 |
 | **Kurulum** | Calamares |
 | **Init** | systemd |
 | **Grafik** | Intel, AMD ve NVIDIA; hibrit GPU desteği |
@@ -54,35 +52,18 @@ Elle veya geliştirme amaçlı build için [docs/BUILD.md](docs/BUILD.md) belges
 
 ## Puresteel Center
 
-Puresteel kendi Qt 6 / PySide6 sistem yönetim uygulamasıyla gelir. Günlük yönetim işlerini tek arayüzde toplar:
-
-| Modül | İşlev |
-|---|---|
-| **Güncellemeler** | APT ve Flatpak güncellemelerini kontrol eder ve Polkit korumalı işlemlerle kurar |
-| **Uygulamalar** | APT ve Flatpak yazılımlarını arar, kurar ve kaldırır |
-| **Sürücüler** | Intel, AMD ve NVIDIA GPU'ları; kernel sürücülerini, firmware, DKMS, Vulkan ve VA-API durumunu gösterir |
-| **Kaynaklar** | APT kaynaklarını gösterir, Flatpak remote'larını yönetir |
-| **Yedekleme** | Kullanıcı verilerini, ayarları ve paket listelerini yedekler |
-| **Sistem Raporları** | Kernel, disk, bellek, GPU, servis ve journal tanılama bilgilerini toplar |
-
-Puresteel Center Türkçe ve İngilizce arayüz sunar ve ISO'dan bağımsız güncellenebilmesi için ayrı bir Debian paketi olarak dağıtılır.
+Puresteel kendi Qt 6 / PySide6 sistem yönetim uygulamasıyla gelir. Güncellemeler, uygulamalar, sürücüler, kaynaklar, yedekleme ve sistem raporlarını tek arayüzde toplar. Türkçe ve İngilizce arayüz desteklenir.
 
 [Puresteel Center dokümantasyonu →](docs/PURESTEEL_CENTER.md)
 
-## Paket güncellemeleri
-
-Puresteel'e ait paketler GitHub Pages üzerinde yayınlanan imzalı APT deposundan dağıtılır. ISO, o anki Puresteel paketlerini yerel olarak içerir; kurulu sistemler sonraki sürümleri normal APT güncellemeleriyle alır.
-
-[Güncelleme ve depo dokümantasyonu →](docs/UPDATES.md)
-
 ## Grafik desteği
 
-- **Intel** — Linux/Mesa yığını üzerinden entegre grafikler ve Arc sınıfı harici kartlar
+- **Intel** — Linux/Mesa üzerinden entegre grafikler ve Arc sınıfı harici kartlar
 - **AMD** — `amdgpu` / Mesa üzerinden entegre ve harici Radeon GPU'lar
-- **NVIDIA** — Debian proprietary sürücü yığını, DKMS, Vulkan ve hibrit grafik desteği
+- **NVIDIA** — Debian proprietary sürücü yığını, DKMS, Vulkan ve hibrit grafik entegrasyonu
 - **Hibrit sistemler** — Intel + NVIDIA, AMD + NVIDIA ve Linux grafik yığınının desteklediği diğer çoklu GPU düzenleri
 
-1.0 live imajı Intel + NVIDIA hibrit bir dizüstünde RTX 3050 ile test edilmiştir; live ortamda `nvidia-smi` başarılı şekilde çalışmıştır.
+Cinnamon live ortamı Intel + NVIDIA hibrit bir dizüstünde RTX 3050 ile test edilmiştir; `nvidia-smi` başarılı şekilde çalışmıştır.
 
 [Donanım dokümantasyonu →](docs/HARDWARE.md)
 
@@ -96,7 +77,7 @@ Puresteel; Fish, Starship, Fastfetch, btop, htop, Git, curl, wget, Vim, Nano, fz
 
 ## Masaüstü ve branding
 
-Geliştirme hattı X11 üzerinde Cinnamon, LightDM/Slick Greeter, Puresteel duvar kağıdı varsayılanları, Puresteel uygulama menüsü ikonu ve Puresteel'e ait GRUB, Plymouth, ikon ve Calamares branding'ini kullanır. Kararlı 1.0 ise yayınlanmış KDE Plasma/SDDM sürümü olarak kalır.
+Puresteel X11 üzerinde Cinnamon, LightDM/Slick Greeter, Puresteel duvar kağıdı varsayılanları, Puresteel uygulama menüsü ikonu ve Puresteel'e ait GRUB, Plymouth, ikon ve Calamares branding'ini kullanır. Sistem dili Puresteel Language Settings üzerinden değiştirilebilir.
 
 ## Kurulum
 
@@ -116,9 +97,9 @@ Oluşturulan hybrid ISO'yu USB belleğe yazın, UEFI modunda Puresteel live orta
 - [Değişiklik günlüğü](CHANGELOG.md)
 - [Sürüm notları](RELEASE_NOTES.md)
 
-## Sürüm durumu
+## Sürüm geçmişi
 
-Puresteel 1.0 "Burak" ilk kararlı sürümdür ve `v1.0.0` etiketi üzerinden yeniden üretilebilir. 1.0 sonrasındaki geliştirme hattında masaüstü KDE Plasma'dan Cinnamon'a taşınmaktadır; Cinnamon hattı kendi kararlı sürümü yayınlanana kadar geliştirme sürümü olarak değerlendirilmelidir.
+Yayınlanmış `v1.0.0` etiketi, ilk Puresteel 1.0 "Burak" sürümünün tarihsel kaydı olarak korunur. Güncel `main` hattı Cinnamon kullanır ve eski sürüm geçmişi yeniden yazılmaz.
 
 ## Lisanslama
 
