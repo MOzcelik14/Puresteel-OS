@@ -1,0 +1,5 @@
+#!/bin/sh
+set -e
+echo "[Puresteel] Configuring Plymouth..."
+plymouth-set-default-theme puresteel
+update-initramfs -u -k all

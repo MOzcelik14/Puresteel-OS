@@ -1,0 +1,15 @@
+#!/bin/sh
+set -e
+
+echo "[Puresteel] Preparing NVIDIA modules..."
+
+for module_dir in /lib/modules/*; do
+    [ -d "$module_dir" ] || continue
+    kernel="$(basename "$module_dir")"
+    echo "[Puresteel] depmod: $kernel"
+    depmod -a "$kernel"
+done
+
+update-initramfs -u -k all
+
+systemctl enable switcheroo-control.service 2>/dev/null || true

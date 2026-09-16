@@ -3,12 +3,7 @@ systemd-sysv
 live-config
 live-config-systemd
 
-gnome-core
-gnome-shell
-gnome-terminal
-gdm3
 network-manager
-network-manager-gnome
 
 sudo
 curl
@@ -30,3 +25,8 @@ usbutils
 lshw
 htop
 btop
+kde-plasma-desktop
+sddm
+plasma-nm
+konsole
+dolphin

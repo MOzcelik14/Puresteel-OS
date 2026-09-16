@@ -1,0 +1,13 @@
+#!/bin/sh
+set -e
+
+[ -e /var/lib/live/config/puresteel-user ] && exit 0
+
+if id puresteel >/dev/null 2>&1; then
+    usermod -s /usr/bin/fish puresteel
+    mkdir -p /home/puresteel/.config
+    cp -a /etc/skel/.config/. /home/puresteel/.config/
+    chown -R puresteel:puresteel /home/puresteel/.config
+fi
+
+touch /var/lib/live/config/puresteel-user

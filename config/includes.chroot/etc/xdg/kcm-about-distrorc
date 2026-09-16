@@ -1,0 +1,4 @@
+[General]
+LogoPath=/usr/share/pixmaps/puresteel-installer.png
+Version=1.0 (Burak)
+UseOSReleaseVersion=false

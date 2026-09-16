@@ -6,4 +6,4 @@ VERSION_CODENAME=trixie
 ID=puresteel
 ID_LIKE=debian
 PURESTEEL_CODENAME=burak
-LOGO=puresteel-logo
+LOGO=puresteel-installer

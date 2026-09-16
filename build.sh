@@ -8,7 +8,7 @@ echo "[Puresteel] Cleaning..."
 sudo lb clean
 
 echo "[Puresteel] Regenerating config..."
-lb config
+lb config --bootappend-live "boot=live components quiet splash username=puresteel hostname=puresteel"
 
 echo "[Puresteel] Restoring branding..."
 rm -f config/bootloaders/splash.svg
