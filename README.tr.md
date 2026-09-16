@@ -10,9 +10,9 @@
 
 ---
 
-Puresteel; KDE Plasma merkezli, Debian 13 (Trixie) tabanlı bağımsız bir Linux dağıtımıdır. Temiz bir masaüstü deneyimini; oyun, içerik üretimi, geniş ekran kartı desteği, grafiksel kurulum aracı ve Puresteel'e ait sistem yönetimi/güncelleme altyapısıyla birleştirir.
+Puresteel; temiz bir masaüstü deneyimi, oyun ve içerik üretimi araçları, geniş ekran kartı desteği, grafiksel kurulum aracı ve kendi sistem yönetimi/güncelleme altyapısına odaklanan Debian 13 (Trixie) tabanlı bağımsız bir Linux dağıtımıdır. Güncel geliştirme hattı **Cinnamon + LightDM + Slick Greeter** kullanır.
 
-**Mevcut kararlı sürüm: Puresteel 1.0 "Burak".**
+**Mevcut kararlı sürüm: Puresteel 1.0 "Burak" (KDE Plasma).** Bir sonraki geliştirme sürümünde masaüstü Cinnamon'a taşınmaktadır.
 
 ## ISO'yu tek komutla oluştur
 
@@ -44,7 +44,7 @@ Elle veya geliştirme amaçlı build için [docs/BUILD.md](docs/BUILD.md) belges
 |---|---|
 | **Taban** | Debian 13 (Trixie) |
 | **Mimari** | amd64 + uyumluluk için i386 multiarch |
-| **Masaüstü** | KDE Plasma / SDDM / Wayland |
+| **Masaüstü** | Geliştirme hattında Cinnamon / LightDM / Slick Greeter; kararlı 1.0'da KDE Plasma / SDDM |
 | **Kurulum** | Calamares |
 | **Init** | systemd |
 | **Grafik** | Intel, AMD ve NVIDIA; hibrit GPU desteği |
@@ -96,7 +96,7 @@ Puresteel; Fish, Starship, Fastfetch, btop, htop, Git, curl, wget, Vim, Nano, fz
 
 ## Masaüstü ve branding
 
-Puresteel kendi GRUB, Plymouth, SDDM, duvar kağıdı, ikon ve Calamares branding'ini kullanır; görsel sistem bilinçli olarak minimal tutulur.
+Geliştirme hattı X11 üzerinde Cinnamon, LightDM/Slick Greeter, Puresteel duvar kağıdı varsayılanları, Puresteel uygulama menüsü ikonu ve Puresteel'e ait GRUB, Plymouth, ikon ve Calamares branding'ini kullanır. Kararlı 1.0 ise yayınlanmış KDE Plasma/SDDM sürümü olarak kalır.
 
 ## Kurulum
 
@@ -118,7 +118,7 @@ Oluşturulan hybrid ISO'yu USB belleğe yazın, UEFI modunda Puresteel live orta
 
 ## Sürüm durumu
 
-Puresteel 1.0 "Burak" ilk kararlı sürüm hattıdır. Geliştirme 1.0 etiketi sonrasında repoda devam eder; kararlı build için yeniden üretilebilir kaynak referansı release tag'idir.
+Puresteel 1.0 "Burak" ilk kararlı sürümdür ve `v1.0.0` etiketi üzerinden yeniden üretilebilir. 1.0 sonrasındaki geliştirme hattında masaüstü KDE Plasma'dan Cinnamon'a taşınmaktadır; Cinnamon hattı kendi kararlı sürümü yayınlanana kadar geliştirme sürümü olarak değerlendirilmelidir.
 
 ## Lisanslama
 

@@ -1,5 +1,24 @@
 # Changelog
 
+## Unreleased — Cinnamon development line
+
+### Desktop migration
+
+- replaced KDE Plasma with Cinnamon
+- replaced SDDM with LightDM + Slick Greeter
+- moved the development session from Wayland to Cinnamon on X11
+- replaced Plasma Network Management with `network-manager-gnome`
+- removed KDE Discover and its Flatpak backend; Puresteel Center remains the distribution-level application/update interface
+- added Nemo, GNOME Terminal, Cinnamon translations, XApp desktop portal integration and recommended Cinnamon desktop support packages
+- moved wallpaper, GTK theme, icon theme and terminal defaults to system-wide dconf defaults
+- branded the Cinnamon application menu with the Puresteel `start-here-symbolic` icon
+- added Puresteel branding to Slick Greeter
+- removed KDE/SDDM-specific configuration and icon aliases
+
+The released `v1.0.0` tag remains the KDE Plasma-based Puresteel 1.0 build. The Cinnamon line is development-only until a new stable release is published.
+
+---
+
 ## Puresteel 1.0 "Burak" — stable
 
 First stable release of Puresteel.
