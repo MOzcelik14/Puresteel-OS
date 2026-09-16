@@ -35,6 +35,9 @@ if [ -z "$FPR" ]; then
 fi
 
 DEB="$(scripts/build-center-package.sh)"
+mkdir -p config/packages.chroot
+find config/packages.chroot -maxdepth 1 -type f -name "puresteel-center_*.deb" -delete
+cp -f "$DEB" config/packages.chroot/
 mkdir -p "$POOL" "$DIST/main/binary-amd64"
 
 # Keep older versions in the pool so rollbacks remain possible.
@@ -71,7 +74,6 @@ mkdir -p config/archives
 cp "$APTROOT/puresteel-archive-keyring.asc" \
    config/archives/puresteel.key.chroot
 
-echo "puresteel-center" > config/package-lists/puresteel-center.list.chroot
 
 mkdir -p \
   config/includes.chroot/usr/share/keyrings \
