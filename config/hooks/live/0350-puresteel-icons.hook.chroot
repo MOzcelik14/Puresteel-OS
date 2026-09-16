@@ -3,3 +3,20 @@ set -e
 
 gtk-update-icon-cache -f /usr/share/icons/hicolor || true
 gtk-update-icon-cache -f /usr/share/icons/Puresteel || true
+
+# Make the Puresteel language helper executable.
+chmod 0755 /usr/local/bin/mintlocale
+
+# Ship English and Turkish locales ready for graphical switching.
+for locale in en_US.UTF-8 tr_TR.UTF-8; do
+    if grep -Eq "^# *${locale}[[:space:]]+UTF-8" /etc/locale.gen; then
+        sed -i "s/^# *${locale}[[:space:]]\+UTF-8/${locale} UTF-8/" /etc/locale.gen
+    elif ! grep -Eq "^${locale}[[:space:]]+UTF-8" /etc/locale.gen; then
+        printf '%s UTF-8\n' "$locale" >> /etc/locale.gen
+    fi
+done
+locale-gen
+
+if [ ! -s /etc/default/locale ]; then
+    update-locale LANG=en_US.UTF-8 LANGUAGE=en_US:en
+fi
