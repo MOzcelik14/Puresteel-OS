@@ -4,6 +4,7 @@ live-config
 live-config-systemd
 
 network-manager
+network-manager-gnome
 
 sudo
 curl
@@ -25,8 +26,10 @@ usbutils
 lshw
 htop
 btop
-kde-plasma-desktop
-sddm
-plasma-nm
-konsole
-dolphin
+
+cinnamon-core
+cinnamon-l10n
+lightdm
+slick-greeter
+xdg-desktop-portal-xapp
+dconf-cli

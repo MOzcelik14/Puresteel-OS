@@ -1,7 +1,7 @@
 [Icon Theme]
 Name=Puresteel
-Comment=Puresteel OS branding icons
-Inherits=breeze
+Comment=Puresteel branding icons
+Inherits=Adwaita,hicolor
 Directories=places/16,places/22,places/24,places/32,places/64,places/96
 
 [places/16]
