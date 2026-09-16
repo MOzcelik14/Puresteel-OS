@@ -10,9 +10,9 @@
 
 ---
 
-Puresteel is an independent Debian 13 (Trixie) based Linux distribution built around KDE Plasma. It combines a clean desktop, gaming and creator tooling, broad graphics support, a graphical installer, and Puresteel's own system-management and update infrastructure.
+Puresteel is an independent Debian 13 (Trixie) based Linux distribution focused on a clean desktop, gaming and creator tooling, broad graphics support, a graphical installer, and Puresteel's own system-management and update infrastructure. The current development line uses **Cinnamon with LightDM and Slick Greeter**.
 
-**Current stable release: Puresteel 1.0 "Burak".**
+**Current stable release: Puresteel 1.0 "Burak" (KDE Plasma).** The next development release is migrating the desktop to Cinnamon.
 
 ## Build the ISO with one command
 
@@ -44,7 +44,7 @@ For manual and development builds, see [docs/BUILD.md](docs/BUILD.md).
 |---|---|
 | **Base** | Debian 13 (Trixie) |
 | **Architecture** | amd64 + i386 multiarch for compatibility |
-| **Desktop** | KDE Plasma / SDDM / Wayland |
+| **Desktop** | Cinnamon / LightDM / Slick Greeter on the development line; stable 1.0 uses KDE Plasma / SDDM |
 | **Installer** | Calamares |
 | **Init** | systemd |
 | **Graphics** | Intel, AMD and NVIDIA; hybrid-GPU support |
@@ -96,7 +96,7 @@ Puresteel includes Fish, Starship, Fastfetch, btop, htop, Git, curl, wget, Vim, 
 
 ## Desktop and branding
 
-Puresteel uses its own GRUB, Plymouth, SDDM, wallpaper, icon and Calamares branding while keeping the visual system deliberately minimal.
+The development line uses Cinnamon on X11 with LightDM/Slick Greeter, Puresteel wallpaper defaults, the Puresteel application-menu icon, and Puresteel GRUB, Plymouth, icon and Calamares branding. Stable 1.0 remains the released KDE Plasma/SDDM build.
 
 ## Installation
 
@@ -118,7 +118,7 @@ Write the generated hybrid ISO to a USB drive, boot the Puresteel live environme
 
 ## Release status
 
-Puresteel 1.0 "Burak" is the first stable release line. Development continues on the repository after the 1.0 tag; the release tag remains the reproducible source reference for the stable build.
+Puresteel 1.0 "Burak" is the first stable release and remains reproducible from the `v1.0.0` tag. Development after 1.0 is moving the desktop from KDE Plasma to Cinnamon; the Cinnamon line should be treated as development until its own release is published.
 
 ## Licensing
 
