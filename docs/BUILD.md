@@ -29,7 +29,7 @@ Puresteel-1.0-Burak-amd64.iso.sha256
 By default the bootstrap script prefers the `v1.0.0` tag when it exists. For development testing you can override the source ref:
 
 ```bash
-PURESTEEL_REF=main curl -fsSL https://raw.githubusercontent.com/MOzcelik14/Puresteel-OS/main/bootstrap.sh | bash
+curl -fsSL https://raw.githubusercontent.com/MOzcelik14/Puresteel-OS/main/bootstrap.sh | PURESTEEL_REF=main bash
 ```
 
 ## Manual build
