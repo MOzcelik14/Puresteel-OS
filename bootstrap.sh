@@ -2,10 +2,11 @@
 set -euo pipefail
 
 REPO="https://github.com/MOzcelik14/Puresteel-OS.git"
-STABLE_REF="v1.0.0"
+DEFAULT_REF="main"
 WORKDIR="${PURESTEEL_WORKDIR:-$HOME/.cache/puresteel-builder}"
 OUTPUT_DIR="${PURESTEEL_OUTPUT_DIR:-$PWD}"
-ISO_NAME="Puresteel-1.0-Burak-amd64.iso"
+REF="${PURESTEEL_REF:-$DEFAULT_REF}"
+ISO_NAME="${PURESTEEL_ISO_NAME:-Puresteel-Cinnamon-amd64.iso}"
 
 say() { printf '\n\033[1;34m[Puresteel]\033[0m %s\n' "$*"; }
 fail() { printf '\n\033[1;31m[Puresteel]\033[0m %s\n' "$*" >&2; exit 1; }
@@ -13,7 +14,7 @@ fail() { printf '\n\033[1;31m[Puresteel]\033[0m %s\n' "$*" >&2; exit 1; }
 command -v apt-get >/dev/null 2>&1 || fail "This builder currently supports Debian, Ubuntu and Linux Mint style APT hosts."
 command -v sudo >/dev/null 2>&1 || fail "sudo is required."
 
-say "Puresteel 1.0 (Burak) ISO builder"
+say "Puresteel Cinnamon ISO builder"
 sudo -v
 
 AVAILABLE_KB="$(df -Pk "$OUTPUT_DIR" | awk 'NR==2 {print $4}')"
@@ -49,16 +50,6 @@ if [ "$needs_live_build" -eq 1 ]; then
     trap - EXIT
 fi
 
-REF="${PURESTEEL_REF:-}"
-if [ -z "$REF" ]; then
-    if git ls-remote --exit-code --tags "$REPO" "refs/tags/$STABLE_REF" >/dev/null 2>&1; then
-        REF="$STABLE_REF"
-    else
-        REF="main"
-        say "Stable tag is not available yet; building current main branch"
-    fi
-fi
-
 say "Fetching Puresteel source ($REF)"
 rm -rf "$WORKDIR"
 mkdir -p "$(dirname "$WORKDIR")"
@@ -71,7 +62,7 @@ chmod +x build.sh scripts/*.sh 2>/dev/null || true
 
 test -f live-image-amd64.hybrid.iso || fail "Build completed without producing live-image-amd64.hybrid.iso"
 
-say "Writing release files to $OUTPUT_DIR"
+say "Writing build files to $OUTPUT_DIR"
 mkdir -p "$OUTPUT_DIR"
 cp -f live-image-amd64.hybrid.iso "$OUTPUT_DIR/$ISO_NAME"
 (
