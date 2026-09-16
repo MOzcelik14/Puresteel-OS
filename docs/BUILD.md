@@ -4,13 +4,27 @@ Puresteel uses Debian `live-build` to generate an amd64 hybrid ISO.
 
 ## One-command build
 
+### Linux
+
 On a Debian, Ubuntu or Linux Mint style APT host:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/MOzcelik14/Puresteel-OS/main/bootstrap.sh | bash
 ```
 
-The bootstrap script:
+### Windows 10 / 11
+
+Run this from PowerShell:
+
+```powershell
+irm https://raw.githubusercontent.com/MOzcelik14/Puresteel-OS/main/windows-build.ps1 | iex
+```
+
+The Windows helper uses WSL2. It looks for an existing Debian/Ubuntu WSL distribution and prepares it automatically. If none exists, it starts a Debian WSL installation. Windows may require one restart or first-launch Linux user creation; run the same command again afterwards.
+
+The actual build is performed inside the Linux filesystem for reliability and speed. The final ISO and SHA256 checksum are copied back to the Windows directory from which PowerShell was started.
+
+The Linux bootstrap script:
 
 1. verifies `sudo` and available disk space,
 2. installs the required host build dependencies,
@@ -26,13 +40,13 @@ Puresteel-1.0-Burak-amd64.iso
 Puresteel-1.0-Burak-amd64.iso.sha256
 ```
 
-By default the bootstrap script prefers the `v1.0.0` tag when it exists. For development testing you can override the source ref:
+By default the bootstrap script prefers the `v1.0.0` tag when it exists. For development testing:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/MOzcelik14/Puresteel-OS/main/bootstrap.sh | PURESTEEL_REF=main bash
 ```
 
-## Manual build
+## Manual Linux build
 
 Install the common dependencies:
 
