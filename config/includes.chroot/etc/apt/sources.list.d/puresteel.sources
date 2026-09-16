@@ -1,0 +1,5 @@
+Types: deb
+URIs: https://MOzcelik14.github.io/Puresteel-OS/apt
+Suites: stable
+Components: main
+Signed-By: /usr/share/keyrings/puresteel-archive-keyring.asc

@@ -1,0 +1,18 @@
+Package: puresteel-center
+Architecture: all
+Version: 1.0.1-1
+Priority: optional
+Section: admin
+Maintainer: Puresteel Project <repo@puresteel.local>
+Depends: python3, python3-apt, python3-pyside6.qtcore, python3-pyside6.qtgui, python3-pyside6.qtwidgets, polkitd, pkexec, flatpak, pciutils, dkms, mesa-utils, vulkan-tools, vainfo
+Recommends: switcheroo-control
+Filename: pool/main/p/puresteel-center/puresteel-center_1.0.1-1_all.deb
+Size: 147030
+MD5sum: 9924c17a5468b09fdb88b3142c8690a4
+SHA1: 4da3000c6b066e45edcaab3b6496c1d3d0424058
+SHA256: abe6c5519d17efe601b11fc1b81f564dbf851618762737a6dcfb29e920411ab3
+SHA512: 0ff9a54b701b5223df90dd5693b2a7ff08f0b08eff7866c2e5b754854bf42fd8130733e45ae8c2322f8cc335b9a246790e15c4ab6796b2b7d1eb9c63eadf2c72
+Description: Puresteel system management center
+ Puresteel Center manages updates, applications, graphics drivers,
+ software sources, backups and system reports from one KDE application.
+

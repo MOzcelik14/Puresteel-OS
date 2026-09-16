@@ -1,0 +1,41 @@
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA512
+
+Architectures: amd64 all
+Codename: stable
+Components: main
+Date: Wed, 16 Sep 2026 12:09:02 +0000
+Description: Puresteel package repository
+Label: Puresteel
+Origin: Puresteel
+Suite: stable
+MD5Sum:
+ 8dca92351689992f4dd3d9960294d9d3              188 Release
+ 29b50474f29297f5293a7edf0d88dc6d              930 main/binary-amd64/Packages
+ 9ef4016f342552db16351e528c3d1ce8              601 main/binary-amd64/Packages.gz
+SHA1:
+ 8e041cc19c4eb6d4c81d2ec8c46cb9885dba8e82              188 Release
+ 2c3f7fb8bfa4c334fc99d392cb391e76a9c8c3f3              930 main/binary-amd64/Packages
+ cb730d0af3c77bdc9afad7cb1649e171c0b74cf3              601 main/binary-amd64/Packages.gz
+SHA256:
+ 7d43ecedc88bf93a4463e1fa95389c14d48e6cd201a43a6f0183faf84a2fb9ff              188 Release
+ 2c06b8a141c7927b8649a011fc16602f8a4403bf13cefc436ca3f9ce720cd9ba              930 main/binary-amd64/Packages
+ f211e625e16be4b75aed6642fe14aac728f93251c4f6a3f31018a7bd5e3b9ab2              601 main/binary-amd64/Packages.gz
+SHA512:
+ bcabbbb050c714861fff78dca0f0dd7bfdc25cb43d234080af277eb1295e93e6ce18a1a7a056e07b3a087cd93292192ec446dd1a0fde3fb355317d54b39525a4              188 Release
+ 32df133ed14723e2b18a9421338fc9f5752e3cbde357aa0f99629c2b8c352f2532865cdbd968738c13c70f11b30e85915a16423f547c9ec2466ef502a7d8230c              930 main/binary-amd64/Packages
+ e1a2b5d95b6a9bc9abd6b42e2097ca93aa7aa7b7910b6873d05bdfc6517f116d37ca82be8683f010f9dffd7cc690c55d48f66ee52109a2ce478d57fedff9b498              601 main/binary-amd64/Packages.gz
+-----BEGIN PGP SIGNATURE-----
+
+iQGzBAEBCgAdFiEE5pKVphvQPwkCVZE8yxVhO/96rhAFAmqqht4ACgkQyxVhO/96
+rhA85gwAjTCePQvfUltEr0v5yQxgpBctV2LJ2K1qBq1391RUZ/HzX9EDlqB6KZIG
+wEzfUrpXwhNX41Qq7JVm5kd1Wt53ar9yfFx8bPgkmmU1cs4nuK8YjPdoBh2wuKuv
+qJhdHDT1Km0sjKiQTLYlGsSfzf/gSIAiXu7qX7aWQmEdQ1KoOF0xcBMBRUoxTclL
+KZH9bdtYb3QcV6s2jnTvEMkO6RKf8Yg5Ls26INmq82C46NxBJxkmd3tQ0V6tTmUD
+m/LSKIP/HeOK7sdpgaALeR6af8KsY6IqSnnml4kwmcvgnldttEN+hiVhrnyCk44L
++YfECrB4JKLwHEGDaGswcqh3flQVWxJc+ZRq+L/Z25qGw9UM78kwgOvlsLX2GQj3
+CiT8yG1YnX3Ktj4x74au2Z7QRbs7M8bC5IgBt9+zMNSfNoAY9SVP1BFjyHZvaRJx
+oZpMgABJkbYbYVbRnFG58QQzOnEm41m/yZOy9HA6TAaMQapbkOI3quzUuutvxAcC
+tSdSZw/g
+=itY0
+-----END PGP SIGNATURE-----
