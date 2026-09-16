@@ -27,6 +27,7 @@ lshw
 htop
 btop
 
+cinnamon
 cinnamon-core
 cinnamon-l10n
 lightdm
@@ -37,3 +38,8 @@ gnome-themes-extra
 gvfs-fuse
 xdg-desktop-portal-xapp
 dconf-cli
+
+locales
+python3-gi
+gir1.2-gtk-3.0
+pkexec
