@@ -1,8 +1,8 @@
 # Changelog
 
-## Puresteel 1.0 "Burak" — current development line
+## Puresteel 1.0 "Burak" — stable
 
-Puresteel 1.0 is under active development. The repository has moved significantly beyond the original RC1 layout.
+First stable release of Puresteel.
 
 ### Desktop and system
 
@@ -10,7 +10,7 @@ Puresteel 1.0 is under active development. The repository has moved significantl
 - systemd-only init
 - KDE Plasma desktop
 - SDDM display manager
-- Breeze Dark defaults
+- Wayland session
 - Calamares graphical installer
 - hybrid live/install ISO with UEFI support
 
@@ -34,18 +34,21 @@ Puresteel 1.0 is under active development. The repository has moved significantl
 - Puresteel Center packaged as a normal `.deb`
 - ISO builds install Puresteel-owned packages locally from `config/packages.chroot/`
 - installed systems use the online signed repository for future Puresteel package updates
-- added package build/release scripts
+- added package build and release scripts
 
 ### Graphics and hardware
 
-- NVIDIA proprietary driver stack
-- DKMS integration
-- `switcheroo-control` hybrid graphics integration
-- Intel graphics firmware and media acceleration packages
+- Intel graphics firmware and media acceleration support
 - AMD graphics firmware and Mesa stack
+- NVIDIA proprietary driver stack
+- NVIDIA DKMS integration
+- `switcheroo-control` hybrid graphics integration
 - Intel and AMD CPU microcode
 - Intel / AMD / NVIDIA detection in Puresteel Center
 - 64-bit and 32-bit Vulkan libraries for gaming compatibility
+- NVIDIA module alias handling fixed for the Debian `nvidia-current` module naming
+- Nouveau disabled when using the proprietary NVIDIA stack
+- live NVIDIA driver validated on an RTX 3050 hybrid laptop
 
 ### Performance
 
@@ -98,6 +101,14 @@ System and Flatpak defaults include:
 - Puresteel wallpapers
 - Puresteel application/system icons
 - Puresteel-branded Calamares installer
+- Puresteel live user identity and KDE branding
+
+### Distribution and builds
+
+- added `bootstrap.sh` for one-command local ISO generation
+- bootstrap builder installs required host dependencies automatically
+- stable builder prefers the `v1.0.0` release source
+- GitHub Pages landing page updated for the stable release
 
 ### Browser policy
 
