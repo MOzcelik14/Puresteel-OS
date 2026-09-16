@@ -1,7 +1,0 @@
-Package: *
-Pin: release n=forky
-Pin-Priority: 50
-
-Package: cinnamon* cjs* libcjs* muffin* libmuffin* nemo* xapp* xapps-common libxapp* gir1.2-xapp* gir1.2-cmenu* libcinnamon* gir1.2-cinnamon* gir1.2-cvc* libcvc* libglib2.0-* gir1.2-glib-2.0 libgirepository* libmozjs-140-0
-Pin: release n=forky
-Pin-Priority: 990
