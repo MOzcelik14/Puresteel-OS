@@ -5,7 +5,7 @@
 <h1 align="center">Puresteel</h1>
 
 <p align="center">
-  Debian 13 · KDE Plasma · amd64 · Intel / AMD / NVIDIA · Flatpak · Steam / Wine
+  Pure by design. Steel by nature.
 </p>
 
 <p align="center">
