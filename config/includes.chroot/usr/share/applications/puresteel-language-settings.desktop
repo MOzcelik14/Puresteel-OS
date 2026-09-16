@@ -1,0 +1,12 @@
+[Desktop Entry]
+Name=Languages
+Name[tr]=Diller
+Comment=Change the Puresteel system language
+Comment[tr]=Puresteel sistem dilini değiştir
+Exec=mintlocale
+Icon=cs-language
+Terminal=false
+Type=Application
+Categories=Settings;X-Cinnamon-Settings-Panel;
+OnlyShowIn=X-Cinnamon;
+Keywords=language;locale;region;translation;dil;bölge;
