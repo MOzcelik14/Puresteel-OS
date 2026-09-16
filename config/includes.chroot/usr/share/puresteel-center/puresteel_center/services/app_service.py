@@ -1,4 +1,3 @@
-\
 import re
 from .common import command_exists, privileged, run
 

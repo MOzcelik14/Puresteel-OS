@@ -1,4 +1,3 @@
-\
 from PySide6.QtWidgets import QFrame, QLabel, QVBoxLayout, QWidget
 
 def page_header(layout, title, subtitle):

@@ -1,4 +1,3 @@
-\
 from datetime import datetime
 from .common import command_exists, run
 

@@ -1,4 +1,3 @@
-\
 from pathlib import Path
 from PySide6.QtCore import QSize,QUrl
 from PySide6.QtGui import QDesktopServices,QIcon

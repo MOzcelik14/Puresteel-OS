@@ -1,4 +1,3 @@
-\
 from pathlib import Path
 from .common import command_exists, run
 

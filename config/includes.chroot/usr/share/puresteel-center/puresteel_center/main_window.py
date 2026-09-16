@@ -1,4 +1,3 @@
-\
 from pathlib import Path
 from PySide6.QtCore import Qt,QSize
 from PySide6.QtGui import QIcon
@@ -21,7 +20,7 @@ class MainWindow(QMainWindow):
         root=QWidget();root.setObjectName("Root");rb=QHBoxLayout(root);rb.setContentsMargins(0,0,0,0);rb.setSpacing(0)
 
         side=QFrame();side.setObjectName("Sidebar");side.setFixedWidth(265);sb=QVBoxLayout(side);sb.setContentsMargins(18,22,18,18);sb.setSpacing(16)
-        brand=QHBoxLayout();logo=QLabel();logo.setPixmap(QIcon(str(self.resource/"puresteel.png")).pixmap(QSize(42,42)));txt=QLabel("Puresteel\\nCenter");txt.setObjectName("BrandText")
+        brand=QHBoxLayout();logo=QLabel();logo.setPixmap(QIcon(str(self.resource/"puresteel.png")).pixmap(QSize(42,42)));txt=QLabel("Puresteel Center");txt.setObjectName("BrandText")
         brand.addWidget(logo);brand.addWidget(txt);brand.addStretch();sb.addLayout(brand)
         self.nav=QListWidget();self.nav.setObjectName("Navigation");self.nav.setFocusPolicy(Qt.NoFocus);self.nav.setSpacing(3);sb.addWidget(self.nav,1)
 

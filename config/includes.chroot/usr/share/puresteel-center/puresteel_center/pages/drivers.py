@@ -1,4 +1,3 @@
-\
 from PySide6.QtCore import QObject, QThread, Signal
 from PySide6.QtWidgets import (
     QFrame, QGridLayout, QHBoxLayout, QLabel, QMessageBox, QPushButton,

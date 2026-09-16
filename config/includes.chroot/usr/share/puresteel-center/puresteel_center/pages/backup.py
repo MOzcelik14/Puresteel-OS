@@ -1,4 +1,3 @@
-\
 from pathlib import Path
 from PySide6.QtWidgets import QCheckBox,QFileDialog,QHBoxLayout,QLabel,QLineEdit,QMessageBox,QPushButton,QVBoxLayout,QWidget
 from ..i18n import t

@@ -1,11 +1,10 @@
-\
 TRANSLATIONS = {
     "tr": {
         "app_title":"Puresteel Center",
         "home":"Ana Sayfa","updates":"Güncellemeler","applications":"Uygulamalar",
         "drivers":"Sürücüler","sources":"Yazılım Kaynakları","backup":"Yedekleme",
         "reports":"Sistem Raporları","about":"Hakkında","language":"Dil",
-        "version":"Puresteel Center 0.9",
+        "version":"Puresteel Center 1.0.1",
 
         "welcome_kicker":"PURESTEEL",
         "welcome_title":"Puresteel'e hoş geldin",
@@ -13,7 +12,7 @@ TRANSLATIONS = {
         "quick_updates":"Güncellemeleri denetle","quick_drivers":"Sürücü durumunu aç",
         "home_updates":"Güncellemeler","home_updates_text":"APT ve Flatpak güncellemelerini denetle ve kur.",
         "home_apps":"Uygulamalar","home_apps_text":"APT ve Flatpak yazılımlarını ara, kur veya kaldır.",
-        "home_drivers":"Sürücüler","home_drivers_text":"NVIDIA, DKMS, nouveau ve hibrit grafik durumunu izle.",
+        "home_drivers":"Sürücüler","home_drivers_text":"Intel, AMD ve NVIDIA grafik donanımı ile kernel sürücülerinin durumunu izle.",
         "home_reports":"Raporlar","home_reports_text":"Servis, günlük, disk ve donanım durumunu incele.",
 
         "updates_title":"Güncellemeler","updates_intro":"APT ve Flatpak güncellemelerini tek ekranda yönet.",
@@ -67,7 +66,7 @@ TRANSLATIONS = {
         "home":"Home","updates":"Updates","applications":"Applications",
         "drivers":"Drivers","sources":"Sources","backup":"Backup",
         "reports":"System Reports","about":"About","language":"Language",
-        "version":"Puresteel Center 0.9",
+        "version":"Puresteel Center 1.0.1",
 
         "welcome_kicker":"PURESTEEL",
         "welcome_title":"Welcome to Puresteel",
@@ -75,7 +74,7 @@ TRANSLATIONS = {
         "quick_updates":"Check updates","quick_drivers":"Open driver status",
         "home_updates":"Updates","home_updates_text":"Check and install APT and Flatpak updates.",
         "home_apps":"Applications","home_apps_text":"Search, install or remove APT and Flatpak software.",
-        "home_drivers":"Drivers","home_drivers_text":"Inspect NVIDIA, DKMS, nouveau and hybrid graphics state.",
+        "home_drivers":"Drivers","home_drivers_text":"Inspect Intel, AMD and NVIDIA graphics hardware and kernel driver state.",
         "home_reports":"Reports","home_reports_text":"Inspect services, logs, storage and hardware status.",
 
         "updates_title":"Updates","updates_intro":"Manage APT and Flatpak updates from one screen.",

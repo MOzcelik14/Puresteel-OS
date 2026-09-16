@@ -1,4 +1,3 @@
-\
 from PySide6.QtWidgets import QFileDialog,QHBoxLayout,QPushButton,QTextEdit,QVBoxLayout,QWidget
 from ..i18n import t
 from ..services.report_service import generate

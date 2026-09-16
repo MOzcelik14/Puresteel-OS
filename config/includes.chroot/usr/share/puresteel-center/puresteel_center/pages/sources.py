@@ -1,4 +1,3 @@
-\
 from PySide6.QtWidgets import QFrame,QHBoxLayout,QLabel,QLineEdit,QListWidget,QMessageBox,QPushButton,QTabWidget,QTextEdit,QVBoxLayout,QWidget
 from ..i18n import t
 from ..services.source_service import apt_sources,flatpak_remotes,add_flatpak_remote,remove_flatpak_remote
