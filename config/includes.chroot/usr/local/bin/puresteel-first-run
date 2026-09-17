@@ -69,10 +69,19 @@ class FirstRun(Gtk.Window):
         appearance.pack_start(Gtk.Label(label="Tema / Theme", xalign=0), False, False, 0)
         appearance.pack_start(self.theme, False, False, 0)
         self.wallpaper = Gtk.ComboBoxText()
-        self.wallpaper.append("wallpaper.png", "Puresteel Default")
-        self.wallpaper.append("puresteel-light.png", "Puresteel Light")
-        self.wallpaper.append("puresteel-midnight.svg", "Puresteel Midnight")
-        self.wallpaper.append("puresteel-orbit.svg", "Puresteel Orbit")
+        for filename, label in (
+            ("wallpaper.png", "Puresteel Default"),
+            ("puresteel-light.png", "Puresteel Light"),
+            ("puresteel-midnight.svg", "Puresteel Midnight"),
+            ("puresteel-orbit.svg", "Puresteel Orbit"),
+            ("puresteel-arc.svg", "Puresteel Arc"),
+            ("puresteel-contour.svg", "Puresteel Contour"),
+            ("puresteel-drift.svg", "Puresteel Drift"),
+            ("puresteel-grid.svg", "Puresteel Grid"),
+            ("puresteel-horizon.svg", "Puresteel Horizon"),
+            ("puresteel-monolith.svg", "Puresteel Monolith"),
+        ):
+            self.wallpaper.append(filename, label)
         self.wallpaper.set_active_id("wallpaper.png")
         appearance.pack_start(Gtk.Label(label="Duvar kağıdı / Wallpaper", xalign=0), False, False, 0)
         appearance.pack_start(self.wallpaper, False, False, 0)
@@ -89,9 +98,14 @@ class FirstRun(Gtk.Window):
         tools = []
         for name, cmd in (("Steam", "steam"), ("Wine", "wine"), ("GameMode", "gamemoderun"), ("MangoHud", "mangohud"), ("Flatpak", "flatpak")):
             tools.append(f"{'✓' if have(cmd) else '–'} {name}")
+        hwbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=12)
         hw = Gtk.Label(label=gpu_summary() + "\n\n" + "   ".join(tools))
         hw.set_xalign(0); hw.set_yalign(0); hw.set_line_wrap(True); hw.set_selectable(True)
-        self.add_custom_page("Donanım / Hardware", hw)
+        hwbox.pack_start(hw, True, True, 0)
+        self.hardware_defaults = Gtk.CheckButton(label="Donanıma uygun Puresteel varsayılanlarını uygula / Apply Puresteel hardware defaults")
+        self.hardware_defaults.set_active(True)
+        hwbox.pack_start(self.hardware_defaults, False, False, 0)
+        self.add_custom_page("Donanım / Hardware", hwbox)
 
         finish_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=12)
         privacy = Gtk.Label(label="Puresteel varsayılan olarak telemetri etkinleştirmez.\nPuresteel does not enable telemetry by default.")
@@ -141,10 +155,11 @@ class FirstRun(Gtk.Window):
 
     def finish(self, _):
         failures = []
-        theme = "Adwaita-dark" if self.theme.get_active_id() == "dark" else "Adwaita"
+        theme = "Puresteel-Dark" if self.theme.get_active_id() == "dark" else "Puresteel-Light"
         if have("gsettings"):
             run_quiet(["gsettings", "set", "org.cinnamon.desktop.interface", "gtk-theme", theme])
             run_quiet(["gsettings", "set", "org.cinnamon.desktop.interface", "icon-theme", "Puresteel"])
+            run_quiet(["gsettings", "set", "org.cinnamon.theme", "name", theme])
             wall = "/usr/share/backgrounds/puresteel/" + self.wallpaper.get_active_id()
             run_quiet(["gsettings", "set", "org.cinnamon.desktop.background", "picture-uri", "file://" + wall])
 
@@ -153,8 +168,12 @@ class FirstRun(Gtk.Window):
             rc = subprocess.run(["pkexec", "/usr/bin/python3", "/usr/local/bin/mintlocale", "--apply", locale_name], check=False).returncode
             if rc != 0: failures.append("language")
 
+        if self.hardware_defaults.get_active() and have("puresteelctl"):
+            rc = subprocess.run(["puresteelctl", "hardware", "--apply"], check=False).returncode
+            if rc != 0: failures.append("hardware")
+
         profile = self.profile.get_active_id() or "balanced"
-        rc = subprocess.run(["pkexec", "/usr/local/sbin/puresteel-profile", "apply", profile], check=False).returncode
+        rc = subprocess.run(["pkexec", "/usr/lib/puresteel-center/puresteel-helper", "profile-apply", profile], check=False).returncode
         if rc != 0: failures.append("profile")
 
         if failures:
