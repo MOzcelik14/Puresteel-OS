@@ -1,18 +1,40 @@
 #!/usr/bin/python3
 import os
+import shutil
 import subprocess
-import webbrowser
 from pathlib import Path
 import gi
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
 
 TR = os.environ.get("LANG", "").lower().startswith("tr")
+PROJECT_URL = "https://mozcelik14.github.io/Puresteel-OS/"
 
 
 def launch(cmd):
-    try: subprocess.Popen(cmd)
-    except OSError: pass
+    try:
+        subprocess.Popen(cmd, start_new_session=True)
+        return True
+    except OSError:
+        return False
+
+
+def open_url(url):
+    candidates = []
+    if shutil.which("gio"):
+        candidates.append(["gio", "open", url])
+    if shutil.which("xdg-open"):
+        candidates.append(["xdg-open", url])
+    if shutil.which("flatpak"):
+        candidates.append(["flatpak", "run", "app.zen_browser.zen", url])
+    for cmd in candidates:
+        try:
+            p = subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=8, check=False)
+            if p.returncode == 0:
+                return True
+        except (OSError, subprocess.TimeoutExpired):
+            pass
+    return False
 
 
 class Welcome(Gtk.Window):
@@ -29,13 +51,21 @@ class Welcome(Gtk.Window):
             (("Puresteel Center"), lambda *_: launch(["puresteel-center"])),
             (("İlk Ayarlar" if TR else "First Run"), lambda *_: launch(["puresteel-first-run", "--force"])),
             (("Dil Ayarları" if TR else "Language Settings"), lambda *_: launch(["mintlocale"])),
-            (("Sistem Doktoru" if TR else "System Doctor"), lambda *_: launch(["gnome-terminal", "--", "puresteelctl", "doctor"])),
-            (("Anlık Görüntüler" if TR else "Snapshots"), lambda *_: launch(["timeshift-gtk"])),
-            (("Proje Sitesi" if TR else "Project Website"), lambda *_: webbrowser.open("https://mozcelik14.github.io/Puresteel-OS/")),
+            (("Sistem Doktoru" if TR else "System Doctor"), lambda *_: launch(["puresteel-doctor-gui"])),
+            (("Anlık Görüntüler" if TR else "Snapshots"), lambda *_: launch(["puresteel-snapshots"])),
+            (("Proje Sitesi" if TR else "Project Website"), self.open_project_site),
         ]
         for i, (label, cb) in enumerate(actions):
             b = Gtk.Button(label=label); b.set_hexpand(True); b.set_vexpand(True); b.connect("clicked", cb); grid.attach(b, i % 2, i // 2, 1, 1)
-        hint = Gtk.Label(label=("Terminal: puresteelctl --help" if TR else "Terminal: puresteelctl --help")); hint.set_xalign(0); box.pack_end(hint, False, False, 0)
+        hint = Gtk.Label(label="Terminal: puresteelctl --help"); hint.set_xalign(0); box.pack_end(hint, False, False, 0)
+
+    def open_project_site(self, *_):
+        if open_url(PROJECT_URL):
+            return
+        dlg = Gtk.MessageDialog(parent=self, flags=0, message_type=Gtk.MessageType.WARNING, buttons=Gtk.ButtonsType.OK,
+                                text=("Tarayıcı açılamadı" if TR else "Could not open a browser"))
+        dlg.format_secondary_text(PROJECT_URL)
+        dlg.run(); dlg.destroy()
 
     def system_summary(self):
         pretty = "Puresteel"
