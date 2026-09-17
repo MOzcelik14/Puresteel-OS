@@ -1,0 +1,5 @@
+#!/bin/sh
+set -e
+
+echo "[Puresteel] Enabling platform tools..."
+systemctl enable puresteel-recovery.service 2>/dev/null || true

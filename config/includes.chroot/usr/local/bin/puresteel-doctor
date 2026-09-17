@@ -1,0 +1,140 @@
+#!/usr/bin/python3
+import argparse
+import os
+import shutil
+import subprocess
+from pathlib import Path
+
+
+def run(args, timeout=20):
+    try:
+        p = subprocess.run(args, text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, timeout=timeout, check=False)
+        return p.returncode, p.stdout.strip()
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        return 1, str(exc)
+
+
+def exists(name):
+    return shutil.which(name) is not None
+
+
+def section(title, body):
+    return f"\n== {title} ==\n{body.strip() if body and body.strip() else '—'}"
+
+
+def os_info():
+    data = {}
+    try:
+        for line in Path("/etc/os-release").read_text(errors="ignore").splitlines():
+            if "=" in line:
+                k, v = line.split("=", 1)
+                data[k] = v.strip('"')
+    except OSError:
+        pass
+    _, kernel = run(["uname", "-srmo"])
+    return f"{data.get('PRETTY_NAME', 'Linux')}\n{kernel}"
+
+
+def memory_info():
+    _, free = run(["free", "-h"])
+    _, swap = run(["swapon", "--show=NAME,TYPE,SIZE,USED,PRIO", "--noheadings"])
+    return free + "\n\nSwap/ZRAM:\n" + (swap or "none")
+
+
+def graphics_info():
+    parts = []
+    if exists("lspci"):
+        _, out = run(["lspci", "-nnk"])
+        lines = [l for l in out.splitlines() if any(x in l.lower() for x in ("vga compatible", "3d controller", "kernel driver in use", "kernel modules"))]
+        parts.append("\n".join(lines[:30]))
+    if exists("nvidia-smi"):
+        code, out = run(["nvidia-smi", "--query-gpu=name,driver_version,memory.total", "--format=csv,noheader"], 15)
+        parts.append("NVIDIA: " + (out if code == 0 else "driver installed but GPU unavailable"))
+    if exists("vulkaninfo"):
+        code, out = run(["vulkaninfo", "--summary"], 20)
+        devices = [l.strip() for l in out.splitlines() if "deviceName" in l]
+        parts.append("Vulkan: " + ("; ".join(devices[:6]) if code == 0 and devices else "unavailable"))
+    if exists("vainfo"):
+        code, out = run(["vainfo"], 15)
+        parts.append("VA-API: " + ("available" if code == 0 else "unavailable"))
+    return "\n".join(parts) or "No graphics diagnostic tools found."
+
+
+def network_info():
+    if not exists("nmcli"):
+        return "NetworkManager CLI unavailable"
+    _, state = run(["nmcli", "-t", "-f", "STATE", "general"])
+    _, wifi = run(["nmcli", "radio", "wifi"])
+    _, dev = run(["nmcli", "-t", "-f", "DEVICE,TYPE,STATE,CONNECTION", "device"])
+    return f"Network: {state}\nWi-Fi radio: {wifi}\n{dev}"
+
+
+def audio_info():
+    if exists("wpctl"):
+        code, out = run(["wpctl", "status"], 12)
+        return out[:5000] if code == 0 else out
+    if exists("pactl"):
+        _, out = run(["pactl", "info"], 10)
+        return out
+    return "PipeWire/PulseAudio diagnostic CLI unavailable"
+
+
+def storage_info():
+    _, df = run(["df", "-h", "/"])
+    parts = [df]
+    if exists("lsblk"):
+        _, lsblk = run(["lsblk", "-o", "NAME,TYPE,FSTYPE,SIZE,ROTA,MOUNTPOINTS"])
+        parts.append(lsblk)
+    if exists("smartctl"):
+        if os.geteuid() == 0:
+            code, source = run(["findmnt", "-no", "SOURCE", "/"])
+            if code == 0 and source.startswith("/dev/"):
+                _, parent = run(["lsblk", "-ndo", "PKNAME", source])
+                device = "/dev/" + (parent.strip() or Path(source).name)
+                _, smart = run(["smartctl", "-H", device], 15)
+                parts.append(f"SMART ({device}):\n{smart}")
+        else:
+            parts.append("SMART: run 'sudo puresteel-doctor' for drive health.")
+    return "\n\n".join(parts)
+
+
+def services_info():
+    _, failed = run(["systemctl", "--failed", "--no-pager", "--plain"], 15)
+    _, journal = run(["journalctl", "-b", "-p", "3", "--no-pager", "-n", "25"], 15)
+    return "Failed units:\n" + failed + "\n\nRecent boot errors:\n" + journal
+
+
+def flatpak_info():
+    if not exists("flatpak"):
+        return "Flatpak unavailable"
+    _, remotes = run(["flatpak", "remotes", "--columns=name,url"], 15)
+    return remotes
+
+
+def build_report():
+    chunks = ["Puresteel Doctor", "Generated locally; review before sharing."]
+    chunks.append(section("System", os_info()))
+    chunks.append(section("Memory", memory_info()))
+    chunks.append(section("Graphics", graphics_info()))
+    chunks.append(section("Network", network_info()))
+    chunks.append(section("Audio", audio_info()))
+    chunks.append(section("Storage", storage_info()))
+    chunks.append(section("Flatpak", flatpak_info()))
+    chunks.append(section("Services and boot errors", services_info()))
+    return "\n".join(chunks) + "\n"
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Puresteel system health report")
+    parser.add_argument("--save", metavar="PATH", help="also save the report to a file")
+    args = parser.parse_args()
+    report = build_report()
+    print(report, end="")
+    if args.save:
+        Path(args.save).expanduser().write_text(report)
+        print(f"Saved: {Path(args.save).expanduser()}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

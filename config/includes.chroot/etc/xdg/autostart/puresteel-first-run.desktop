@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=Puresteel First Run
+Name[tr]=Puresteel İlk Ayarlar
+Comment=Configure Puresteel after installation
+Comment[tr]=Kurulumdan sonra Puresteel'i yapılandır
+Exec=/usr/local/bin/puresteel-first-run
+Icon=puresteel-logo
+OnlyShowIn=X-Cinnamon;
+X-GNOME-Autostart-enabled=true
+Terminal=false

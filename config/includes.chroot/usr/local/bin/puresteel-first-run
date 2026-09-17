@@ -1,0 +1,172 @@
+#!/usr/bin/python3
+import os
+import shutil
+import subprocess
+import sys
+from pathlib import Path
+
+# Do not interrupt the live installer session. First Run is for installed systems.
+if Path("/run/live/medium").exists() and "--force" not in sys.argv:
+    raise SystemExit(0)
+
+MARKER = Path.home() / ".config/puresteel/first-run-complete"
+if MARKER.exists() and "--force" not in sys.argv:
+    raise SystemExit(0)
+
+import gi
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk
+
+
+def have(cmd):
+    return shutil.which(cmd) is not None
+
+
+def run_quiet(args):
+    return subprocess.run(args, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=False).returncode
+
+
+def gpu_summary():
+    try:
+        out = subprocess.run(["lspci"], text=True, capture_output=True, timeout=8, check=False).stdout
+        lines = [l for l in out.splitlines() if "VGA" in l or "3D controller" in l]
+        return "\n".join(lines) or "GPU bilgisi bulunamadı / GPU information unavailable"
+    except OSError:
+        return "lspci unavailable"
+
+
+class FirstRun(Gtk.Window):
+    def __init__(self):
+        super().__init__(title="Puresteel First Run")
+        self.set_default_size(680, 500)
+        self.set_border_width(20)
+        self.connect("destroy", Gtk.main_quit)
+
+        outer = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=14)
+        self.add(outer)
+        title = Gtk.Label()
+        title.set_markup("<span size='xx-large' weight='bold'>Puresteel First Run</span>")
+        title.set_xalign(0)
+        outer.pack_start(title, False, False, 0)
+        sub = Gtk.Label(label="İlk ayarlarını seç / Choose your initial setup")
+        sub.set_xalign(0)
+        outer.pack_start(sub, False, False, 0)
+
+        self.book = Gtk.Notebook()
+        outer.pack_start(self.book, True, True, 0)
+
+        self.lang = Gtk.ComboBoxText()
+        self.lang.append("tr_TR.UTF-8", "Türkçe (Türkiye)")
+        self.lang.append("en_US.UTF-8", "English (United States)")
+        self.lang.set_active_id("tr_TR.UTF-8" if os.environ.get("LANG", "").startswith("tr") else "en_US.UTF-8")
+        self.add_page("Dil / Language", "Sistem arayüz dilini seç. / Choose the system interface language.", self.lang)
+
+        appearance = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
+        self.theme = Gtk.ComboBoxText()
+        self.theme.append("dark", "Puresteel Dark")
+        self.theme.append("light", "Puresteel Light")
+        self.theme.set_active_id("dark")
+        appearance.pack_start(Gtk.Label(label="Tema / Theme", xalign=0), False, False, 0)
+        appearance.pack_start(self.theme, False, False, 0)
+        self.wallpaper = Gtk.ComboBoxText()
+        self.wallpaper.append("wallpaper.png", "Puresteel Default")
+        self.wallpaper.append("puresteel-light.png", "Puresteel Light")
+        self.wallpaper.append("puresteel-midnight.svg", "Puresteel Midnight")
+        self.wallpaper.append("puresteel-orbit.svg", "Puresteel Orbit")
+        self.wallpaper.set_active_id("wallpaper.png")
+        appearance.pack_start(Gtk.Label(label="Duvar kağıdı / Wallpaper", xalign=0), False, False, 0)
+        appearance.pack_start(self.wallpaper, False, False, 0)
+        self.add_custom_page("Görünüm / Appearance", appearance)
+
+        self.profile = Gtk.ComboBoxText()
+        self.profile.append("balanced", "Balanced — günlük kullanım / everyday")
+        self.profile.append("gaming", "Gaming — yüksek performans / high performance")
+        self.profile.append("creator", "Creator — rendering & media")
+        self.profile.append("battery", "Battery — güç tasarrufu / power saving")
+        self.profile.set_active_id("balanced")
+        self.add_page("Profil / Profile", "CPU güç politikası ve bellek davranışı. / Power and memory behaviour.", self.profile)
+
+        tools = []
+        for name, cmd in (("Steam", "steam"), ("Wine", "wine"), ("GameMode", "gamemoderun"), ("MangoHud", "mangohud"), ("Flatpak", "flatpak")):
+            tools.append(f"{'✓' if have(cmd) else '–'} {name}")
+        hw = Gtk.Label(label=gpu_summary() + "\n\n" + "   ".join(tools))
+        hw.set_xalign(0); hw.set_yalign(0); hw.set_line_wrap(True); hw.set_selectable(True)
+        self.add_custom_page("Donanım / Hardware", hw)
+
+        finish_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=12)
+        privacy = Gtk.Label(label="Puresteel varsayılan olarak telemetri etkinleştirmez.\nPuresteel does not enable telemetry by default.")
+        privacy.set_xalign(0); privacy.set_line_wrap(True)
+        finish_box.pack_start(privacy, False, False, 0)
+        self.open_center = Gtk.CheckButton(label="Bitince Puresteel Center'ı aç / Open Puresteel Center when finished")
+        self.open_center.set_active(True)
+        finish_box.pack_start(self.open_center, False, False, 0)
+        self.add_custom_page("Tamam / Finish", finish_box)
+
+        nav = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
+        outer.pack_end(nav, False, False, 0)
+        self.back = Gtk.Button(label="← Geri / Back")
+        self.next = Gtk.Button(label="İleri / Next →")
+        self.done = Gtk.Button(label="Uygula / Apply")
+        self.done.get_style_context().add_class("suggested-action")
+        self.back.connect("clicked", self.prev_page)
+        self.next.connect("clicked", self.next_page)
+        self.done.connect("clicked", self.finish)
+        nav.pack_start(self.back, False, False, 0)
+        nav.pack_end(self.done, False, False, 0)
+        nav.pack_end(self.next, False, False, 0)
+        self.book.connect("switch-page", lambda *_: self.update_buttons())
+        self.update_buttons()
+
+    def add_page(self, label, description, widget):
+        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=12)
+        box.set_border_width(18)
+        desc = Gtk.Label(label=description); desc.set_xalign(0); desc.set_line_wrap(True)
+        box.pack_start(desc, False, False, 0); box.pack_start(widget, False, False, 0)
+        self.book.append_page(box, Gtk.Label(label=label))
+
+    def add_custom_page(self, label, widget):
+        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=12)
+        box.set_border_width(18); box.pack_start(widget, True, True, 0)
+        self.book.append_page(box, Gtk.Label(label=label))
+
+    def update_buttons(self):
+        page = self.book.get_current_page(); last = self.book.get_n_pages() - 1
+        self.back.set_sensitive(page > 0); self.next.set_visible(page < last); self.done.set_visible(page == last)
+
+    def prev_page(self, _):
+        self.book.prev_page(); self.update_buttons()
+
+    def next_page(self, _):
+        self.book.next_page(); self.update_buttons()
+
+    def finish(self, _):
+        failures = []
+        theme = "Adwaita-dark" if self.theme.get_active_id() == "dark" else "Adwaita"
+        if have("gsettings"):
+            run_quiet(["gsettings", "set", "org.cinnamon.desktop.interface", "gtk-theme", theme])
+            run_quiet(["gsettings", "set", "org.cinnamon.desktop.interface", "icon-theme", "Puresteel"])
+            wall = "/usr/share/backgrounds/puresteel/" + self.wallpaper.get_active_id()
+            run_quiet(["gsettings", "set", "org.cinnamon.desktop.background", "picture-uri", "file://" + wall])
+
+        locale_name = self.lang.get_active_id()
+        if locale_name and not os.environ.get("LANG", "").startswith(locale_name.split(".")[0]):
+            rc = subprocess.run(["pkexec", "/usr/bin/python3", "/usr/local/bin/mintlocale", "--apply", locale_name], check=False).returncode
+            if rc != 0: failures.append("language")
+
+        profile = self.profile.get_active_id() or "balanced"
+        rc = subprocess.run(["pkexec", "/usr/local/sbin/puresteel-profile", "apply", profile], check=False).returncode
+        if rc != 0: failures.append("profile")
+
+        if failures:
+            dlg = Gtk.MessageDialog(parent=self, flags=0, message_type=Gtk.MessageType.WARNING, buttons=Gtk.ButtonsType.OK,
+                                    text="Bazı ayarlar uygulanamadı / Some settings could not be applied")
+            dlg.format_secondary_text(", ".join(failures) + "\nFirst Run daha sonra tekrar açılabilir.")
+            dlg.run(); dlg.destroy(); return
+
+        MARKER.parent.mkdir(parents=True, exist_ok=True); MARKER.write_text("done\n")
+        if self.open_center.get_active() and have("puresteel-center"):
+            subprocess.Popen(["puresteel-center"], start_new_session=True)
+        Gtk.main_quit()
+
+
+win = FirstRun(); win.show_all(); Gtk.main()

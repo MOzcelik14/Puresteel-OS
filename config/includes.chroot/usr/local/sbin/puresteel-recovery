@@ -1,0 +1,80 @@
+#!/bin/sh
+set -u
+
+if [ "$(id -u)" -ne 0 ]; then
+    echo "Puresteel Recovery must run as root." >&2
+    exit 1
+fi
+
+pause() {
+    printf '\nPress Enter to continue... '
+    read _answer
+}
+
+apt_repair() {
+    echo "[Puresteel] Repairing package state..."
+    dpkg --configure -a || true
+    apt-get -f install || true
+}
+
+boot_repair() {
+    echo "[Puresteel] Rebuilding initramfs and GRUB..."
+    update-initramfs -u -k all || true
+    update-grub || true
+}
+
+lightdm_repair() {
+    echo "[Puresteel] Restoring LightDM..."
+    systemctl enable lightdm.service || true
+    systemctl set-default graphical.target || true
+}
+
+nvidia_repair() {
+    echo "[Puresteel] Rebuilding installed NVIDIA DKMS modules without removing packages..."
+    dpkg --configure -a || true
+    if command -v dkms >/dev/null 2>&1; then dkms autoinstall || true; fi
+    update-initramfs -u -k all || true
+}
+
+menu() {
+    while :; do
+        clear 2>/dev/null || true
+        cat <<'EOF'
+Puresteel Recovery
+==================
+1) Repair interrupted/broken packages
+2) Rebuild initramfs and GRUB
+3) Restore LightDM graphical boot
+4) Rebuild NVIDIA DKMS/initramfs
+5) Run Puresteel Doctor
+6) Open root shell
+7) Reboot
+8) Power off
+0) Exit recovery menu
+EOF
+        printf '> '
+        read choice
+        case "$choice" in
+            1) apt_repair; pause ;;
+            2) boot_repair; pause ;;
+            3) lightdm_repair; pause ;;
+            4) nvidia_repair; pause ;;
+            5) /usr/local/bin/puresteel-doctor 2>&1 | less -R 2>/dev/null || /usr/local/bin/puresteel-doctor; pause ;;
+            6) /bin/bash ;;
+            7) systemctl reboot; sleep 30 ;;
+            8) systemctl poweroff; sleep 30 ;;
+            0) return 0 ;;
+            *) echo "Unknown choice"; sleep 1 ;;
+        esac
+    done
+}
+
+case "${1:-}" in
+    --boot-menu|"") menu ;;
+    apt) apt_repair ;;
+    boot) boot_repair ;;
+    lightdm) lightdm_repair ;;
+    nvidia) nvidia_repair ;;
+    doctor) /usr/local/bin/puresteel-doctor ;;
+    *) echo "Usage: puresteel-recovery [apt|boot|lightdm|nvidia|doctor|--boot-menu]"; exit 2 ;;
+esac

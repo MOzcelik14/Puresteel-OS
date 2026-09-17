@@ -1,0 +1,83 @@
+#!/usr/bin/python3
+import os
+import shutil
+import subprocess
+import sys
+from pathlib import Path
+
+PROFILES = {
+    "balanced": {"swappiness": 4, "cache": 100, "power": "balanced"},
+    "gaming": {"swappiness": 4, "cache": 50, "power": "performance"},
+    "creator": {"swappiness": 4, "cache": 75, "power": "performance"},
+    "battery": {"swappiness": 20, "cache": 150, "power": "power-saver"},
+}
+CONF = Path("/etc/sysctl.d/98-puresteel-profile.conf")
+STATE = Path("/etc/puresteel/profile")
+
+
+def current_profile():
+    try:
+        value = STATE.read_text().strip()
+        return value if value in PROFILES else "balanced"
+    except OSError:
+        return "balanced"
+
+
+def apply_profile(name):
+    if name not in PROFILES:
+        print(f"Unknown profile: {name}", file=sys.stderr)
+        return 2
+    if os.geteuid() != 0:
+        print("Applying a profile requires root privileges.", file=sys.stderr)
+        return 1
+
+    p = PROFILES[name]
+    CONF.write_text(
+        "# Managed by Puresteel Profiles\n"
+        f"vm.swappiness={p['swappiness']}\n"
+        f"vm.vfs_cache_pressure={p['cache']}\n"
+    )
+    STATE.parent.mkdir(parents=True, exist_ok=True)
+    STATE.write_text(name + "\n")
+
+    subprocess.run(["sysctl", "-p", str(CONF)], check=False)
+    ppd = shutil.which("powerprofilesctl")
+    if ppd:
+        result = subprocess.run([ppd, "set", p["power"]], check=False)
+        if result.returncode != 0:
+            print(f"Power profile '{p['power']}' is not available on this hardware; sysctl settings were still applied.")
+
+    print(f"Puresteel profile: {name}")
+    return 0
+
+
+def status():
+    name = current_profile()
+    print(f"profile={name}")
+    for key in ("vm.swappiness", "vm.vfs_cache_pressure"):
+        result = subprocess.run(["sysctl", "-n", key], text=True, capture_output=True, check=False)
+        print(f"{key}={result.stdout.strip() if result.returncode == 0 else '?'}")
+    ppd = shutil.which("powerprofilesctl")
+    if ppd:
+        result = subprocess.run([ppd, "get"], text=True, capture_output=True, check=False)
+        print(f"power={result.stdout.strip() if result.returncode == 0 else 'unavailable'}")
+    else:
+        print("power=power-profiles-daemon unavailable")
+    return 0
+
+
+def main():
+    args = sys.argv[1:]
+    if not args or args[0] == "status":
+        return status()
+    if args[0] == "list":
+        print("\n".join(PROFILES))
+        return 0
+    if args[0] == "apply" and len(args) == 2:
+        return apply_profile(args[1])
+    print("Usage: puresteel-profile [status|list|apply balanced|gaming|creator|battery]", file=sys.stderr)
+    return 2
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

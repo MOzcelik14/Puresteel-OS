@@ -1,2 +1,6 @@
 zram-tools
 procps
+power-profiles-daemon
+smartmontools
+alsa-utils
+iw
