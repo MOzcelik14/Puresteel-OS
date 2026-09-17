@@ -6,56 +6,37 @@ if [ "$(id -u)" -ne 0 ]; then
     exit 1
 fi
 
-pause() {
-    printf '\nPress Enter to continue... '
-    read _answer
-}
+LAST_UPDATE=/var/lib/puresteel/last-update-snapshot
 
-apt_repair() {
-    echo "[Puresteel] Repairing package state..."
-    dpkg --configure -a || true
-    apt-get -f install || true
-}
-
-boot_repair() {
-    echo "[Puresteel] Rebuilding initramfs and GRUB..."
-    update-initramfs -u -k all || true
-    update-grub || true
-}
-
-lightdm_repair() {
-    echo "[Puresteel] Restoring LightDM..."
-    systemctl enable lightdm.service || true
-    systemctl set-default graphical.target || true
-}
-
-nvidia_repair() {
-    echo "[Puresteel] Rebuilding installed NVIDIA DKMS modules without removing packages..."
-    dpkg --configure -a || true
-    if command -v dkms >/dev/null 2>&1; then dkms autoinstall || true; fi
-    update-initramfs -u -k all || true
-}
+pause() { printf '\nPress Enter to continue... '; read _answer; }
+apt_repair() { echo "[Puresteel] Repairing package state..."; dpkg --configure -a || true; apt-get -f install || true; }
+boot_repair() { echo "[Puresteel] Rebuilding initramfs and GRUB..."; update-initramfs -u -k all || true; update-grub || true; }
+lightdm_repair() { echo "[Puresteel] Restoring LightDM..."; systemctl enable lightdm.service || true; systemctl set-default graphical.target || true; }
+nvidia_repair() { echo "[Puresteel] Rebuilding installed NVIDIA DKMS modules without removing packages..."; dpkg --configure -a || true; if command -v dkms >/dev/null 2>&1; then dkms autoinstall || true; fi; update-initramfs -u -k all || true; }
 
 snapshot_list() {
-    if command -v timeshift >/dev/null 2>&1; then
-        timeshift --list || true
-    else
-        echo "Timeshift is not installed."
-    fi
+    if command -v timeshift >/dev/null 2>&1; then timeshift --list || true; else echo "Timeshift is not installed."; fi
 }
 
 snapshot_restore() {
-    if ! command -v timeshift >/dev/null 2>&1; then
-        echo "Timeshift is not installed."
-        return
-    fi
+    if ! command -v timeshift >/dev/null 2>&1; then echo "Timeshift is not installed."; return; fi
     echo "This opens Timeshift's interactive restore flow. Review the target snapshot and disks carefully."
-    printf 'Continue? [y/N] '
-    read answer
-    case "$answer" in
-        y|Y|yes|YES) timeshift --restore || true ;;
-        *) echo "Restore cancelled." ;;
-    esac
+    printf 'Continue? [y/N] '; read answer
+    case "$answer" in y|Y|yes|YES) timeshift --restore || true ;; *) echo "Restore cancelled." ;; esac
+}
+
+undo_last_update() {
+    if [ -f "$LAST_UPDATE" ]; then
+        echo "Puresteel recorded a pre-update snapshot marker:"
+        cat "$LAST_UPDATE"
+    else
+        echo "No Puresteel pre-update marker was found. You can still choose any Timeshift snapshot manually."
+    fi
+    echo
+    snapshot_list
+    echo
+    echo "The restore remains interactive to avoid restoring the wrong disk or snapshot."
+    snapshot_restore
 }
 
 menu() {
@@ -71,13 +52,14 @@ Puresteel Recovery
 5) Run Puresteel Doctor
 6) List Timeshift snapshots
 7) Restore a Timeshift snapshot
-8) Open root shell
-9) Reboot
-10) Power off
+8) Undo last Puresteel update
+9) Show installed/previous kernels
+10) Open root shell
+11) Reboot
+12) Power off
 0) Exit recovery menu
 EOF
-        printf '> '
-        read choice
+        printf '> '; read choice
         case "$choice" in
             1) apt_repair; pause ;;
             2) boot_repair; pause ;;
@@ -86,9 +68,11 @@ EOF
             5) /usr/local/bin/puresteel-doctor 2>&1 | less -R 2>/dev/null || /usr/local/bin/puresteel-doctor; pause ;;
             6) snapshot_list; pause ;;
             7) snapshot_restore; pause ;;
-            8) /bin/bash ;;
-            9) systemctl reboot; sleep 30 ;;
-            10) systemctl poweroff; sleep 30 ;;
+            8) undo_last_update; pause ;;
+            9) /usr/local/bin/puresteel-kernel; pause ;;
+            10) /bin/bash ;;
+            11) systemctl reboot; sleep 30 ;;
+            12) systemctl poweroff; sleep 30 ;;
             0) return 0 ;;
             *) echo "Unknown choice"; sleep 1 ;;
         esac
@@ -104,5 +88,6 @@ case "${1:-}" in
     doctor) /usr/local/bin/puresteel-doctor ;;
     snapshots) snapshot_list ;;
     restore) snapshot_restore ;;
-    *) echo "Usage: puresteel-recovery [apt|boot|lightdm|nvidia|doctor|snapshots|restore|--boot-menu]"; exit 2 ;;
+    undo-update) undo_last_update ;;
+    *) echo "Usage: puresteel-recovery [apt|boot|lightdm|nvidia|doctor|snapshots|restore|undo-update|--boot-menu]"; exit 2 ;;
 esac
