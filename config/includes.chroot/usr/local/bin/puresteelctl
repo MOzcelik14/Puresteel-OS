@@ -47,14 +47,10 @@ def hardware():
     except Exception:
         pass
     battery = any(Path("/sys/class/power_supply").glob("BAT*"))
-    if mem_gib and mem_gib < 6:
-        mode = "low-memory"
-    elif "nvidia" in vendors and len(vendors) > 1:
-        mode = "hybrid-gpu"
-    elif battery:
-        mode = "laptop"
-    else:
-        mode = "desktop"
+    if mem_gib and mem_gib < 6: mode = "low-memory"
+    elif "nvidia" in vendors and len(vendors) > 1: mode = "hybrid-gpu"
+    elif battery: mode = "laptop"
+    else: mode = "desktop"
     return mode, vendors, mem_gib, battery
 
 
@@ -62,18 +58,14 @@ def cmd_status(_):
     pretty = "Puresteel"
     try:
         for line in Path("/etc/os-release").read_text().splitlines():
-            if line.startswith("PRETTY_NAME="):
-                pretty = line.split("=", 1)[1].strip('"')
-    except OSError:
-        pass
+            if line.startswith("PRETTY_NAME="): pretty = line.split("=", 1)[1].strip('"')
+    except OSError: pass
     print(pretty)
     if Path(PROFILE).exists():
-        _, out = capture([PROFILE, "status"])
-        print(out)
+        _, out = capture([PROFILE, "status"]); print(out)
     print("channel=" + (CHANNEL.read_text().strip() if CHANNEL.exists() else "stable"))
     mode, vendors, mem, battery = hardware()
-    print(f"hardware={mode}")
-    print(f"gpu={','.join(sorted(vendors)) or 'unknown'}")
+    print(f"hardware={mode}\ngpu={','.join(sorted(vendors)) or 'unknown'}")
     if mem: print(f"memory={mem:.1f} GiB")
     print(f"battery={'yes' if battery else 'no'}")
     return 0
@@ -81,138 +73,110 @@ def cmd_status(_):
 
 def cmd_hardware(args):
     mode, vendors, mem, battery = hardware()
-    print(f"Detected mode: {mode}")
-    print(f"GPU vendors: {', '.join(sorted(vendors)) or 'unknown'}")
+    print(f"Detected mode: {mode}\nGPU vendors: {', '.join(sorted(vendors)) or 'unknown'}")
     if mem: print(f"Memory: {mem:.1f} GiB")
     print(f"Battery: {'yes' if battery else 'no'}")
-    if args.apply:
-        print("Applying safe hardware defaults (Balanced profile).")
-        return elevated("hardware-mode-set", mode)
-    return 0
+    return elevated("hardware-mode-set", mode) if args.apply else 0
 
 
 def cmd_profile(args):
-    if args.action in ("status", "list"):
-        return run([PROFILE, args.action])
+    if args.action in ("status", "list"): return run([PROFILE, args.action])
     return elevated("profile-apply", args.name)
 
 
 def cmd_gpu(args):
     if args.action == "status":
-        if shutil.which("nvidia-smi"):
-            run(["nvidia-smi"])
+        if shutil.which("nvidia-smi"): run(["nvidia-smi"])
         if shutil.which("lspci"):
             _, out = capture(["lspci", "-nnk"])
             keep = [x for x in out.splitlines() if any(k in x.lower() for k in ("vga compatible", "3d controller", "kernel driver in use"))]
             print("\n".join(keep))
         return 0
-    if not args.command:
-        print("Provide an application command after 'gpu run'.")
-        return 2
+    if not args.command: print("Provide an application command after 'gpu run'."); return 2
     return run(["/usr/local/bin/puresteel-nvidia-run", *args.command])
 
 
 def cmd_snapshot(args):
-    if not shutil.which("timeshift"):
-        print("Timeshift is not installed.")
-        return 1
-    if args.action == "list":
-        return elevated("snapshot-list")
-    if args.action == "create":
-        return elevated("snapshot-create", args.comment or "Puresteel manual snapshot")
-    if args.action == "open":
-        return run(["/usr/local/bin/puresteel-snapshots"])
+    if args.action == "list": return elevated("snapshot-list")
+    if args.action == "create": return elevated("snapshot-create", args.comment or "Puresteel manual snapshot")
+    if args.action == "open": return run(["/usr/local/bin/puresteel-snapshots"])
     return 2
 
 
-def cmd_update(args):
-    return elevated("apt-upgrade" if args.no_snapshot else "safe-upgrade")
-
+def cmd_update(args): return elevated("apt-upgrade" if args.no_snapshot else "safe-upgrade")
 
 def cmd_apps(args):
-    if args.action == "list":
-        print("essentials\ncreator\ndeveloper\ngaming")
-        return 0
+    if args.action == "list": print("essentials\ncreator\ndeveloper\ngaming"); return 0
     return elevated("app-pack", args.pack)
 
-
 def cmd_channel(args):
-    if args.action == "status":
-        print(CHANNEL.read_text().strip() if CHANNEL.exists() else "stable")
-        return 0
+    if args.action == "status": print(CHANNEL.read_text().strip() if CHANNEL.exists() else "stable"); return 0
     return elevated("channel-set", args.name)
 
 
 def gset(schema, key, value):
-    if not shutil.which("gsettings"):
-        return 1
+    if not shutil.which("gsettings"): return 1
     code, schemas = capture(["gsettings", "list-schemas"])
-    if code != 0 or schema not in schemas.splitlines():
-        return 1
+    if code != 0 or schema not in schemas.splitlines(): return 1
     code, keys = capture(["gsettings", "list-keys", schema])
-    if code != 0 or key not in keys.splitlines():
-        return 1
+    if code != 0 or key not in keys.splitlines(): return 1
     return run(["gsettings", "set", schema, key, value])
 
 
 def cmd_theme(args):
     if args.action == "status":
-        for schema, key, label in (
-            ("org.cinnamon.desktop.interface", "gtk-theme", "gtk"),
-            ("org.cinnamon.desktop.interface", "icon-theme", "icons"),
-            ("org.cinnamon.theme", "name", "cinnamon"),
-        ):
-            code, out = capture(["gsettings", "get", schema, key]) if shutil.which("gsettings") else (1, "")
+        for schema, key, label in (("org.cinnamon.desktop.interface","gtk-theme","gtk"),("org.cinnamon.desktop.interface","icon-theme","icons"),("org.cinnamon.theme","name","cinnamon")):
+            code,out=capture(["gsettings","get",schema,key]) if shutil.which("gsettings") else (1,"")
             print(f"{label}={out if code == 0 else 'unavailable'}")
         return 0
-    shell_theme = "Puresteel-Dark" if args.name == "dark" else "Puresteel-Light"
-    gtk_theme = "Adwaita-dark" if args.name == "dark" else "Adwaita"
-    rc = 0
-    rc |= gset("org.cinnamon.desktop.interface", "gtk-theme", gtk_theme)
-    rc |= gset("org.cinnamon.desktop.interface", "icon-theme", "Puresteel")
-    gset("org.cinnamon.theme", "name", shell_theme)
+    shell_theme="Puresteel-Dark" if args.name=="dark" else "Puresteel-Light"
+    gtk_theme=shell_theme
+    rc=gset("org.cinnamon.desktop.interface","gtk-theme",gtk_theme)
+    rc|=gset("org.cinnamon.desktop.interface","icon-theme","Puresteel")
+    gset("org.cinnamon.theme","name",shell_theme)
     if args.wallpaper:
-        wall = Path("/usr/share/backgrounds/puresteel") / args.wallpaper
-        if not wall.exists():
-            print(f"Wallpaper not found: {wall}")
-            return 2
-        gset("org.cinnamon.desktop.background", "picture-uri", "file://" + str(wall))
-    print(f"Theme applied: {shell_theme} + {gtk_theme}")
-    return rc
+        wall=Path("/usr/share/backgrounds/puresteel")/args.wallpaper
+        if not wall.exists(): print(f"Wallpaper not found: {wall}"); return 2
+        gset("org.cinnamon.desktop.background","picture-uri","file://"+str(wall))
+    print(f"Theme applied: {shell_theme}"); return rc
 
 
 def exec_tool(name, extra=None):
-    path = shutil.which(name) or name
-    os.execv(path, [path, *(extra or [])])
+    path=shutil.which(name) or name
+    os.execv(path,[path,*(extra or [])])
 
 
 def main():
-    p = argparse.ArgumentParser(prog="puresteelctl", description="Puresteel system control")
-    sub = p.add_subparsers(dest="cmd", required=True)
-    s = sub.add_parser("status"); s.set_defaults(func=cmd_status)
-    h = sub.add_parser("hardware"); h.add_argument("--apply", action="store_true"); h.set_defaults(func=cmd_hardware)
-    pr = sub.add_parser("profile"); pr.add_argument("action", choices=("status", "list", "apply")); pr.add_argument("name", nargs="?", choices=("balanced", "gaming", "creator", "battery")); pr.set_defaults(func=cmd_profile)
-    g = sub.add_parser("gpu"); g.add_argument("action", choices=("status", "run")); g.add_argument("command", nargs=argparse.REMAINDER); g.set_defaults(func=cmd_gpu)
-    sn = sub.add_parser("snapshot"); sn.add_argument("action", choices=("list", "create", "open")); sn.add_argument("--comment"); sn.set_defaults(func=cmd_snapshot)
-    up = sub.add_parser("update"); up.add_argument("--no-snapshot", action="store_true"); up.set_defaults(func=cmd_update)
-    ap = sub.add_parser("apps"); ap.add_argument("action", choices=("list", "install")); ap.add_argument("pack", nargs="?", choices=("essentials", "creator", "developer", "gaming")); ap.set_defaults(func=cmd_apps)
-    ch = sub.add_parser("channel"); ch.add_argument("action", choices=("status", "set")); ch.add_argument("name", nargs="?", choices=("stable", "testing")); ch.set_defaults(func=cmd_channel)
-    th = sub.add_parser("theme"); th.add_argument("action", choices=("status", "apply")); th.add_argument("name", nargs="?", choices=("dark", "light")); th.add_argument("--wallpaper"); th.set_defaults(func=cmd_theme)
-    d = sub.add_parser("doctor"); d.add_argument("args", nargs=argparse.REMAINDER); d.set_defaults(func=lambda a: exec_tool("puresteel-doctor", a.args))
-    i = sub.add_parser("info"); i.set_defaults(func=lambda a: exec_tool("puresteel-info"))
-    de = sub.add_parser("defaults"); de.set_defaults(func=lambda a: exec_tool("puresteel-apply-defaults"))
-    w = sub.add_parser("welcome"); w.set_defaults(func=lambda a: exec_tool("puresteel-welcome"))
-    args = p.parse_args()
-    if args.cmd == "profile" and args.action == "apply" and not args.name:
-        p.error("profile apply requires a profile name")
-    if args.cmd == "apps" and args.action == "install" and not args.pack:
-        p.error("apps install requires a pack")
-    if args.cmd == "channel" and args.action == "set" and not args.name:
-        p.error("channel set requires a channel")
-    if args.cmd == "theme" and args.action == "apply" and not args.name:
-        p.error("theme apply requires dark or light")
+    p=argparse.ArgumentParser(prog="puresteelctl",description="Puresteel system control")
+    sub=p.add_subparsers(dest="cmd",required=True)
+    s=sub.add_parser("status");s.set_defaults(func=cmd_status)
+    h=sub.add_parser("hardware");h.add_argument("--apply",action="store_true");h.set_defaults(func=cmd_hardware)
+    pr=sub.add_parser("profile");pr.add_argument("action",choices=("status","list","apply"));pr.add_argument("name",nargs="?",choices=("balanced","gaming","creator","battery"));pr.set_defaults(func=cmd_profile)
+    g=sub.add_parser("gpu");g.add_argument("action",choices=("status","run"));g.add_argument("command",nargs=argparse.REMAINDER);g.set_defaults(func=cmd_gpu)
+    sn=sub.add_parser("snapshot");sn.add_argument("action",choices=("list","create","open"));sn.add_argument("--comment");sn.set_defaults(func=cmd_snapshot)
+    up=sub.add_parser("update");up.add_argument("--no-snapshot",action="store_true");up.set_defaults(func=cmd_update)
+    ap=sub.add_parser("apps");ap.add_argument("action",choices=("list","install"));ap.add_argument("pack",nargs="?",choices=("essentials","creator","developer","gaming"));ap.set_defaults(func=cmd_apps)
+    ch=sub.add_parser("channel");ch.add_argument("action",choices=("status","set"));ch.add_argument("name",nargs="?",choices=("stable","testing"));ch.set_defaults(func=cmd_channel)
+    th=sub.add_parser("theme");th.add_argument("action",choices=("status","apply"));th.add_argument("name",nargs="?",choices=("dark","light"));th.add_argument("--wallpaper");th.set_defaults(func=cmd_theme)
+    d=sub.add_parser("doctor");d.add_argument("args",nargs=argparse.REMAINDER);d.set_defaults(func=lambda a:exec_tool("puresteel-doctor",a.args))
+    i=sub.add_parser("info");i.set_defaults(func=lambda a:exec_tool("puresteel-info"))
+    de=sub.add_parser("defaults");de.set_defaults(func=lambda a:exec_tool("puresteel-apply-defaults"))
+    w=sub.add_parser("welcome");w.set_defaults(func=lambda a:exec_tool("puresteel-welcome"))
+    b=sub.add_parser("battery");b.set_defaults(func=lambda a:exec_tool("puresteel-battery"))
+    fw=sub.add_parser("firmware");fw.add_argument("action",choices=("status","check","update"));fw.set_defaults(func=lambda a:exec_tool("puresteel-firmware",[a.action]))
+    lg=sub.add_parser("logs");lg.add_argument("args",nargs=argparse.REMAINDER);lg.set_defaults(func=lambda a:exec_tool("puresteel-logs",a.args))
+    hl=sub.add_parser("health");hl.add_argument("mode",choices=("gaming","creator","all"),default="all",nargs="?");hl.set_defaults(func=lambda a:exec_tool("puresteel-health",[a.mode]))
+    sb=sub.add_parser("secureboot");sb.add_argument("action",choices=("status","enroll"));sb.add_argument("key",nargs="?");sb.set_defaults(func=lambda a:exec_tool("puresteel-secureboot",[a.action]+([a.key] if a.key else [])))
+    fp=sub.add_parser("flatpak");fp.add_argument("action",choices=("repair",));fp.set_defaults(func=lambda a:exec_tool("puresteel-flatpak-repair"))
+    ke=sub.add_parser("kernel");ke.set_defaults(func=lambda a:exec_tool("puresteel-kernel"))
+    ac=sub.add_parser("accessibility");ac.add_argument("mode",choices=("status","large-text","normal-text","high-contrast","puresteel"));ac.set_defaults(func=lambda a:exec_tool("puresteel-accessibility",[a.mode]))
+    cr=sub.add_parser("crash-report");cr.add_argument("--open-issue",action="store_true");cr.set_defaults(func=lambda a:exec_tool("puresteel-crash-helper",["--open-issue"] if a.open_issue else []))
+    hr=sub.add_parser("hw-report");hr.set_defaults(func=lambda a:exec_tool("puresteel-hw-report"))
+    args=p.parse_args()
+    if args.cmd=="profile" and args.action=="apply" and not args.name:p.error("profile apply requires a profile name")
+    if args.cmd=="apps" and args.action=="install" and not args.pack:p.error("apps install requires a pack")
+    if args.cmd=="channel" and args.action=="set" and not args.name:p.error("channel set requires a channel")
+    if args.cmd=="theme" and args.action=="apply" and not args.name:p.error("theme apply requires dark or light")
     return args.func(args) or 0
 
-
-if __name__ == "__main__":
-    raise SystemExit(main())
+if __name__=="__main__": raise SystemExit(main())
