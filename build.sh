@@ -17,14 +17,18 @@ cp branding/grub-splash.png config/bootloaders/grub-pc/splash.png
 cp branding/grub-theme.txt config/bootloaders/grub-pc/live-theme/theme.txt
 cp branding/grub-theme.cfg config/bootloaders/grub-pc/theme.cfg
 
-echo "[Puresteel] Building Puresteel Center package..."
-DEB="$(scripts/build-center-package.sh)"
+echo "[Puresteel] Building Puresteel packages..."
+CENTER_DEB="$(scripts/build-center-package.sh)"
+mapfile -t META_DEBS < <(scripts/build-meta-packages.sh)
 mkdir -p config/packages.chroot
-find config/packages.chroot -maxdepth 1 -type f -name 'puresteel-center_*.deb' -delete
-cp -f "$DEB" config/packages.chroot/
+find config/packages.chroot -maxdepth 1 -type f -name 'puresteel-*.deb' -delete
+cp -f "$CENTER_DEB" config/packages.chroot/
+for DEB in "${META_DEBS[@]}"; do
+    cp -f "$DEB" config/packages.chroot/
+done
 
-echo "[Puresteel] Bundled $(basename "$DEB")"
-test -f "config/packages.chroot/$(basename "$DEB")"
+echo "[Puresteel] Bundled $(basename "$CENTER_DEB") and ${#META_DEBS[@]} component packages"
+test -f "config/packages.chroot/$(basename "$CENTER_DEB")"
 
 echo "[Puresteel] Building ISO..."
 sudo lb build 2>&1 | tee build.log

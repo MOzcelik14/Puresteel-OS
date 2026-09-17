@@ -1,41 +1,133 @@
 #!/usr/bin/env python3
-import os, re, subprocess, sys
+import os
+import re
+import subprocess
+import sys
+from pathlib import Path
+
+PACKS = {
+    "essentials": {
+        "apt": ["vlc", "p7zip-full", "unzip", "curl"],
+        "flatpak": ["org.onlyoffice.desktopeditors"],
+    },
+    "creator": {
+        "apt": ["ffmpeg"],
+        "flatpak": ["org.kde.kdenlive", "org.audacityteam.Audacity", "org.onlyoffice.desktopeditors"],
+    },
+    "developer": {
+        "apt": ["build-essential", "git", "curl", "python3-pip", "shellcheck"],
+        "flatpak": [],
+    },
+    "gaming": {
+        "apt": ["steam-installer", "wine", "winetricks", "gamemode", "mangohud"],
+        "flatpak": ["com.heroicgameslauncher.hgl", "net.davidotek.pupgui2"],
+    },
+}
+
 
 def run(cmd):
     print("+", " ".join(cmd), flush=True)
     return subprocess.call(cmd)
 
+
 def safe_pkg(value):
     return bool(re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9+._:-]*", value))
+
+
+def snapshot(comment):
+    if not Path("/usr/bin/timeshift").exists():
+        print("Timeshift is not installed; skipping snapshot.")
+        return 0
+    rc = run(["timeshift", "--create", "--comments", comment[:120], "--tags", "O"])
+    if rc != 0:
+        print("Snapshot could not be created; continuing without it.")
+    return 0
+
+
+def channel_set(name):
+    conf = Path("/usr/share/puresteel/channels.conf")
+    channels = {}
+    if conf.exists():
+        for line in conf.read_text().splitlines():
+            line = line.strip()
+            if line and not line.startswith("#") and "=" in line:
+                k, v = line.split("=", 1); channels[k.strip()] = v.strip()
+    target = channels.get(name)
+    if not target or target == "unpublished":
+        print(f"Puresteel channel '{name}' is not published yet.", file=sys.stderr)
+        return 3
+    source = Path("/etc/apt/sources.list.d/puresteel.sources")
+    source.write_text(
+        "Types: deb\n"
+        f"URIs: {target}\n"
+        f"Suites: {name}\n"
+        "Components: main\n"
+        "Signed-By: /usr/share/keyrings/puresteel-archive-keyring.asc\n"
+    )
+    Path("/etc/puresteel").mkdir(parents=True, exist_ok=True)
+    Path("/etc/puresteel/channel").write_text(name + "\n")
+    return run(["apt-get", "update"])
+
 
 def main():
     if os.geteuid() != 0:
         print("This helper must run as root.", file=sys.stderr); return 1
     if len(sys.argv) < 2:
         print("Missing action", file=sys.stderr); return 2
-    action=sys.argv[1]
-    if action=="apt-upgrade":
-        if run(["apt-get","update"]) != 0:return 1
-        return run(["apt-get","full-upgrade","-y"])
-    if action in ("apt-install","apt-remove"):
-        if len(sys.argv)!=3 or not safe_pkg(sys.argv[2]):
-            print("Invalid package name",file=sys.stderr);return 2
-        op="install" if action=="apt-install" else "remove"
-        return run(["apt-get",op,"-y",sys.argv[2]])
-    if action=="profile-apply":
-        if len(sys.argv)!=3 or sys.argv[2] not in ("balanced","gaming","creator","battery"):
-            print("Invalid Puresteel profile",file=sys.stderr);return 2
-        return run(["/usr/local/sbin/puresteel-profile","apply",sys.argv[2]])
-    if action=="nvidia-reinstall":
-        if run(["apt-get","update"]) != 0:return 1
-        return run(["apt-get","install","--reinstall","-y","nvidia-driver","nvidia-settings","switcheroo-control"])
-    if action=="graphics-repair-intel":
-        if run(["apt-get","update"]) != 0:return 1
-        return run(["apt-get","install","--reinstall","-y","firmware-intel-graphics","firmware-intel-misc","intel-media-va-driver-non-free","mesa-vulkan-drivers","mesa-va-drivers","libvulkan1"])
-    if action=="graphics-repair-amd":
-        if run(["apt-get","update"]) != 0:return 1
-        return run(["apt-get","install","--reinstall","-y","firmware-amd-graphics","mesa-vulkan-drivers","mesa-va-drivers","libvulkan1","xserver-xorg-video-amdgpu"])
-    print("Unknown action",file=sys.stderr);return 2
+    action = sys.argv[1]
 
-if __name__=="__main__":
+    if action == "apt-upgrade":
+        if run(["apt-get", "update"]) != 0: return 1
+        return run(["apt-get", "full-upgrade", "-y"])
+    if action == "safe-upgrade":
+        snapshot("Before Puresteel system update")
+        if run(["apt-get", "update"]) != 0: return 1
+        return run(["apt-get", "full-upgrade", "-y"])
+    if action in ("apt-install", "apt-remove"):
+        if len(sys.argv) != 3 or not safe_pkg(sys.argv[2]):
+            print("Invalid package name", file=sys.stderr); return 2
+        op = "install" if action == "apt-install" else "remove"
+        return run(["apt-get", op, "-y", sys.argv[2]])
+    if action == "profile-apply":
+        if len(sys.argv) != 3 or sys.argv[2] not in ("balanced", "gaming", "creator", "battery"):
+            print("Invalid Puresteel profile", file=sys.stderr); return 2
+        return run(["/usr/local/sbin/puresteel-profile", "apply", sys.argv[2]])
+    if action == "hardware-mode-set":
+        if len(sys.argv) != 3 or sys.argv[2] not in ("desktop", "laptop", "hybrid-gpu", "low-memory"):
+            print("Invalid hardware mode", file=sys.stderr); return 2
+        Path("/etc/puresteel").mkdir(parents=True, exist_ok=True)
+        Path("/etc/puresteel/hardware-mode").write_text(sys.argv[2] + "\n")
+        if sys.argv[2] == "hybrid-gpu":
+            run(["systemctl", "enable", "--now", "switcheroo-control.service"])
+        return run(["/usr/local/sbin/puresteel-profile", "apply", "balanced"])
+    if action == "snapshot-create":
+        comment = sys.argv[2] if len(sys.argv) > 2 else "Puresteel manual snapshot"
+        return snapshot(comment)
+    if action == "app-pack":
+        if len(sys.argv) != 3 or sys.argv[2] not in PACKS:
+            print("Unknown app pack", file=sys.stderr); return 2
+        pack = PACKS[sys.argv[2]]
+        if pack["apt"]:
+            if run(["apt-get", "update"]) != 0: return 1
+            if run(["apt-get", "install", "-y", *pack["apt"]]) != 0: return 1
+        if pack["flatpak"] and Path("/usr/bin/flatpak").exists():
+            if run(["flatpak", "install", "--system", "-y", "flathub", *pack["flatpak"]]) != 0: return 1
+        return 0
+    if action == "channel-set":
+        if len(sys.argv) != 3 or sys.argv[2] not in ("stable", "testing"):
+            print("Invalid channel", file=sys.stderr); return 2
+        return channel_set(sys.argv[2])
+    if action == "nvidia-reinstall":
+        if run(["apt-get", "update"]) != 0: return 1
+        return run(["apt-get", "install", "--reinstall", "-y", "nvidia-driver", "nvidia-settings", "switcheroo-control"])
+    if action == "graphics-repair-intel":
+        if run(["apt-get", "update"]) != 0: return 1
+        return run(["apt-get", "install", "--reinstall", "-y", "firmware-intel-graphics", "firmware-intel-misc", "intel-media-va-driver-non-free", "mesa-vulkan-drivers", "mesa-va-drivers", "libvulkan1"])
+    if action == "graphics-repair-amd":
+        if run(["apt-get", "update"]) != 0: return 1
+        return run(["apt-get", "install", "--reinstall", "-y", "firmware-amd-graphics", "mesa-vulkan-drivers", "mesa-va-drivers", "libvulkan1", "xserver-xorg-video-amdgpu"])
+    print("Unknown action", file=sys.stderr); return 2
+
+
+if __name__ == "__main__":
     raise SystemExit(main())
