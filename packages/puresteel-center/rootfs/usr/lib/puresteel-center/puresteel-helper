@@ -29,6 +29,7 @@ TIMESHIFT_CONFIGS = (
     Path("/etc/timeshift/timeshift.json"),
     Path("/etc/timeshift.json"),
 )
+LAST_UPDATE = Path("/var/lib/puresteel/last-update-snapshot")
 
 
 def run(cmd):
@@ -69,19 +70,17 @@ def root_snapshot_device():
     source = source.strip().split("[", 1)[0]
     if source.startswith("/dev/"):
         return source
-
     code, uuid = capture([findmnt, "-n", "-o", "UUID", "/"])
     if code == 0 and uuid.strip():
         return uuid.strip()
     return ""
 
 
-def snapshot(comment):
+def snapshot(comment, mark_last_update=False):
     timeshift = Path("/usr/bin/timeshift")
     if not timeshift.exists():
         print("Timeshift is not installed; skipping snapshot.")
         return 0
-
     cmd = [str(timeshift), "--create", "--comments", comment[:120], "--tags", "O"]
     if not timeshift_configured():
         device = root_snapshot_device()
@@ -90,11 +89,14 @@ def snapshot(comment):
             return 1
         print(f"[Puresteel] Initializing Timeshift on {device}...")
         cmd.extend(["--snapshot-device", device])
-
     rc = run(cmd)
     if rc != 0:
         print("Snapshot could not be created; continuing without it.")
-    return rc
+        return rc
+    if mark_last_update:
+        LAST_UPDATE.parent.mkdir(parents=True, exist_ok=True)
+        LAST_UPDATE.write_text(comment + "\n")
+    return 0
 
 
 def snapshot_list():
@@ -102,7 +104,6 @@ def snapshot_list():
     if not timeshift.exists():
         print("Timeshift is not installed.")
         return 1
-
     if not timeshift_configured():
         device = root_snapshot_device()
         print("Timeshift is not initialized yet.")
@@ -110,9 +111,8 @@ def snapshot_list():
             print(f"Puresteel will use {device} as the initial RSYNC snapshot device when you create the first snapshot.")
         else:
             print("Puresteel could not determine the root snapshot device automatically.")
-        print("Click 'Create snapshot' to initialize Timeshift.")
+        print("Create a snapshot to initialize Timeshift.")
         return 0
-
     return run([str(timeshift), "--list"])
 
 
@@ -141,6 +141,17 @@ def channel_set(name):
     return run(["apt-get", "update"])
 
 
+def repair_packages():
+    run(["dpkg", "--configure", "-a"])
+    return run(["apt-get", "-f", "install", "-y"])
+
+
+def repair_boot():
+    rc = run(["update-initramfs", "-u", "-k", "all"])
+    if rc != 0: return rc
+    return run(["update-grub"])
+
+
 def main():
     if os.geteuid() != 0:
         print("This helper must run as root.", file=sys.stderr); return 1
@@ -152,7 +163,7 @@ def main():
         if run(["apt-get", "update"]) != 0: return 1
         return run(["apt-get", "full-upgrade", "-y"])
     if action == "safe-upgrade":
-        snapshot("Before Puresteel system update")
+        snapshot("Before Puresteel system update", mark_last_update=True)
         if run(["apt-get", "update"]) != 0: return 1
         return run(["apt-get", "full-upgrade", "-y"])
     if action in ("apt-install", "apt-remove"):
@@ -173,10 +184,35 @@ def main():
             run(["systemctl", "enable", "--now", "switcheroo-control.service"])
         return run(["/usr/local/sbin/puresteel-profile", "apply", "balanced"])
     if action == "snapshot-create":
-        comment = sys.argv[2] if len(sys.argv) > 2 else "Puresteel manual snapshot"
-        return snapshot(comment)
+        return snapshot(sys.argv[2] if len(sys.argv) > 2 else "Puresteel manual snapshot")
     if action == "snapshot-list":
         return snapshot_list()
+    if action == "firmware-refresh":
+        if run(["fwupdmgr", "refresh", "--force"]) != 0: return 1
+        return run(["fwupdmgr", "get-updates"])
+    if action == "firmware-update":
+        if run(["fwupdmgr", "refresh", "--force"]) != 0: return 1
+        return run(["fwupdmgr", "update", "-y"])
+    if action == "flatpak-repair":
+        if not Path("/usr/bin/flatpak").exists(): return 1
+        if run(["flatpak", "repair", "--system"]) != 0: return 1
+        return run(["flatpak", "uninstall", "--system", "--unused", "-y"])
+    if action == "repair-packages": return repair_packages()
+    if action == "repair-boot": return repair_boot()
+    if action == "repair-lightdm":
+        run(["systemctl", "enable", "lightdm.service"])
+        return run(["systemctl", "set-default", "graphical.target"])
+    if action == "repair-nvidia":
+        run(["dpkg", "--configure", "-a"])
+        if Path("/usr/sbin/dkms").exists(): run(["/usr/sbin/dkms", "autoinstall"])
+        return run(["update-initramfs", "-u", "-k", "all"])
+    if action == "mok-enroll":
+        if len(sys.argv) != 3:
+            print("DER key path required", file=sys.stderr); return 2
+        key = Path(sys.argv[2]).resolve()
+        if not key.is_file() or key.suffix.lower() != ".der":
+            print("A readable .der public key is required.", file=sys.stderr); return 2
+        return run(["mokutil", "--import", str(key)])
     if action == "app-pack":
         if len(sys.argv) != 3 or sys.argv[2] not in PACKS:
             print("Unknown app pack", file=sys.stderr); return 2
@@ -201,7 +237,6 @@ def main():
         if run(["apt-get", "update"]) != 0: return 1
         return run(["apt-get", "install", "--reinstall", "-y", "firmware-amd-graphics", "mesa-vulkan-drivers", "mesa-va-drivers", "libvulkan1", "xserver-xorg-video-amdgpu"])
     print("Unknown action", file=sys.stderr); return 2
-
 
 if __name__ == "__main__":
     raise SystemExit(main())
