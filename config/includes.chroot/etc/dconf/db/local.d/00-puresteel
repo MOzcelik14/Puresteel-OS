@@ -10,7 +10,7 @@ picture-uri='file:///usr/share/backgrounds/puresteel/wallpaper.png'
 picture-options='zoom'
 
 [org/cinnamon/desktop/interface]
-gtk-theme='Puresteel-Dark'
+gtk-theme='Adwaita-dark'
 icon-theme='Puresteel'
 
 [org/cinnamon/desktop/default-applications/terminal]
