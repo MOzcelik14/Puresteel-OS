@@ -16,7 +16,7 @@ class PuresteelPage(QWidget):
         actions=[
             ("welcome", lambda:self.launch("puresteel-welcome")),
             ("defaults", lambda:self.launch("puresteel-apply-defaults")),
-            ("snapshot", lambda:self.launch("timeshift-gtk")),
+            ("snapshot", lambda:self.launch("puresteel-snapshots")),
             ("essentials", lambda:self.pack("essentials")),
             ("creator", lambda:self.pack("creator")),
             ("developer", lambda:self.pack("developer")),
@@ -46,7 +46,7 @@ class PuresteelPage(QWidget):
         texts={
             "welcome":(("Hoş Geldin","Puresteel araçlarına ve belgelere ulaş."),("Welcome","Open Puresteel tools and documentation.")),
             "defaults":(("Varsayılanları Uygula","Puresteel tema, ikon ve Cinnamon tercihlerini uygula."),("Apply Defaults","Apply Puresteel theme, icon and Cinnamon defaults.")),
-            "snapshot":(("Snapshot","Timeshift geri dönüş noktalarını yönet."),("Snapshots","Manage Timeshift restore points.")),
+            "snapshot":(("Snapshot","Puresteel üzerinden Timeshift geri dönüş noktalarını yönet."),("Snapshots","Manage Timeshift restore points through Puresteel.")),
             "essentials":(("Essentials","Temel günlük uygulama paketini kur."),("Essentials","Install the everyday essentials pack.")),
             "creator":(("Creator Pack","Video, ses ve üretim araçlarını hazırla."),("Creator Pack","Prepare video, audio and creator tools.")),
             "developer":(("Developer Pack","Derleme ve geliştirme araçlarını kur."),("Developer Pack","Install development and build tools.")),
