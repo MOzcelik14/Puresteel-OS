@@ -155,11 +155,13 @@ class FirstRun(Gtk.Window):
 
     def finish(self, _):
         failures = []
-        theme = "Puresteel-Dark" if self.theme.get_active_id() == "dark" else "Puresteel-Light"
+        dark = self.theme.get_active_id() == "dark"
+        shell_theme = "Puresteel-Dark" if dark else "Puresteel-Light"
+        gtk_theme = "Adwaita-dark" if dark else "Adwaita"
         if have("gsettings"):
-            run_quiet(["gsettings", "set", "org.cinnamon.desktop.interface", "gtk-theme", theme])
+            run_quiet(["gsettings", "set", "org.cinnamon.desktop.interface", "gtk-theme", gtk_theme])
             run_quiet(["gsettings", "set", "org.cinnamon.desktop.interface", "icon-theme", "Puresteel"])
-            run_quiet(["gsettings", "set", "org.cinnamon.theme", "name", theme])
+            run_quiet(["gsettings", "set", "org.cinnamon.theme", "name", shell_theme])
             wall = "/usr/share/backgrounds/puresteel/" + self.wallpaper.get_active_id()
             run_quiet(["gsettings", "set", "org.cinnamon.desktop.background", "picture-uri", "file://" + wall])
 
