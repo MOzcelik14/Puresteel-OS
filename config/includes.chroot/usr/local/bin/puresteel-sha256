@@ -1,0 +1,10 @@
+#!/bin/sh
+set -eu
+[ "$#" -ge 1 ] || exit 2
+FILE="$1"
+SUM="$(sha256sum -- "$FILE")"
+if command -v zenity >/dev/null 2>&1; then
+    printf '%s\n' "$SUM" | zenity --text-info --title="Puresteel SHA256" --width=760 --height=180
+else
+    printf '%s\n' "$SUM"
+fi

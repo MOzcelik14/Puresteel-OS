@@ -4,3 +4,5 @@ power-profiles-daemon
 smartmontools
 alsa-utils
 iw
+timeshift
+rsync

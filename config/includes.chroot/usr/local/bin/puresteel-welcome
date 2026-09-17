@@ -1,0 +1,51 @@
+#!/usr/bin/python3
+import os
+import subprocess
+import webbrowser
+from pathlib import Path
+import gi
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk
+
+TR = os.environ.get("LANG", "").lower().startswith("tr")
+
+
+def launch(cmd):
+    try: subprocess.Popen(cmd)
+    except OSError: pass
+
+
+class Welcome(Gtk.Window):
+    def __init__(self):
+        super().__init__(title="Puresteel")
+        self.set_default_size(720, 520); self.set_border_width(28)
+        self.connect("destroy", Gtk.main_quit)
+        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=16); self.add(box)
+        title = Gtk.Label(); title.set_markup("<span size='xx-large' weight='bold'>Puresteel</span>"); title.set_xalign(0); box.pack_start(title, False, False, 0)
+        sub = Gtk.Label(label=("Sistemine hoş geldin. Puresteel araçlarına buradan ulaşabilirsin." if TR else "Welcome to your system. Access Puresteel tools from here.")); sub.set_xalign(0); sub.set_line_wrap(True); box.pack_start(sub, False, False, 0)
+        info = Gtk.Label(label=self.system_summary()); info.set_xalign(0); info.set_selectable(True); box.pack_start(info, False, False, 0)
+        grid = Gtk.Grid(column_spacing=12, row_spacing=12); box.pack_start(grid, True, True, 8)
+        actions = [
+            (("Puresteel Center"), lambda *_: launch(["puresteel-center"])),
+            (("İlk Ayarlar" if TR else "First Run"), lambda *_: launch(["puresteel-first-run", "--force"])),
+            (("Dil Ayarları" if TR else "Language Settings"), lambda *_: launch(["mintlocale"])),
+            (("Sistem Doktoru" if TR else "System Doctor"), lambda *_: launch(["gnome-terminal", "--", "puresteelctl", "doctor"])),
+            (("Anlık Görüntüler" if TR else "Snapshots"), lambda *_: launch(["timeshift-gtk"])),
+            (("Proje Sitesi" if TR else "Project Website"), lambda *_: webbrowser.open("https://mozcelik14.github.io/Puresteel-OS/")),
+        ]
+        for i, (label, cb) in enumerate(actions):
+            b = Gtk.Button(label=label); b.set_hexpand(True); b.set_vexpand(True); b.connect("clicked", cb); grid.attach(b, i % 2, i // 2, 1, 1)
+        hint = Gtk.Label(label=("Terminal: puresteelctl --help" if TR else "Terminal: puresteelctl --help")); hint.set_xalign(0); box.pack_end(hint, False, False, 0)
+
+    def system_summary(self):
+        pretty = "Puresteel"
+        try:
+            for line in Path("/etc/os-release").read_text().splitlines():
+                if line.startswith("PRETTY_NAME="): pretty = line.split("=",1)[1].strip('"')
+        except OSError: pass
+        profile = Path("/etc/puresteel/profile").read_text().strip() if Path("/etc/puresteel/profile").exists() else "balanced"
+        channel = Path("/etc/puresteel/channel").read_text().strip() if Path("/etc/puresteel/channel").exists() else "stable"
+        return f"{pretty}\nProfile: {profile}   •   Channel: {channel}"
+
+
+w = Welcome(); w.show_all(); Gtk.main()

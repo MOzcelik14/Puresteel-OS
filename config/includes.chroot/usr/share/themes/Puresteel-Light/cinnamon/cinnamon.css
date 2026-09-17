@@ -1,0 +1,6 @@
+@import url("../../../cinnamon/theme/cinnamon.css");
+#panel { background-color: rgba(238, 246, 255, 0.97); color: #0a1726; }
+.panel-button:hover, .panel-button:active, .panel-button:checked { background-color: rgba(20,115,230,0.14); }
+.menu { background-color: #f6f9fc; color: #0a1726; border: 1px solid rgba(20,115,230,0.22); }
+.menu-item:hover, .menu-item:focus { background-color: rgba(20,115,230,0.14); }
+.popup-menu-item:active, .popup-menu-item:checked { background-color: rgba(20,115,230,0.16); }
