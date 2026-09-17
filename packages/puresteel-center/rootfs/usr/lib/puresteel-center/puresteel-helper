@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import json
 import os
 import re
 import subprocess
@@ -24,31 +25,95 @@ PACKS = {
     },
 }
 
+TIMESHIFT_CONFIGS = (
+    Path("/etc/timeshift/timeshift.json"),
+    Path("/etc/timeshift.json"),
+)
+
 
 def run(cmd):
     print("+", " ".join(cmd), flush=True)
     return subprocess.call(cmd)
 
 
+def capture(cmd):
+    try:
+        p = subprocess.run(cmd, text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, check=False)
+        return p.returncode, p.stdout.strip()
+    except OSError as exc:
+        return 1, str(exc)
+
+
 def safe_pkg(value):
     return bool(re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9+._:-]*", value))
 
 
+def timeshift_configured():
+    for path in TIMESHIFT_CONFIGS:
+        if not path.exists():
+            continue
+        try:
+            data = json.loads(path.read_text(errors="ignore"))
+            if str(data.get("backup_device_uuid", "")).strip():
+                return True
+        except (OSError, ValueError, TypeError):
+            pass
+    return False
+
+
+def root_snapshot_device():
+    findmnt = "/usr/bin/findmnt" if Path("/usr/bin/findmnt").exists() else "findmnt"
+    code, source = capture([findmnt, "-n", "-o", "SOURCE", "/"])
+    if code != 0:
+        return ""
+    source = source.strip().split("[", 1)[0]
+    if source.startswith("/dev/"):
+        return source
+
+    code, uuid = capture([findmnt, "-n", "-o", "UUID", "/"])
+    if code == 0 and uuid.strip():
+        return uuid.strip()
+    return ""
+
+
 def snapshot(comment):
-    if not Path("/usr/bin/timeshift").exists():
+    timeshift = Path("/usr/bin/timeshift")
+    if not timeshift.exists():
         print("Timeshift is not installed; skipping snapshot.")
         return 0
-    rc = run(["timeshift", "--create", "--comments", comment[:120], "--tags", "O"])
+
+    cmd = [str(timeshift), "--create", "--comments", comment[:120], "--tags", "O"]
+    if not timeshift_configured():
+        device = root_snapshot_device()
+        if not device:
+            print("Timeshift is not configured and Puresteel could not determine a snapshot device.", file=sys.stderr)
+            return 1
+        print(f"[Puresteel] Initializing Timeshift on {device}...")
+        cmd.extend(["--snapshot-device", device])
+
+    rc = run(cmd)
     if rc != 0:
         print("Snapshot could not be created; continuing without it.")
-    return 0
+    return rc
 
 
 def snapshot_list():
-    if not Path("/usr/bin/timeshift").exists():
+    timeshift = Path("/usr/bin/timeshift")
+    if not timeshift.exists():
         print("Timeshift is not installed.")
         return 1
-    return run(["timeshift", "--list"])
+
+    if not timeshift_configured():
+        device = root_snapshot_device()
+        print("Timeshift is not initialized yet.")
+        if device:
+            print(f"Puresteel will use {device} as the initial RSYNC snapshot device when you create the first snapshot.")
+        else:
+            print("Puresteel could not determine the root snapshot device automatically.")
+        print("Click 'Create snapshot' to initialize Timeshift.")
+        return 0
+
+    return run([str(timeshift), "--list"])
 
 
 def channel_set(name):
