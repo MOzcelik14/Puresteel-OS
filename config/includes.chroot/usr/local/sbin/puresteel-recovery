@@ -36,6 +36,28 @@ nvidia_repair() {
     update-initramfs -u -k all || true
 }
 
+snapshot_list() {
+    if command -v timeshift >/dev/null 2>&1; then
+        timeshift --list || true
+    else
+        echo "Timeshift is not installed."
+    fi
+}
+
+snapshot_restore() {
+    if ! command -v timeshift >/dev/null 2>&1; then
+        echo "Timeshift is not installed."
+        return
+    fi
+    echo "This opens Timeshift's interactive restore flow. Review the target snapshot and disks carefully."
+    printf 'Continue? [y/N] '
+    read answer
+    case "$answer" in
+        y|Y|yes|YES) timeshift --restore || true ;;
+        *) echo "Restore cancelled." ;;
+    esac
+}
+
 menu() {
     while :; do
         clear 2>/dev/null || true
@@ -47,9 +69,11 @@ Puresteel Recovery
 3) Restore LightDM graphical boot
 4) Rebuild NVIDIA DKMS/initramfs
 5) Run Puresteel Doctor
-6) Open root shell
-7) Reboot
-8) Power off
+6) List Timeshift snapshots
+7) Restore a Timeshift snapshot
+8) Open root shell
+9) Reboot
+10) Power off
 0) Exit recovery menu
 EOF
         printf '> '
@@ -60,9 +84,11 @@ EOF
             3) lightdm_repair; pause ;;
             4) nvidia_repair; pause ;;
             5) /usr/local/bin/puresteel-doctor 2>&1 | less -R 2>/dev/null || /usr/local/bin/puresteel-doctor; pause ;;
-            6) /bin/bash ;;
-            7) systemctl reboot; sleep 30 ;;
-            8) systemctl poweroff; sleep 30 ;;
+            6) snapshot_list; pause ;;
+            7) snapshot_restore; pause ;;
+            8) /bin/bash ;;
+            9) systemctl reboot; sleep 30 ;;
+            10) systemctl poweroff; sleep 30 ;;
             0) return 0 ;;
             *) echo "Unknown choice"; sleep 1 ;;
         esac
@@ -76,5 +102,7 @@ case "${1:-}" in
     lightdm) lightdm_repair ;;
     nvidia) nvidia_repair ;;
     doctor) /usr/local/bin/puresteel-doctor ;;
-    *) echo "Usage: puresteel-recovery [apt|boot|lightdm|nvidia|doctor|--boot-menu]"; exit 2 ;;
+    snapshots) snapshot_list ;;
+    restore) snapshot_restore ;;
+    *) echo "Usage: puresteel-recovery [apt|boot|lightdm|nvidia|doctor|snapshots|restore|--boot-menu]"; exit 2 ;;
 esac
