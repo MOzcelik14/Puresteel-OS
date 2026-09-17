@@ -5,6 +5,6 @@ Name[tr]=Puresteel İlk Ayarlar
 Comment=Language, appearance, performance profile and hardware overview
 Comment[tr]=Dil, görünüm, performans profili ve donanım özeti
 Exec=/usr/local/bin/puresteel-first-run --force
-Icon=puresteel-logo
+Icon=puresteel-installer
 Categories=Settings;System;
 Terminal=false

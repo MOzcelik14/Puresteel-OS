@@ -11,7 +11,7 @@ PROFILES = {
     "creator": {"swappiness": 4, "cache": 75, "power": "performance"},
     "battery": {"swappiness": 20, "cache": 150, "power": "power-saver"},
 }
-CONF = Path("/etc/sysctl.d/98-puresteel-profile.conf")
+CONF = Path("/etc/sysctl.d/99-puresteel-profile.conf")
 STATE = Path("/etc/puresteel/profile")
 
 
