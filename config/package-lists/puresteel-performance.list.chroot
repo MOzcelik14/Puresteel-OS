@@ -6,3 +6,12 @@ alsa-utils
 iw
 timeshift
 rsync
+fwupd
+mokutil
+efibootmgr
+libnotify-bin
+zenity
+dmidecode
+upower
+gettext-base
+linux-headers-amd64

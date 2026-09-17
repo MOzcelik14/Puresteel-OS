@@ -1,0 +1,11 @@
+#!/usr/bin/python3
+import argparse,subprocess,tempfile,pathlib,webbrowser
+p=argparse.ArgumentParser();p.add_argument('--open-issue',action='store_true');a=p.parse_args()
+out=[]
+for tool in ('puresteel-info','puresteel-logs'):
+    try: out.append(subprocess.run([tool],text=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,timeout=30,check=False).stdout)
+    except Exception as e: out.append(str(e))
+path=pathlib.Path.home()/f'puresteel-crash-report.txt';path.write_text('\n\n'.join(out))
+print('Created:',path)
+print('Review the report before sharing it. Personal network identifiers are not intentionally collected by Puresteel Info.')
+if a.open_issue:webbrowser.open('https://github.com/MOzcelik14/Puresteel-OS/issues/new')

@@ -1,0 +1,52 @@
+name: Puresteel validation
+
+on:
+  pull_request:
+  push:
+    branches: [ main, puresteel-platform-tools ]
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install validation tools
+        run: sudo apt-get update && sudo apt-get install -y shellcheck python3 python3-yaml dpkg-dev
+      - name: Shell syntax
+        run: |
+          find scripts config -type f \( -name '*.sh' -o -name '*.hook.chroot' \) -print0 | xargs -0 -r shellcheck -S error
+          shellcheck -S error build.sh bootstrap.sh
+      - name: Python syntax
+        run: |
+          python3 -m compileall -q config/includes.chroot/usr/local/bin config/includes.chroot/usr/local/sbin packages/puresteel-center/rootfs/usr/share/puresteel-center packages/puresteel-center/rootfs/usr/lib/puresteel-center
+      - name: Calamares YAML
+        run: python3 - <<'PY'
+          import yaml
+          for p in ['config/includes.chroot/etc/calamares/settings.conf','config/includes.chroot/etc/calamares/modules/users.conf']:
+              with open(p, encoding='utf-8') as f: yaml.safe_load(f)
+              print('OK', p)
+          PY
+      - name: Build Puresteel Center package
+        run: ./scripts/build-center-package.sh
+      - name: Build metapackages
+        run: ./scripts/build-meta-packages.sh
+
+  iso-smoke:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install live-build
+        run: sudo apt-get update && sudo apt-get install -y live-build debootstrap squashfs-tools xorriso isolinux syslinux-common
+      - name: Build ISO
+        run: sudo ./build.sh
+      - name: Checksums
+        run: sha256sum *.iso | tee puresteel-ci.sha256
+      - uses: actions/upload-artifact@v4
+        with:
+          name: puresteel-iso
+          path: |
+            *.iso
+            puresteel-ci.sha256

@@ -1,0 +1,20 @@
+#!/usr/bin/python3
+import argparse, subprocess, pathlib
+
+def cap(cmd):
+    try:return subprocess.run(cmd,text=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,timeout=30,check=False).stdout
+    except Exception as e:return str(e)
+
+p=argparse.ArgumentParser();p.add_argument('--save');a=p.parse_args()
+parts=['Puresteel Logs\n']
+for title,cmd in (
+ ('Failed services',['systemctl','--failed','--no-pager']),
+ ('Boot errors',['journalctl','-b','-p','3','--no-pager','-n','100']),
+ ('DKMS',['dkms','status']),
+ ('Kernel',['journalctl','-b','-k','--no-pager','-n','120']),
+ ('NetworkManager',['journalctl','-b','-u','NetworkManager','--no-pager','-n','80']),
+ ('LightDM',['journalctl','-b','-u','lightdm','--no-pager','-n','80'])):
+    parts.append(f'\n== {title} ==\n{cap(cmd)}')
+out=''.join(parts);print(out)
+if a.save:
+    pathlib.Path(a.save).expanduser().write_text(out);print('Saved:',a.save)

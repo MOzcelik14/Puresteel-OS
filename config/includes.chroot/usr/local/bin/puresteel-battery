@@ -1,0 +1,27 @@
+#!/usr/bin/python3
+from pathlib import Path
+import subprocess, shutil
+
+bats=list(Path('/sys/class/power_supply').glob('BAT*'))
+if not bats:
+    print('No battery detected.'); raise SystemExit(0)
+for b in bats:
+    print(f"Battery: {b.name}")
+    def read(n):
+        try:return (b/n).read_text().strip()
+        except OSError:return '?'
+    now=read('energy_full'); design=read('energy_full_design')
+    if now=='?': now=read('charge_full')
+    if design=='?': design=read('charge_full_design')
+    try: health=100*int(now)/int(design)
+    except Exception: health=None
+    print('Status:',read('status'))
+    print('Capacity:',read('capacity')+'%')
+    print('Cycle count:',read('cycle_count'))
+    if health is not None: print(f'Design health: {health:.1f}%')
+    print('Manufacturer:',read('manufacturer'))
+    print('Model:',read('model_name'))
+    print()
+if shutil.which('powerprofilesctl'):
+    p=subprocess.run(['powerprofilesctl','get'],text=True,capture_output=True,check=False)
+    print('Power profile:',p.stdout.strip() or 'unavailable')

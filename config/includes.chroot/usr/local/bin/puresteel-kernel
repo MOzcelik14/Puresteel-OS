@@ -1,0 +1,14 @@
+#!/usr/bin/python3
+from pathlib import Path
+import re,subprocess
+kernels=[]
+for p in Path('/boot').glob('vmlinuz-*'):
+    kernels.append(p.name.removeprefix('vmlinuz-'))
+kernels=sorted(set(kernels),reverse=True)
+running=subprocess.run(['uname','-r'],text=True,capture_output=True,check=False).stdout.strip()
+print('Running:',running)
+print('Installed kernels:')
+for i,k in enumerate(kernels): print((' * ' if k==running else '   ')+k)
+others=[k for k in kernels if k!=running]
+if others: print('\nPrevious/alternate candidate:',others[0])
+print('\nBoot an older kernel from GRUB → Advanced options for Puresteel. Puresteel intentionally does not rewrite GRUB saved-entry state automatically.')

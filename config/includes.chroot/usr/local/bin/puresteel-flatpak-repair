@@ -1,0 +1,5 @@
+#!/usr/bin/python3
+import os,subprocess
+cmd=['/usr/lib/puresteel-center/puresteel-helper','flatpak-repair']
+if os.geteuid()!=0:cmd.insert(0,'pkexec')
+raise SystemExit(subprocess.run(cmd,check=False).returncode)

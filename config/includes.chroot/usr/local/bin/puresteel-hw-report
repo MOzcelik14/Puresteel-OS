@@ -1,0 +1,17 @@
+#!/usr/bin/python3
+import json,subprocess,platform
+
+def cap(c):
+    try:return subprocess.run(c,text=True,stdout=subprocess.PIPE,stderr=subprocess.DEVNULL,timeout=12,check=False).stdout.strip()
+    except Exception:return ''
+report={
+ 'schema':1,'os':'Puresteel','kernel':platform.release(),'arch':platform.machine(),
+ 'cpu':cap(['lscpu','-J']),
+ 'graphics':'\n'.join(x for x in cap(['lspci','-nnk']).splitlines() if any(k in x.lower() for k in ('vga compatible','3d controller','kernel driver in use'))),
+ 'memory':cap(['free','-h']),
+ 'audio':'\n'.join(x for x in cap(['lspci']).splitlines() if 'audio' in x.lower()),
+ 'network':'\n'.join(x for x in cap(['lspci']).splitlines() if any(k in x.lower() for k in ('network','ethernet'))),
+ 'desktop':'Cinnamon/X11'
+}
+# Deliberately excludes hostname, usernames, serial numbers, MACs and IP addresses.
+print(json.dumps(report,ensure_ascii=False,indent=2))

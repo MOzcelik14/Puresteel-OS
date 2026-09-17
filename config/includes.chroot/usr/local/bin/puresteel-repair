@@ -1,0 +1,26 @@
+#!/usr/bin/python3
+import subprocess
+import gi
+gi.require_version('Gtk','3.0')
+from gi.repository import Gtk
+HELPER='/usr/lib/puresteel-center/puresteel-helper'
+ACTIONS=[
+ ('Broken packages','repair-packages'),
+ ('Initramfs + GRUB','repair-boot'),
+ ('LightDM graphical boot','repair-lightdm'),
+ ('NVIDIA DKMS/initramfs','repair-nvidia'),
+ ('Flatpak installation','flatpak-repair'),
+]
+class W(Gtk.Window):
+ def __init__(self):
+  super().__init__(title='Puresteel Repair');self.set_default_size(620,420);self.set_border_width(18);self.connect('destroy',Gtk.main_quit)
+  b=Gtk.Box(orientation=Gtk.Orientation.VERTICAL,spacing=10);self.add(b)
+  t=Gtk.Label();t.set_markup("<span size='x-large' weight='bold'>Puresteel Repair</span>");t.set_xalign(0);b.pack_start(t,False,False,0)
+  n=Gtk.Label(label='Safe repair actions. Driver packages are not purged automatically.');n.set_xalign(0);n.set_line_wrap(True);b.pack_start(n,False,False,0)
+  self.out=Gtk.TextView();self.out.set_editable(False);self.out.set_monospace(True);s=Gtk.ScrolledWindow();s.add(self.out);b.pack_start(s,True,True,0)
+  for label,action in ACTIONS:
+   x=Gtk.Button(label='Repair '+label);x.connect('clicked',self.go,action);b.pack_start(x,False,False,0)
+ def go(self,_btn,action):
+  p=subprocess.run(['pkexec',HELPER,action],text=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,check=False)
+  self.out.get_buffer().set_text(p.stdout or ('Completed.' if p.returncode==0 else 'Failed.'))
+w=W();w.show_all();Gtk.main()

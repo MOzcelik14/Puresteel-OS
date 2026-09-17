@@ -1,0 +1,17 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Puresteel 1.3\n"
+"Language: tr\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+
+msgid "Puresteel Updates"
+msgstr "Puresteel Güncellemeleri"
+
+msgid "Puresteel Recovery"
+msgstr "Puresteel Kurtarma"
+
+msgid "Create snapshot"
+msgstr "Snapshot oluştur"
+
+msgid "System health"
+msgstr "Sistem sağlığı"
