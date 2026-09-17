@@ -23,7 +23,9 @@ def setv(schema, key, value):
 
 def main():
     changed = 0
-    changed += setv("org.cinnamon.desktop.interface", "gtk-theme", "Puresteel-Dark")
+    # Keep application widgets on Debian's complete Adwaita GTK theme. Puresteel
+    # owns the Cinnamon shell, icons, wallpaper and desktop identity layer.
+    changed += setv("org.cinnamon.desktop.interface", "gtk-theme", "Adwaita-dark")
     changed += setv("org.cinnamon.desktop.interface", "icon-theme", "Puresteel")
     changed += setv("org.cinnamon.desktop.background", "picture-uri", "file:///usr/share/backgrounds/puresteel/wallpaper.png")
     changed += setv("org.cinnamon.desktop.background", "picture-options", "zoom")
