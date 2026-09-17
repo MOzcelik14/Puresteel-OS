@@ -117,12 +117,11 @@ def cmd_snapshot(args):
         print("Timeshift is not installed.")
         return 1
     if args.action == "list":
-        return run(["timeshift", "--list"])
+        return elevated("snapshot-list")
     if args.action == "create":
         return elevated("snapshot-create", args.comment or "Puresteel manual snapshot")
     if args.action == "open":
-        app = shutil.which("timeshift-gtk") or shutil.which("timeshift")
-        return run([app])
+        return run(["/usr/local/bin/puresteel-snapshots"])
     return 2
 
 
@@ -166,18 +165,19 @@ def cmd_theme(args):
             code, out = capture(["gsettings", "get", schema, key]) if shutil.which("gsettings") else (1, "")
             print(f"{label}={out if code == 0 else 'unavailable'}")
         return 0
-    theme = "Puresteel-Dark" if args.name == "dark" else "Puresteel-Light"
+    shell_theme = "Puresteel-Dark" if args.name == "dark" else "Puresteel-Light"
+    gtk_theme = "Adwaita-dark" if args.name == "dark" else "Adwaita"
     rc = 0
-    rc |= gset("org.cinnamon.desktop.interface", "gtk-theme", theme)
+    rc |= gset("org.cinnamon.desktop.interface", "gtk-theme", gtk_theme)
     rc |= gset("org.cinnamon.desktop.interface", "icon-theme", "Puresteel")
-    gset("org.cinnamon.theme", "name", theme)
+    gset("org.cinnamon.theme", "name", shell_theme)
     if args.wallpaper:
         wall = Path("/usr/share/backgrounds/puresteel") / args.wallpaper
         if not wall.exists():
             print(f"Wallpaper not found: {wall}")
             return 2
         gset("org.cinnamon.desktop.background", "picture-uri", "file://" + str(wall))
-    print(f"Theme applied: {theme}")
+    print(f"Theme applied: {shell_theme} + {gtk_theme}")
     return rc
 
 
