@@ -68,7 +68,6 @@ def cmd_status(_):
         pass
     print(pretty)
     if Path(PROFILE).exists():
-        capture([PROFILE, "status"])
         _, out = capture([PROFILE, "status"])
         print(out)
     print("channel=" + (CHANNEL.read_text().strip() if CHANNEL.exists() else "stable"))
@@ -145,6 +144,43 @@ def cmd_channel(args):
     return elevated("channel-set", args.name)
 
 
+def gset(schema, key, value):
+    if not shutil.which("gsettings"):
+        return 1
+    code, schemas = capture(["gsettings", "list-schemas"])
+    if code != 0 or schema not in schemas.splitlines():
+        return 1
+    code, keys = capture(["gsettings", "list-keys", schema])
+    if code != 0 or key not in keys.splitlines():
+        return 1
+    return run(["gsettings", "set", schema, key, value])
+
+
+def cmd_theme(args):
+    if args.action == "status":
+        for schema, key, label in (
+            ("org.cinnamon.desktop.interface", "gtk-theme", "gtk"),
+            ("org.cinnamon.desktop.interface", "icon-theme", "icons"),
+            ("org.cinnamon.theme", "name", "cinnamon"),
+        ):
+            code, out = capture(["gsettings", "get", schema, key]) if shutil.which("gsettings") else (1, "")
+            print(f"{label}={out if code == 0 else 'unavailable'}")
+        return 0
+    theme = "Puresteel-Dark" if args.name == "dark" else "Puresteel-Light"
+    rc = 0
+    rc |= gset("org.cinnamon.desktop.interface", "gtk-theme", theme)
+    rc |= gset("org.cinnamon.desktop.interface", "icon-theme", "Puresteel")
+    gset("org.cinnamon.theme", "name", theme)
+    if args.wallpaper:
+        wall = Path("/usr/share/backgrounds/puresteel") / args.wallpaper
+        if not wall.exists():
+            print(f"Wallpaper not found: {wall}")
+            return 2
+        gset("org.cinnamon.desktop.background", "picture-uri", "file://" + str(wall))
+    print(f"Theme applied: {theme}")
+    return rc
+
+
 def exec_tool(name, extra=None):
     path = shutil.which(name) or name
     os.execv(path, [path, *(extra or [])])
@@ -161,6 +197,7 @@ def main():
     up = sub.add_parser("update"); up.add_argument("--no-snapshot", action="store_true"); up.set_defaults(func=cmd_update)
     ap = sub.add_parser("apps"); ap.add_argument("action", choices=("list", "install")); ap.add_argument("pack", nargs="?", choices=("essentials", "creator", "developer", "gaming")); ap.set_defaults(func=cmd_apps)
     ch = sub.add_parser("channel"); ch.add_argument("action", choices=("status", "set")); ch.add_argument("name", nargs="?", choices=("stable", "testing")); ch.set_defaults(func=cmd_channel)
+    th = sub.add_parser("theme"); th.add_argument("action", choices=("status", "apply")); th.add_argument("name", nargs="?", choices=("dark", "light")); th.add_argument("--wallpaper"); th.set_defaults(func=cmd_theme)
     d = sub.add_parser("doctor"); d.add_argument("args", nargs=argparse.REMAINDER); d.set_defaults(func=lambda a: exec_tool("puresteel-doctor", a.args))
     i = sub.add_parser("info"); i.set_defaults(func=lambda a: exec_tool("puresteel-info"))
     de = sub.add_parser("defaults"); de.set_defaults(func=lambda a: exec_tool("puresteel-apply-defaults"))
@@ -172,6 +209,8 @@ def main():
         p.error("apps install requires a pack")
     if args.cmd == "channel" and args.action == "set" and not args.name:
         p.error("channel set requires a channel")
+    if args.cmd == "theme" and args.action == "apply" and not args.name:
+        p.error("theme apply requires dark or light")
     return args.func(args) or 0
 
 
