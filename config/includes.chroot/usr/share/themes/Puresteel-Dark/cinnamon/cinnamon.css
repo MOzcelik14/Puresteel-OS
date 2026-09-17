@@ -1,6 +1,20 @@
+/* Puresteel Dark — Cinnamon shell identity */
 @import url("../../../cinnamon/theme/cinnamon.css");
-#panel { background-color: rgba(7, 14, 24, 0.96); color: #eef6ff; }
-.panel-button:hover, .panel-button:active, .panel-button:checked { background-color: rgba(47, 140, 255, 0.20); }
-.menu { background-color: #0b1421; color: #eef6ff; border: 1px solid rgba(88,166,255,0.28); }
-.menu-item:hover, .menu-item:focus { background-color: rgba(47,140,255,0.22); }
-.popup-menu-item:active, .popup-menu-item:checked { background-color: rgba(47,140,255,0.24); }
+stage { font-family: "Sans"; }
+#panel { background-color: rgba(12,16,22,0.96); color: #eef4ff; border-top: 1px solid rgba(255,255,255,0.05); }
+.panel-button { color: #dce7f7; border-radius: 7px; }
+.panel-button:hover, .panel-button:active, .panel-button:checked { background-color: rgba(82,139,255,0.22); color: white; }
+.menu { background-color: #111821; border: 1px solid #293547; border-radius: 10px; color: #eaf1fb; }
+.menu-item { border-radius: 7px; padding: 7px 10px; }
+.menu-item:hover, .menu-item:active { background-color: #263b5b; }
+.popup-menu-content { padding: 8px; }
+.notification-button, .modal-dialog-button { background-color: #202c3c; color: #f4f7fb; border-radius: 8px; padding: 8px 14px; }
+.notification-button:hover, .modal-dialog-button:hover { background-color: #2e4770; }
+.notification { background-color: #111821; color: #eef4ff; border: 1px solid #293547; border-radius: 10px; }
+.workspace-switcher-container { background-color: rgba(11,15,21,0.92); border-radius: 12px; padding: 10px; }
+.window-list-item-box { border-radius: 7px; padding: 4px 8px; }
+.window-list-item-box:hover { background-color: rgba(82,139,255,0.18); }
+.window-list-item-box:active, .window-list-item-box:checked { background-color: rgba(82,139,255,0.30); }
+.calendar { background-color: #111821; color: #eef4ff; }
+.calendar-day-base:hover, .calendar-day-base:focus { background-color: #263b5b; border-radius: 999px; }
+.calendar-today { background-color: #477ed8; color: white; border-radius: 999px; }
