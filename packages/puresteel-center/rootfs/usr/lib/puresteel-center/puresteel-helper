@@ -44,6 +44,13 @@ def snapshot(comment):
     return 0
 
 
+def snapshot_list():
+    if not Path("/usr/bin/timeshift").exists():
+        print("Timeshift is not installed.")
+        return 1
+    return run(["timeshift", "--list"])
+
+
 def channel_set(name):
     conf = Path("/usr/share/puresteel/channels.conf")
     channels = {}
@@ -103,6 +110,8 @@ def main():
     if action == "snapshot-create":
         comment = sys.argv[2] if len(sys.argv) > 2 else "Puresteel manual snapshot"
         return snapshot(comment)
+    if action == "snapshot-list":
+        return snapshot_list()
     if action == "app-pack":
         if len(sys.argv) != 3 or sys.argv[2] not in PACKS:
             print("Unknown app pack", file=sys.stderr); return 2
