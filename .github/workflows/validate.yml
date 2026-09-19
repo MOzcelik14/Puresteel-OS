@@ -31,6 +31,14 @@ jobs:
         run: ./scripts/build-center-package.sh
       - name: Build metapackages
         run: ./scripts/build-meta-packages.sh
+      - name: Build component packages
+        run: ./scripts/build-component-packages.sh
+      - name: Test package payloads
+        run: |
+          for deb in build/packages/puresteel-{platform,recovery,branding,default-settings}_*.deb; do
+            dpkg-deb --info "$deb"
+            dpkg-deb --contents "$deb" | grep -q -E 'usr/local/bin/puresteel|usr/share/themes/Puresteel|etc/dconf'
+          done
 
   iso-smoke:
     if: github.event_name == 'workflow_dispatch'

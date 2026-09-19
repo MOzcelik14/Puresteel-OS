@@ -20,15 +20,18 @@ cp branding/grub-theme.cfg config/bootloaders/grub-pc/theme.cfg
 echo "[Puresteel] Building Puresteel packages..."
 CENTER_DEB="$(scripts/build-center-package.sh)"
 mapfile -t META_DEBS < <(scripts/build-meta-packages.sh)
+mapfile -t COMPONENT_DEBS < <(scripts/build-component-packages.sh)
 mkdir -p config/packages.chroot
 find config/packages.chroot -maxdepth 1 -type f -name 'puresteel-*.deb' -delete
 cp -f "$CENTER_DEB" config/packages.chroot/
-for DEB in "${META_DEBS[@]}"; do
+for DEB in "${META_DEBS[@]}" "${COMPONENT_DEBS[@]}"; do
     cp -f "$DEB" config/packages.chroot/
 done
 
-echo "[Puresteel] Bundled $(basename "$CENTER_DEB") and ${#META_DEBS[@]} component packages"
+echo "[Puresteel] Bundled Center + ${#META_DEBS[@]} metapackages + ${#COMPONENT_DEBS[@]} maintained component packages"
 test -f "config/packages.chroot/$(basename "$CENTER_DEB")"
+test -f config/packages.chroot/puresteel-platform_*.deb
+test -f config/packages.chroot/puresteel-recovery_*.deb
 
 echo "[Puresteel] Building ISO..."
 sudo lb build 2>&1 | tee build.log

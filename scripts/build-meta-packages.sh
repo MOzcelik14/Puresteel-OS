@@ -3,7 +3,7 @@ set -euo pipefail
 
 REPO="$(cd "$(dirname "$0")/.." && pwd)"
 OUT="$REPO/build/packages"
-VERSION="1.2.0-1"
+VERSION="1.3.1-1"
 mkdir -p "$OUT"
 
 build_meta() {
@@ -28,10 +28,8 @@ EOF
     echo "$deb"
 }
 
-build_meta puresteel-base "systemd-sysv, network-manager, flatpak, zram-tools" "Puresteel base system"
-build_meta puresteel-desktop "cinnamon-core, lightdm, slick-greeter, nemo" "Puresteel Cinnamon desktop"
+build_meta puresteel-base "systemd-sysv, network-manager, flatpak, zram-tools, puresteel-platform (>= $VERSION)" "Puresteel base system"
+build_meta puresteel-desktop "cinnamon-core, lightdm, slick-greeter, nemo, puresteel-branding (>= $VERSION), puresteel-default-settings (>= $VERSION), puresteel-recovery (>= $VERSION)" "Puresteel Cinnamon desktop"
 build_meta puresteel-gaming "steam-installer, wine, winetricks, gamemode, mangohud" "Puresteel gaming stack"
 build_meta puresteel-creator "ffmpeg, flatpak" "Puresteel creator stack"
 build_meta puresteel-developer "build-essential, git, curl" "Puresteel developer stack"
-build_meta puresteel-default-settings "dconf-cli, papirus-icon-theme, timeshift" "Puresteel desktop defaults and recovery integration"
-build_meta puresteel-branding "puresteel-default-settings" "Puresteel branding identity"
