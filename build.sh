@@ -30,6 +30,7 @@ done
 
 echo "[Puresteel] Bundled Center + ${#META_DEBS[@]} metapackages + ${#COMPONENT_DEBS[@]} maintained component packages"
 test -f "config/packages.chroot/$(basename "$CENTER_DEB")"
+test -f config/packages.chroot/puresteel-base_*.deb
 test -f config/packages.chroot/puresteel-platform_*.deb
 test -f config/packages.chroot/puresteel-recovery_*.deb
 

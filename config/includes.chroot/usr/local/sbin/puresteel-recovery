@@ -18,7 +18,7 @@ nvidia_repair() {
     if command -v dkms >/dev/null 2>&1; then dkms autoinstall || return 1; fi
     update-initramfs -u -k all
 }
-perform() { "$@"; code=$?; if [ "$code" -ne 0 ]; then echo "[Puresteel] FAILED (exit $code). Review the output above."; fi; return 0; }
+perform() { "$@"; code=$?; if [ "$code" -ne 0 ]; then echo "[Puresteel] FAILED (exit $code). Review the output above."; fi; return "$code"; }
 
 snapshot_list() {
     if command -v timeshift >/dev/null 2>&1; then timeshift --list || true; else echo "Timeshift is not installed."; fi
@@ -28,7 +28,7 @@ snapshot_restore() {
     if ! command -v timeshift >/dev/null 2>&1; then echo "Timeshift is not installed."; return; fi
     echo "This opens Timeshift's interactive restore flow. Review the target snapshot and disks carefully."
     printf 'Continue? [y/N] '; read answer
-    case "$answer" in y|Y|yes|YES) timeshift --restore || true ;; *) echo "Restore cancelled." ;; esac
+    case "$answer" in y|Y|yes|YES) perform timeshift --restore ;; *) echo "Restore cancelled." ;; esac
 }
 
 undo_last_update() {

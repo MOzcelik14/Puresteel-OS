@@ -37,8 +37,11 @@ jobs:
         run: |
           for deb in build/packages/puresteel-{platform,recovery,branding,default-settings}_*.deb; do
             dpkg-deb --info "$deb"
-            dpkg-deb --contents "$deb" | grep -q -E 'usr/local/bin/puresteel|usr/share/themes/Puresteel|etc/dconf'
+            dpkg-deb --contents "$deb" > /tmp/puresteel-package-contents
+            grep -q -E 'usr/local/bin/puresteel|usr/local/sbin/puresteel|usr/share/themes/Puresteel|etc/dconf' /tmp/puresteel-package-contents
           done
+      - name: Platform safety unit tests
+        run: python3 -m unittest discover -s tests -v
 
   iso-smoke:
     if: github.event_name == 'workflow_dispatch'

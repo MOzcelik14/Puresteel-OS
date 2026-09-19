@@ -13,6 +13,9 @@ trap 'rm -rf "$STAGE"' EXIT
 
 mkdir -p "$OUTDIR"
 cp -a "$ROOTFS/." "$STAGE/"
+# Source-tree Python caches are not release artifacts.
+find "$STAGE" -type d -name '__pycache__' -prune -exec rm -rf {} +
+find "$STAGE" -type f -name '*.pyc' -delete
 mkdir -p "$STAGE/DEBIAN"
 
 cat > "$STAGE/DEBIAN/control" <<EOF

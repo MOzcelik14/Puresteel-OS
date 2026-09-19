@@ -70,6 +70,17 @@ Depends: $deps
 Description: $description
  Puresteel maintained distribution component, upgradable through APT.
 EOF
+    if [[ "$name" == "puresteel-recovery" ]]; then
+        cat > "$stage/DEBIAN/postinst" <<'EOF'
+#!/bin/sh
+set -e
+if [ -d /boot/grub ] && command -v update-grub >/dev/null 2>&1; then
+    update-grub || echo "[Puresteel] Could not regenerate GRUB; run sudo update-grub after repair." >&2
+fi
+exit 0
+EOF
+        chmod 755 "$stage/DEBIAN/postinst"
+    fi
     if [[ "$name" == "puresteel-default-settings" ]]; then
         cat > "$stage/DEBIAN/postinst" <<'EOF'
 #!/bin/sh

@@ -31,6 +31,7 @@ TIMESHIFT_CONFIGS = (
     Path("/etc/timeshift.json"),
 )
 LAST_UPDATE = Path("/var/lib/puresteel/last-update-snapshot")
+TIMESHIFT_BIN = Path("/usr/bin/timeshift")
 
 
 def run(cmd):
@@ -84,7 +85,7 @@ def snapshot_names():
     """Return real Timeshift snapshot names, or None when listing failed."""
     if not timeshift_configured():
         return set()
-    code, output = capture(["/usr/bin/timeshift", "--list", "--scripted"])
+    code, output = capture([str(TIMESHIFT_BIN), "--list", "--scripted"])
     if code and "No snapshots" not in output:
         print("Could not verify Timeshift snapshots: " + output[-1200:], file=sys.stderr)
         return None
@@ -92,7 +93,7 @@ def snapshot_names():
 
 
 def snapshot(comment, mark_last_update=False):
-    timeshift = Path("/usr/bin/timeshift")
+    timeshift = TIMESHIFT_BIN
     if not timeshift.exists():
         print("Timeshift is not installed.", file=sys.stderr)
         return 1
@@ -134,7 +135,7 @@ def snapshot(comment, mark_last_update=False):
 
 
 def snapshot_list():
-    timeshift = Path("/usr/bin/timeshift")
+    timeshift = TIMESHIFT_BIN
     if not timeshift.exists():
         print("Timeshift is not installed.")
         return 1
