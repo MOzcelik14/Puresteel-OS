@@ -31,4 +31,27 @@ Puresteel can report Secure Boot/MOK state and enroll a DER public key supplied 
 
 ## Hardware reports
 
-`puresteel-hw-report` prints an anonymized JSON report intended for the GitHub hardware report template. It deliberately omits hostname, username, serial numbers, MAC addresses and IP addresses.
+`puresteel-hw-report` prints a limited, share-oriented JSON report intended for the GitHub hardware report template. It deliberately omits hostname, username, serial numbers, MAC addresses and IP addresses.
+
+## Packaging and updates
+
+`build.sh` bundles real versioned Debian packages for Puresteel Center, platform tools,
+Recovery, themes/branding, desktop defaults and five role metapackages. The matching
+files in `config/includes.chroot` remain the build's single source of truth during
+this migration; they are also owned by the installed component packages so an existing
+machine can receive future updates through APT. `scripts/release-center.sh` stages
+all ten packages in the signed stable repository, not just Center. Publishing the
+signed `docs/apt` tree remains an explicit maintainer action.
+
+Safe Update blocks APT when a pre-update Timeshift snapshot cannot be created and
+verified. Use `puresteelctl update --no-snapshot` only when intentionally accepting
+that risk. Recovery's Undo Last Update reads the actual snapshot ID and requires
+confirmation of the target and filesystem before invoking Timeshift.
+
+`puresteel-info` and `puresteel-crash-helper` include only allowlisted diagnostics.
+`puresteel-logs` is **private** and can contain personal information. Hardware
+models themselves may be unique even in the allowlisted report.
+
+Validation jobs check syntax, component packages and no-root safety regression tests.
+A successful CI job does **not** prove that Calamares, GRUB Recovery or a real NVIDIA
+machine works; those remain explicit integration tests in `docs/QA.md`.

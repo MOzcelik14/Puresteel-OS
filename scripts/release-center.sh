@@ -21,7 +21,7 @@ else
 fi
 
 APTROOT="docs/apt"
-POOL="$APTROOT/pool/main/p/puresteel-center"
+POOL_ROOT="$APTROOT/pool/main/p"
 DIST="$APTROOT/dists/stable"
 KEY_IDENTITY="${PURESTEEL_KEY_IDENTITY:-Puresteel Archive Signing Key <repo@puresteel.local>}"
 
@@ -35,13 +35,24 @@ if [ -z "$FPR" ]; then
 fi
 
 DEB="$(scripts/build-center-package.sh)"
-mkdir -p config/packages.chroot
-find config/packages.chroot -maxdepth 1 -type f -name "puresteel-center_*.deb" -delete
-cp -f "$DEB" config/packages.chroot/
-mkdir -p "$POOL" "$DIST/main/binary-amd64"
-
-# Keep older versions in the pool so rollbacks remain possible.
-cp -f "$DEB" "$POOL/"
+mapfile -t META_DEBS < <(scripts/build-meta-packages.sh)
+mapfile -t COMPONENT_DEBS < <(scripts/build-component-packages.sh)
+if [ "${#META_DEBS[@]}" -ne 5 ] || [ "${#COMPONENT_DEBS[@]}" -ne 4 ]; then
+    echo "Incomplete Puresteel package build: refusing to sign repository." >&2
+    exit 1
+fi
+mkdir -p config/packages.chroot "$DIST/main/binary-amd64"
+find config/packages.chroot -maxdepth 1 -type f -name "puresteel-*.deb" -delete
+ALL_DEBS=("$DEB" "${META_DEBS[@]}" "${COMPONENT_DEBS[@]}")
+for built in "${ALL_DEBS[@]}"; do
+    [ -s "$built" ] || { echo "Missing package: $built" >&2; exit 1; }
+    name="$(dpkg-deb -f "$built" Package)"
+    pool="$POOL_ROOT/$name"
+    mkdir -p "$pool"
+    # Preserve historical releases and install matching artifacts into the new ISO.
+    cp -f "$built" "$pool/"
+    cp -f "$built" config/packages.chroot/
+done
 
 pushd "$APTROOT" >/dev/null
 
@@ -92,6 +103,6 @@ Signed-By: /usr/share/keyrings/puresteel-archive-keyring.asc
 EOF
 
 echo
-echo "Released puresteel-center $VERSION"
+echo "Prepared ${#ALL_DEBS[@]} signed-repository Puresteel packages at version $VERSION"
 echo "APT repo: ${PAGES_BASE}/apt"
-echo "Package: $POOL/puresteel-center_${VERSION}_all.deb"
+echo "Publish docs/apt to Pages only after reviewing and testing the packages."
