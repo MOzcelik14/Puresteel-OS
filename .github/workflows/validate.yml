@@ -21,11 +21,16 @@ jobs:
         run: |
           python3 -m compileall -q config/includes.chroot/usr/local/bin config/includes.chroot/usr/local/sbin packages/puresteel-center/rootfs/usr/share/puresteel-center packages/puresteel-center/rootfs/usr/lib/puresteel-center
       - name: Calamares YAML
-        run: python3 - <<'PY'
+        run: |
+          python3 - <<'PY'
           import yaml
-          for p in ['config/includes.chroot/etc/calamares/settings.conf','config/includes.chroot/etc/calamares/modules/users.conf']:
-              with open(p, encoding='utf-8') as f: yaml.safe_load(f)
-              print('OK', p)
+          for path in [
+              "config/includes.chroot/etc/calamares/settings.conf",
+              "config/includes.chroot/etc/calamares/modules/users.conf",
+          ]:
+              with open(path, encoding="utf-8") as stream:
+                  yaml.safe_load(stream)
+              print("OK", path)
           PY
       - name: Build Puresteel Center package
         run: ./scripts/build-center-package.sh
