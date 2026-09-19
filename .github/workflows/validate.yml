@@ -58,6 +58,9 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y live-build debootstrap squashfs-tools xorriso isolinux syslinux-common
       - name: Build ISO
         run: sudo ./build.sh
+      - name: Validate generated ISO filesystem and package database
+        run: |
+          for iso in ./*.iso; do ./scripts/smoke-iso.sh "$iso"; done
       - name: Checksums
         run: sha256sum *.iso | tee puresteel-ci.sha256
       - uses: actions/upload-artifact@v4
