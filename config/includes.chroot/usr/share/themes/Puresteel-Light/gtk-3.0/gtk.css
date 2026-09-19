@@ -1,0 +1,5 @@
+@import url("resource:///org/gtk/libgtk/theme/Adwaita/gtk-contained.css");
+@define-color theme_selected_bg_color #1473e6;
+@define-color theme_selected_fg_color #ffffff;
+@define-color accent_color #1473e6;
+selection { background-color: #1473e6; color: #ffffff; }

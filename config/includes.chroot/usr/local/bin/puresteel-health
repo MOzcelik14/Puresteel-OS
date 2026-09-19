@@ -1,0 +1,29 @@
+#!/usr/bin/python3
+import argparse, shutil, subprocess
+
+def cmd(c):
+    try:
+        p=subprocess.run(c,text=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,timeout=20,check=False)
+        return p.returncode,p.stdout.strip()
+    except Exception as e:return 1,str(e)
+
+def mark(ok,name,detail=''):
+    print(('✓' if ok else '✗'),name,('- '+detail[:180]) if detail else '')
+
+p=argparse.ArgumentParser();p.add_argument('mode',choices=('gaming','creator','all'));a=p.parse_args()
+if a.mode in ('gaming','all'):
+    print('== Gaming health ==')
+    for n in ('steam','wine','winetricks','gamemoderun','mangohud'): mark(bool(shutil.which(n)),n)
+    if shutil.which('vulkaninfo'):
+        c,o=cmd(['vulkaninfo','--summary']);mark(c==0,'Vulkan',o.splitlines()[-1] if o else '')
+    else: mark(False,'Vulkan tools')
+    c,o=cmd(['dpkg','--print-foreign-architectures']);mark('i386' in o,'i386 architecture',o)
+if a.mode in ('creator','all'):
+    print('\n== Creator health ==')
+    for n in ('ffmpeg','wpctl','vainfo'): mark(bool(shutil.which(n)),n)
+    if shutil.which('ffmpeg'):
+        c,o=cmd(['ffmpeg','-hide_banner','-encoders']);mark(c==0,'FFmpeg encoders',f'{len(o.splitlines())} lines')
+    if shutil.which('vainfo'):
+        c,o=cmd(['vainfo']);mark(c==0,'VA-API',o.splitlines()[-1] if o else '')
+    if shutil.which('nvidia-smi'):
+        c,o=cmd(['nvidia-smi','--query-gpu=name,driver_version','--format=csv,noheader']);mark(c==0,'NVIDIA/NVENC base',o)

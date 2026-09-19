@@ -1,0 +1,33 @@
+#!/bin/sh
+set -e
+
+command -v grub-probe >/dev/null 2>&1 || exit 0
+KERNEL="$(ls -1 /boot/vmlinuz-* 2>/dev/null | sort -V | tail -n1)"
+[ -n "$KERNEL" ] || exit 0
+VERSION="${KERNEL#/boot/vmlinuz-}"
+INITRD="/boot/initrd.img-$VERSION"
+[ -f "$INITRD" ] || exit 0
+
+ROOT_UUID="$(grub-probe --target=fs_uuid / 2>/dev/null || true)"
+BOOT_UUID="$(grub-probe --target=fs_uuid /boot 2>/dev/null || true)"
+ROOT_DEV="$(grub-probe --target=device / 2>/dev/null || true)"
+BOOT_DEV="$(grub-probe --target=device /boot 2>/dev/null || true)"
+[ -n "$ROOT_UUID" ] && [ -n "$BOOT_UUID" ] || exit 0
+
+if [ "$ROOT_DEV" = "$BOOT_DEV" ]; then
+    KPATH="/boot/vmlinuz-$VERSION"
+    IPATH="/boot/initrd.img-$VERSION"
+else
+    KPATH="/vmlinuz-$VERSION"
+    IPATH="/initrd.img-$VERSION"
+fi
+
+cat <<EOF
+menuentry 'Puresteel Recovery' --class puresteel --class gnu-linux --class os {
+    insmod gzio
+    search --no-floppy --fs-uuid --set=root $BOOT_UUID
+    echo 'Loading Puresteel recovery environment...'
+    linux $KPATH root=UUID=$ROOT_UUID ro puresteel.recovery=1 systemd.unit=multi-user.target
+    initrd $IPATH
+}
+EOF

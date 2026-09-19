@@ -1,0 +1,183 @@
+#!/usr/bin/python3
+import argparse
+import os
+import shutil
+import subprocess
+from pathlib import Path
+
+
+SEARCH_DIRS = ("/usr/local/sbin", "/usr/local/bin", "/usr/sbin", "/usr/bin", "/sbin", "/bin")
+
+
+def command_path(name):
+    """Resolve commands even when a desktop session omits sbin from PATH."""
+    found = shutil.which(name)
+    if found:
+        return found
+    for directory in SEARCH_DIRS:
+        candidate = Path(directory) / name
+        if candidate.is_file() and os.access(candidate, os.X_OK):
+            return str(candidate)
+    return None
+
+
+def run(args, timeout=20):
+    try:
+        p = subprocess.run(args, text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, timeout=timeout, check=False)
+        return p.returncode, p.stdout.strip()
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        return 1, str(exc)
+
+
+def exists(name):
+    return command_path(name) is not None
+
+
+def section(title, body):
+    return f"\n== {title} ==\n{body.strip() if body and body.strip() else '—'}"
+
+
+def os_info():
+    data = {}
+    try:
+        for line in Path("/etc/os-release").read_text(errors="ignore").splitlines():
+            if "=" in line:
+                k, v = line.split("=", 1)
+                data[k] = v.strip('"')
+    except OSError:
+        pass
+    _, kernel = run([command_path("uname") or "uname", "-srmo"])
+    return f"{data.get('PRETTY_NAME', 'Linux')}\n{kernel}"
+
+
+def memory_info():
+    free_cmd = command_path("free") or "free"
+    _, free = run([free_cmd, "-h"])
+
+    parts = [free]
+    swapon_cmd = command_path("swapon")
+    if swapon_cmd:
+        code, swap = run([swapon_cmd, "--show=NAME,TYPE,SIZE,USED,PRIO", "--noheadings"])
+        if code == 0:
+            parts.append("Swap:\n" + (swap or "none"))
+        else:
+            parts.append("Swap: unavailable\n" + swap)
+    else:
+        parts.append("Swap: swapon command not found")
+
+    zram_cmd = command_path("zramctl")
+    if zram_cmd:
+        code, zram = run([zram_cmd, "--output", "NAME,ALGORITHM,DISKSIZE,DATA,COMPR,TOTAL,STREAMS,MOUNTPOINT", "--noheadings"])
+        if code == 0:
+            parts.append("ZRAM:\n" + (zram or "none"))
+        else:
+            # Older util-linux versions may not support every output column.
+            code, zram = run([zram_cmd])
+            parts.append("ZRAM:\n" + (zram if code == 0 and zram else "unavailable"))
+    else:
+        parts.append("ZRAM: zramctl command not found")
+
+    return "\n\n".join(parts)
+
+
+def graphics_info():
+    parts = []
+    if exists("lspci"):
+        _, out = run([command_path("lspci"), "-nnk"])
+        lines = [l for l in out.splitlines() if any(x in l.lower() for x in ("vga compatible", "3d controller", "kernel driver in use", "kernel modules"))]
+        parts.append("\n".join(lines[:30]))
+    if exists("nvidia-smi"):
+        code, out = run([command_path("nvidia-smi"), "--query-gpu=name,driver_version,memory.total", "--format=csv,noheader"], 15)
+        parts.append("NVIDIA: " + (out if code == 0 else "driver installed but GPU unavailable"))
+    if exists("vulkaninfo"):
+        code, out = run([command_path("vulkaninfo"), "--summary"], 20)
+        devices = [l.strip() for l in out.splitlines() if "deviceName" in l]
+        parts.append("Vulkan: " + ("; ".join(devices[:6]) if code == 0 and devices else "unavailable"))
+    if exists("vainfo"):
+        code, out = run([command_path("vainfo")], 15)
+        parts.append("VA-API: " + ("available" if code == 0 else "unavailable"))
+    return "\n".join(parts) or "No graphics diagnostic tools found."
+
+
+def network_info():
+    if not exists("nmcli"):
+        return "NetworkManager CLI unavailable"
+    nmcli = command_path("nmcli")
+    _, state = run([nmcli, "-t", "-f", "STATE", "general"])
+    _, wifi = run([nmcli, "radio", "wifi"])
+    _, dev = run([nmcli, "-t", "-f", "DEVICE,TYPE,STATE,CONNECTION", "device"])
+    return f"Network: {state}\nWi-Fi radio: {wifi}\n{dev}"
+
+
+def audio_info():
+    if exists("wpctl"):
+        code, out = run([command_path("wpctl"), "status"], 12)
+        return out[:5000] if code == 0 else out
+    if exists("pactl"):
+        _, out = run([command_path("pactl"), "info"], 10)
+        return out
+    return "PipeWire/PulseAudio diagnostic CLI unavailable"
+
+
+def storage_info():
+    _, df = run([command_path("df") or "df", "-h", "/"])
+    parts = [df]
+    if exists("lsblk"):
+        lsblk_cmd = command_path("lsblk")
+        _, lsblk = run([lsblk_cmd, "-o", "NAME,TYPE,FSTYPE,SIZE,ROTA,MOUNTPOINTS"])
+        parts.append(lsblk)
+    if exists("smartctl"):
+        if os.geteuid() == 0:
+            findmnt_cmd = command_path("findmnt") or "findmnt"
+            lsblk_cmd = command_path("lsblk") or "lsblk"
+            code, source = run([findmnt_cmd, "-no", "SOURCE", "/"])
+            if code == 0 and source.startswith("/dev/"):
+                _, parent = run([lsblk_cmd, "-ndo", "PKNAME", source])
+                device = "/dev/" + (parent.strip() or Path(source).name)
+                _, smart = run([command_path("smartctl"), "-H", device], 15)
+                parts.append(f"SMART ({device}):\n{smart}")
+        else:
+            parts.append("SMART: use 'Run with administrator access' for drive health.")
+    return "\n\n".join(parts)
+
+
+def services_info():
+    _, failed = run([command_path("systemctl") or "systemctl", "--failed", "--no-pager", "--plain"], 15)
+    _, journal = run([command_path("journalctl") or "journalctl", "-b", "-p", "3", "--no-pager", "-n", "25"], 15)
+    return "Failed units:\n" + failed + "\n\nRecent boot errors:\n" + journal
+
+
+def flatpak_info():
+    if not exists("flatpak"):
+        return "Flatpak unavailable"
+    _, remotes = run([command_path("flatpak"), "remotes", "--columns=name,url"], 15)
+    return remotes
+
+
+def build_report():
+    chunks = ["Puresteel Doctor", "Generated locally; review before sharing."]
+    chunks.append(section("System", os_info()))
+    chunks.append(section("Memory", memory_info()))
+    chunks.append(section("Graphics", graphics_info()))
+    chunks.append(section("Network", network_info()))
+    chunks.append(section("Audio", audio_info()))
+    chunks.append(section("Storage", storage_info()))
+    chunks.append(section("Flatpak", flatpak_info()))
+    chunks.append(section("Services and boot errors", services_info()))
+    return "\n".join(chunks) + "\n"
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Puresteel system health report")
+    parser.add_argument("--save", metavar="PATH", help="also save the report to a file")
+    args = parser.parse_args()
+    report = build_report()
+    print(report, end="")
+    if args.save:
+        Path(args.save).expanduser().write_text(report)
+        print(f"Saved: {Path(args.save).expanduser()}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

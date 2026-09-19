@@ -1,0 +1,5 @@
+[Sound Theme]
+Name=Puresteel
+Comment=Puresteel system sound theme
+Directories=stereo
+Inherits=freedesktop

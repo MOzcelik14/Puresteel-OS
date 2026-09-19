@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=Puresteel Repair
+Comment=Repair packages, boot, graphics and Flatpak
+Exec=puresteel-repair
+Icon=preferences-system
+Categories=System;Settings;

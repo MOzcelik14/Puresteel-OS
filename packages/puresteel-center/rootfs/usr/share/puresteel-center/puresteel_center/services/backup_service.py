@@ -32,9 +32,24 @@ def create_backup(destination, selections):
             (tmp_path/"flatpak-apps.txt").write_text(flat+"\n", encoding="utf-8")
             include += [tmp_path/"apt-packages.txt", tmp_path/"flatpak-apps.txt"]
 
-        with tarfile.open(archive, "w:gz") as tar:
-            for path in include:
-                arc = f"home/{path.name}" if str(path).startswith(str(home)) else f"system/{path.name}"
-                tar.add(path, arcname=arc, recursive=True)
+        try:
+            with tarfile.open(archive, "w:gz") as tar:
+                for path in include:
+                    arc = f"home/{path.name}" if path.is_relative_to(home) else f"system/{path.name}"
+                    excluded = None
+                    try:
+                        excluded = f"{arc}/{archive.resolve().relative_to(path.resolve())}"
+                    except ValueError:
+                        pass
+                    # Destination may be inside Documents/.config. Never archive the
+                    # archive-in-progress recursively.
+                    def exclude_output(member):
+                        return None if excluded and (
+                            member.name == excluded or member.name.startswith(excluded + "/")
+                        ) else member
+                    tar.add(path, arcname=arc, recursive=True, filter=exclude_output)
+        except Exception:
+            archive.unlink(missing_ok=True)
+            raise
 
     return str(archive)

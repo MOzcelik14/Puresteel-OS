@@ -1,0 +1,10 @@
+[Nemo Action]
+Name=Open as Administrator
+Name[tr]=Yönetici Olarak Aç
+Comment=Open the selected location through GVfs admin
+Comment[tr]=Seçili konumu GVfs yönetici erişimiyle aç
+Exec=puresteel-open-admin "%F"
+Icon-Name=security-high
+Selection=s
+Extensions=dir;
+Quote=double

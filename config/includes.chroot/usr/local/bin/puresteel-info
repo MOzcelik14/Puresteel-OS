@@ -1,0 +1,51 @@
+#!/usr/bin/python3
+"""Share-oriented inventory. Never embed Doctor output or raw journal entries."""
+import platform
+import re
+import subprocess
+from pathlib import Path
+
+
+def read_setting(path, default):
+    try:
+        value = Path(path).read_text().strip()
+        return value if re.fullmatch(r"[A-Za-z0-9_.-]{1,40}", value) else default
+    except OSError:
+        return default
+
+
+def capture(cmd):
+    try:
+        p = subprocess.run(cmd, text=True, capture_output=True, timeout=12, check=False)
+        return p.stdout if p.returncode == 0 else ""
+    except (OSError, subprocess.TimeoutExpired):
+        return ""
+
+
+def main():
+    print("Puresteel share-safe system summary")
+    print("OS:", read_setting("/etc/puresteel/channel", "stable"), "/ Debian 13")
+    print("Kernel:", platform.release())
+    print("Architecture:", platform.machine())
+    print("Profile:", read_setting("/etc/puresteel/profile", "balanced"))
+    print("Python:", platform.python_version())
+    try:
+        mem_kib = int(next(row.split()[1] for row in Path("/proc/meminfo").read_text().splitlines() if row.startswith("MemTotal:")))
+        print("Memory:", round(mem_kib / 1024 / 1024, 1), "GiB")
+    except (OSError, ValueError, IndexError, StopIteration):
+        pass
+    gpus = []
+    for line in capture(["lspci", "-nn"]).splitlines():
+        if "VGA compatible controller:" in line or "3D controller:" in line or "Display controller:" in line:
+            model = line.split(":", 2)[-1].strip()
+            # The PCI slot address is deliberately discarded.
+            gpus.append(model[:200])
+    print("GPU:", "; ".join(gpus) if gpus else "not reported")
+    print("Network:", "NetworkManager available" if capture(["nmcli", "-t", "-f", "STATE", "general"]) else "unknown")
+    print("\nNo logs, SSIDs, addresses, usernames or device serials are collected.")
+    print("Hardware configurations can still be distinctive; review before sharing.")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

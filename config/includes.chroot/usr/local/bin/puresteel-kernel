@@ -1,0 +1,17 @@
+#!/usr/bin/python3
+from pathlib import Path
+import re,subprocess
+from functools import cmp_to_key
+kernels=[]
+for p in Path('/boot').glob('vmlinuz-*'):
+    kernels.append(p.name.removeprefix('vmlinuz-'))
+def compare(a,b):
+    return subprocess.run(['dpkg','--compare-versions',a,'gt',b],check=False).returncode == 0
+kernels=sorted(set(kernels),key=cmp_to_key(lambda a,b: -1 if compare(a,b) else (1 if compare(b,a) else 0)))
+running=subprocess.run(['uname','-r'],text=True,capture_output=True,check=False).stdout.strip()
+print('Running:',running)
+print('Installed kernels:')
+for i,k in enumerate(kernels): print((' * ' if k==running else '   ')+k)
+others=[k for k in kernels if k!=running]
+if others: print('\nPrevious/alternate candidate:',others[0])
+print('\nBoot an older kernel from GRUB → Advanced options for Puresteel. Puresteel intentionally does not rewrite GRUB saved-entry state automatically.')

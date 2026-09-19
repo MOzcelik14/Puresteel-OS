@@ -1,0 +1,22 @@
+#!/usr/bin/python3
+import argparse, subprocess, shutil, os
+HELPER='/usr/lib/puresteel-center/puresteel-helper'
+
+def cap(c):
+    try:
+        result = subprocess.run(c,text=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,timeout=20,check=False)
+        return result.returncode, result.stdout.strip()
+    except Exception as e:return 1,str(e)
+p=argparse.ArgumentParser();p.add_argument('action',choices=('status','enroll'));p.add_argument('key',nargs='?');a=p.parse_args()
+if a.action=='status':
+    if not shutil.which('mokutil'): print('mokutil unavailable');raise SystemExit(1)
+    c,o=cap(['mokutil','--sb-state']);print(o)
+    c2,o2=cap(['mokutil','--list-enrolled']);print('\nEnrolled MOKs:\n'+(o2[:5000] or 'none/unavailable'))
+    if shutil.which('dkms'):
+        c3,o3=cap(['dkms','status']);print('\nDKMS:\n'+o3)
+    print('\nPuresteel does not ship a private signing key. Enrollment requires a DER public key you control.')
+    raise SystemExit(c)
+if not a.key: p.error('enroll requires a DER key path')
+cmd=[HELPER,'mok-enroll',a.key]
+if os.geteuid()!=0:cmd.insert(0,'pkexec')
+raise SystemExit(subprocess.run(cmd,check=False).returncode)

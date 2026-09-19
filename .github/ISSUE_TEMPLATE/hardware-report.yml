@@ -1,0 +1,27 @@
+name: Hardware compatibility report
+description: Share an anonymized Puresteel hardware test
+title: "[Hardware] "
+labels: [hardware]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Run `puresteel-hw-report` and paste the generated JSON below. Review it before posting.
+  - type: dropdown
+    id: result
+    attributes:
+      label: Overall result
+      options: [Works, Works with minor issues, Major issues, Does not boot]
+    validations:
+      required: true
+  - type: textarea
+    id: report
+    attributes:
+      label: Puresteel hardware report
+      render: json
+    validations:
+      required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes
