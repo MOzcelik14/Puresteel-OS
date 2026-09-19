@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import json
 import os
+import datetime
 import re
 import subprocess
 import sys
@@ -76,26 +77,59 @@ def root_snapshot_device():
     return ""
 
 
+SNAPSHOT_ID_RE = re.compile(r"\b\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}\b")
+
+
+def snapshot_names():
+    """Return real Timeshift snapshot names, or None when listing failed."""
+    if not timeshift_configured():
+        return set()
+    code, output = capture(["/usr/bin/timeshift", "--list", "--scripted"])
+    if code and "No snapshots" not in output:
+        print("Could not verify Timeshift snapshots: " + output[-1200:], file=sys.stderr)
+        return None
+    return set(SNAPSHOT_ID_RE.findall(output))
+
+
 def snapshot(comment, mark_last_update=False):
     timeshift = Path("/usr/bin/timeshift")
     if not timeshift.exists():
-        print("Timeshift is not installed; skipping snapshot.")
-        return 0
+        print("Timeshift is not installed.", file=sys.stderr)
+        return 1
+    before = snapshot_names() if mark_last_update else set()
+    if before is None:
+        return 1
     cmd = [str(timeshift), "--create", "--comments", comment[:120], "--tags", "O"]
     if not timeshift_configured():
         device = root_snapshot_device()
         if not device:
-            print("Timeshift is not configured and Puresteel could not determine a snapshot device.", file=sys.stderr)
+            print("Timeshift needs a configured snapshot device.", file=sys.stderr)
             return 1
         print(f"[Puresteel] Initializing Timeshift on {device}...")
         cmd.extend(["--snapshot-device", device])
     rc = run(cmd)
     if rc != 0:
-        print("Snapshot could not be created; continuing without it.")
+        print("Snapshot creation failed. No safe update will be started.", file=sys.stderr)
         return rc
     if mark_last_update:
+        after = snapshot_names()
+        new = sorted((after or set()) - before) if after is not None else []
+        if len(new) != 1:
+            print("Cannot identify exactly one new restore point; update cancelled.", file=sys.stderr)
+            return 1
+        marker = {"schema": 1, "snapshot": new[0], "created_utc": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+                  "comment": comment, "backup_device_uuid": ""}
+        for path in TIMESHIFT_CONFIGS:
+            try:
+                marker["backup_device_uuid"] = json.loads(path.read_text()).get("backup_device_uuid", "")
+                if marker["backup_device_uuid"]: break
+            except (OSError, ValueError, TypeError):
+                continue
         LAST_UPDATE.parent.mkdir(parents=True, exist_ok=True)
-        LAST_UPDATE.write_text(comment + "\n")
+        temp = LAST_UPDATE.with_name(LAST_UPDATE.name + ".tmp")
+        temp.write_text(json.dumps(marker, indent=2) + "\n")
+        os.replace(temp, LAST_UPDATE)
+        print(f"Verified pre-update restore point: {new[0]}")
     return 0
 
 
@@ -163,7 +197,10 @@ def main():
         if run(["apt-get", "update"]) != 0: return 1
         return run(["apt-get", "full-upgrade", "-y"])
     if action == "safe-upgrade":
-        snapshot("Before Puresteel system update", mark_last_update=True)
+        rc = snapshot("Before Puresteel system update", mark_last_update=True)
+        if rc != 0:
+            print("Update cancelled: snapshot was not verified. Use the explicit no-snapshot option only if you accept the risk.", file=sys.stderr)
+            return rc
         if run(["apt-get", "update"]) != 0: return 1
         return run(["apt-get", "full-upgrade", "-y"])
     if action in ("apt-install", "apt-remove"):

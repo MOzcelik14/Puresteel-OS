@@ -3,7 +3,9 @@ import argparse, subprocess, shutil, os
 HELPER='/usr/lib/puresteel-center/puresteel-helper'
 
 def cap(c):
-    try:return subprocess.run(c,text=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,check=False).returncode,subprocess.run(c,text=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,check=False).stdout.strip()
+    try:
+        result = subprocess.run(c,text=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,timeout=20,check=False)
+        return result.returncode, result.stdout.strip()
     except Exception as e:return 1,str(e)
 p=argparse.ArgumentParser();p.add_argument('action',choices=('status','enroll'));p.add_argument('key',nargs='?');a=p.parse_args()
 if a.action=='status':
