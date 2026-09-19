@@ -67,7 +67,7 @@ class SnapshotWindow(Gtk.Window):
     def run_helper(self, action, *args):
         cmd = ["pkexec", HELPER, action, *args]
         try:
-            p = subprocess.run(cmd, text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, timeout=300, check=False)
+            p = subprocess.run(cmd, text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, timeout=3600 if action == "snapshot-create" else 120, check=False)
             return p.returncode, p.stdout.strip()
         except (OSError, subprocess.TimeoutExpired) as exc:
             return 1, str(exc)

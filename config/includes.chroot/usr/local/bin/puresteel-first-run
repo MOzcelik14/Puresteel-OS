@@ -157,13 +157,22 @@ class FirstRun(Gtk.Window):
         failures = []
         dark = self.theme.get_active_id() == "dark"
         shell_theme = "Puresteel-Dark" if dark else "Puresteel-Light"
-        gtk_theme = "Adwaita-dark" if dark else "Adwaita"
         if have("gsettings"):
-            run_quiet(["gsettings", "set", "org.cinnamon.desktop.interface", "gtk-theme", gtk_theme])
-            run_quiet(["gsettings", "set", "org.cinnamon.desktop.interface", "icon-theme", "Puresteel"])
-            run_quiet(["gsettings", "set", "org.cinnamon.theme", "name", shell_theme])
-            wall = "/usr/share/backgrounds/puresteel/" + self.wallpaper.get_active_id()
-            run_quiet(["gsettings", "set", "org.cinnamon.desktop.background", "picture-uri", "file://" + wall])
+            settings = [
+                ("org.cinnamon.desktop.interface", "gtk-theme", shell_theme),
+                ("org.cinnamon.desktop.interface", "icon-theme", "Puresteel"),
+                ("org.cinnamon.theme", "name", shell_theme),
+            ]
+            wall = Path("/usr/share/backgrounds/puresteel") / self.wallpaper.get_active_id()
+            if not wall.is_file():
+                failures.append("wallpaper missing")
+            else:
+                settings.append(("org.cinnamon.desktop.background", "picture-uri", wall.as_uri()))
+            for schema, key, value in settings:
+                if run_quiet(["gsettings", "set", schema, key, value]) != 0:
+                    failures.append("appearance: " + key)
+        else:
+            failures.append("gsettings unavailable")
 
         locale_name = self.lang.get_active_id()
         if locale_name and not os.environ.get("LANG", "").startswith(locale_name.split(".")[0]):
@@ -190,4 +199,4 @@ class FirstRun(Gtk.Window):
         Gtk.main_quit()
 
 
-win = FirstRun(); win.show_all(); Gtk.main()
+win = FirstRun(); win.show_all(); win.update_buttons(); Gtk.main()

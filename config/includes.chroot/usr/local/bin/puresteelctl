@@ -133,11 +133,11 @@ def cmd_theme(args):
     gtk_theme=shell_theme
     rc=gset("org.cinnamon.desktop.interface","gtk-theme",gtk_theme)
     rc|=gset("org.cinnamon.desktop.interface","icon-theme","Puresteel")
-    gset("org.cinnamon.theme","name",shell_theme)
+    rc |= gset("org.cinnamon.theme","name",shell_theme)
     if args.wallpaper:
         wall=Path("/usr/share/backgrounds/puresteel")/args.wallpaper
         if not wall.exists(): print(f"Wallpaper not found: {wall}"); return 2
-        gset("org.cinnamon.desktop.background","picture-uri","file://"+str(wall))
+        rc |= gset("org.cinnamon.desktop.background","picture-uri",wall.as_uri())
     print(f"Theme applied: {shell_theme}"); return rc
 
 
