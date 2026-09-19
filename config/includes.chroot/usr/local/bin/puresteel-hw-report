@@ -1,17 +1,45 @@
 #!/usr/bin/python3
-import json,subprocess,platform
+"""Consent-based hardware report with explicit allowlisted fields."""
+import json
+import platform
+import subprocess
 
-def cap(c):
-    try:return subprocess.run(c,text=True,stdout=subprocess.PIPE,stderr=subprocess.DEVNULL,timeout=12,check=False).stdout.strip()
-    except Exception:return ''
-report={
- 'schema':1,'os':'Puresteel','kernel':platform.release(),'arch':platform.machine(),
- 'cpu':cap(['lscpu','-J']),
- 'graphics':'\n'.join(x for x in cap(['lspci','-nnk']).splitlines() if any(k in x.lower() for k in ('vga compatible','3d controller','kernel driver in use'))),
- 'memory':cap(['free','-h']),
- 'audio':'\n'.join(x for x in cap(['lspci']).splitlines() if 'audio' in x.lower()),
- 'network':'\n'.join(x for x in cap(['lspci']).splitlines() if any(k in x.lower() for k in ('network','ethernet'))),
- 'desktop':'Cinnamon/X11'
+
+def capture(cmd):
+    try:
+        p = subprocess.run(cmd, text=True, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, timeout=12, check=False)
+        return p.stdout.strip() if p.returncode == 0 else ""
+    except (OSError, subprocess.TimeoutExpired):
+        return ""
+
+
+cpu = {}
+try:
+    data = json.loads(capture(["lscpu", "-J"]))
+    allowed = {"Architecture": "architecture", "CPU(s)": "logical_cpus", "Model name": "model"}
+    cpu = {allowed[x["field"].rstrip(":")]: x["data"] for x in data.get("lscpu", []) if x.get("field", "").rstrip(":") in allowed}
+except (ValueError, KeyError, TypeError):
+    pass
+
+
+def device_lines(categories):
+    devices = []
+    for line in capture(["lspci", "-nn"]).splitlines():
+        if any(label in line.lower() for label in categories):
+            devices.append(line.split(" ", 1)[-1][:200])  # no PCI slot address
+    return devices
+
+
+report = {
+    "schema": 2,
+    "os": "Puresteel",
+    "kernel": platform.release(),
+    "arch": platform.machine(),
+    "cpu": cpu,
+    "graphics": device_lines(("vga compatible", "3d controller", "display controller")),
+    "audio": device_lines(("audio device", "multimedia audio")),
+    "network": device_lines(("network controller", "ethernet controller")),
+    "desktop": "Cinnamon/X11",
 }
-# Deliberately excludes hostname, usernames, serial numbers, MACs and IP addresses.
-print(json.dumps(report,ensure_ascii=False,indent=2))
+print(json.dumps(report, ensure_ascii=False, indent=2))
+print("Review before sharing: hardware models can still identify a rare device configuration.", file=__import__("sys").stderr)

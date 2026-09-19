@@ -1,12 +1,12 @@
 #!/usr/bin/python3
-import argparse, subprocess, pathlib
+import argparse, subprocess, pathlib, os
 
 def cap(cmd):
     try:return subprocess.run(cmd,text=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,timeout=30,check=False).stdout
     except Exception as e:return str(e)
 
 p=argparse.ArgumentParser();p.add_argument('--save');a=p.parse_args()
-parts=['Puresteel Logs\n']
+parts=['Puresteel Logs — PRIVATE, may include network names, home paths and other identifiers. Review before sharing.\n']
 for title,cmd in (
  ('Failed services',['systemctl','--failed','--no-pager']),
  ('Boot errors',['journalctl','-b','-p','3','--no-pager','-n','100']),
@@ -17,4 +17,4 @@ for title,cmd in (
     parts.append(f'\n== {title} ==\n{cap(cmd)}')
 out=''.join(parts);print(out)
 if a.save:
-    pathlib.Path(a.save).expanduser().write_text(out);print('Saved:',a.save)
+    target=pathlib.Path(a.save).expanduser()\n    fd=os.open(target,os.O_WRONLY|os.O_CREAT|os.O_TRUNC,0o600)\n    os.fchmod(fd,0o600)\n    with os.fdopen(fd,'w',encoding='utf-8') as stream:stream.write(out)\n    print('Saved private report:',target)

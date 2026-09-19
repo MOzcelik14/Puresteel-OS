@@ -1,49 +1,49 @@
 #!/usr/bin/python3
-import getpass
-import os
+"""Share-oriented inventory. Never embed Doctor output or raw journal entries."""
+import platform
 import re
-import socket
 import subprocess
 from pathlib import Path
 
 
-def capture(args, timeout=20):
+def read_setting(path, default):
     try:
-        p = subprocess.run(args, text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, timeout=timeout, check=False)
-        return p.stdout.strip()
-    except Exception as exc:
-        return str(exc)
+        value = Path(path).read_text().strip()
+        return value if re.fullmatch(r"[A-Za-z0-9_.-]{1,40}", value) else default
+    except OSError:
+        return default
 
 
-def redact(text):
-    user = getpass.getuser()
-    home = str(Path.home())
-    host = socket.gethostname()
-    text = text.replace(home, "~").replace(user, "<user>").replace(host, "<host>")
-    text = re.sub(r"(?i)\b(?:[0-9a-f]{2}:){5}[0-9a-f]{2}\b", "<mac>", text)
-    text = re.sub(r"\b(?:\d{1,3}\.){3}\d{1,3}\b", "<ip>", text)
-    return text
+def capture(cmd):
+    try:
+        p = subprocess.run(cmd, text=True, capture_output=True, timeout=12, check=False)
+        return p.stdout if p.returncode == 0 else ""
+    except (OSError, subprocess.TimeoutExpired):
+        return ""
 
 
 def main():
-    parts = []
+    print("Puresteel share-safe system summary")
+    print("OS:", read_setting("/etc/puresteel/channel", "stable"), "/ Debian 13")
+    print("Kernel:", platform.release())
+    print("Architecture:", platform.machine())
+    print("Profile:", read_setting("/etc/puresteel/profile", "balanced"))
+    print("Python:", platform.python_version())
     try:
-        data = {}
-        for line in Path("/etc/os-release").read_text(errors="ignore").splitlines():
-            if "=" in line:
-                k, v = line.split("=", 1); data[k] = v.strip('"')
-        parts.append(data.get("PRETTY_NAME", "Puresteel"))
-    except OSError:
-        parts.append("Puresteel")
-    parts.append(capture(["uname", "-srmo"]))
-    if Path("/etc/puresteel/profile").exists():
-        parts.append("Profile: " + Path("/etc/puresteel/profile").read_text().strip())
-    if Path("/etc/puresteel/channel").exists():
-        parts.append("Channel: " + Path("/etc/puresteel/channel").read_text().strip())
-    if os.path.exists("/usr/local/bin/puresteel-doctor"):
-        parts.append(capture(["/usr/local/bin/puresteel-doctor"], 45))
-    print(redact("\n".join(parts)))
-    print("\nSensitive usernames, home paths, hostnames, MAC and IPv4 addresses are redacted automatically.")
+        mem_kib = int(next(row.split()[1] for row in Path("/proc/meminfo").read_text().splitlines() if row.startswith("MemTotal:")))
+        print("Memory:", round(mem_kib / 1024 / 1024, 1), "GiB")
+    except (OSError, ValueError, IndexError, StopIteration):
+        pass
+    gpus = []
+    for line in capture(["lspci", "-nn"]).splitlines():
+        if "VGA compatible controller:" in line or "3D controller:" in line or "Display controller:" in line:
+            model = line.split(":", 2)[-1].strip()
+            # The PCI slot address is deliberately discarded.
+            gpus.append(model[:200])
+    print("GPU:", "; ".join(gpus) if gpus else "not reported")
+    print("Network:", "NetworkManager available" if capture(["nmcli", "-t", "-f", "STATE", "general"]) else "unknown")
+    print("\nNo logs, SSIDs, addresses, usernames or device serials are collected.")
+    print("Hardware configurations can still be distinctive; review before sharing.")
     return 0
 
 
