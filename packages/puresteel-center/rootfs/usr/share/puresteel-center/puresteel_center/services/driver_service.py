@@ -1,21 +1,36 @@
+"""Repository-backed GPU discovery and safe driver planning for Debian Puresteel.
+
+This module never guesses an unsupported driver version. Only packages exposed
+by the configured APT sources are offered.
+"""
+import os
 import re
 from .common import command_exists, privileged, run
 
-def _vendor_from_line(line):
+NVIDIA_NAME = re.compile(r"nvidia(?:-tesla-[0-9]+)?-driver")
+GPU_ADDRESS = re.compile(r"^(?:[0-9a-fA-F]{4}:)?[0-9a-fA-F]{2}:[0-9a-fA-F]{2}\.[0-7]\s")
+FIRMWARE = {
+    "NVIDIA": ("firmware-nvidia-graphics",),
+    "Intel": ("firmware-intel-graphics", "firmware-intel-misc"),
+    "AMD": ("firmware-amd-graphics",),
+}
+
+
+def vendor_from_line(line):
     low = line.lower()
     if "nvidia" in low:
         return "NVIDIA"
-    if "amd" in low or "advanced micro devices" in low or "ati " in low:
+    if "advanced micro devices" in low or "amd/" in low or "ati " in low:
         return "AMD"
     if "intel" in low:
         return "Intel"
     return "Other"
 
-def _parse_gpu_blocks(text):
-    blocks = []
-    current = []
-    for line in text.splitlines():
-        if re.match(r"^[0-9a-fA-F]{2}:[0-9a-fA-F]{2}\.[0-9a-fA-F]", line):
+
+def parse_gpu_blocks(output):
+    blocks, current = [], []
+    for line in output.splitlines():
+        if GPU_ADDRESS.match(line):
             if current:
                 blocks.append(current)
             current = [line]
@@ -27,104 +42,164 @@ def _parse_gpu_blocks(text):
     gpus = []
     for block in blocks:
         first = block[0]
-        if not any(x in first.lower() for x in ("vga compatible controller", "3d controller", "display controller")):
+        if not any(category in first.lower() for category in
+                   ("vga compatible controller", "3d controller", "display controller")):
             continue
-        vendor = _vendor_from_line(first)
-        driver = ""
-        modules = ""
+        vendor = vendor_from_line(first)
+        driver, modules = "", ""
         for line in block[1:]:
-            s = line.strip()
-            if s.startswith("Kernel driver in use:"):
-                driver = s.split(":", 1)[1].strip()
-            elif s.startswith("Kernel modules:"):
-                modules = s.split(":", 1)[1].strip()
-        model = first.split(":", 2)[-1].strip()
+            line = line.strip()
+            if line.startswith("Kernel driver in use:"):
+                driver = line.partition(":")[2].strip()
+            elif line.startswith("Kernel modules:"):
+                modules = line.partition(":")[2].strip()
         gpus.append({
             "vendor": vendor,
-            "model": model,
+            "model": first.split(": ", 1)[-1].strip(),
+            "pci_address": first.split(" ", 1)[0],
             "driver": driver or "—",
             "modules": modules or "—",
         })
     return gpus
 
-def _pkg_installed(name):
-    if not command_exists("dpkg-query"):
-        return False
-    code, _ = run(["dpkg-query", "-W", "-f=${Status}", name], timeout=6)
-    return code == 0
+
+def package_status(name):
+    """Return installed version and available candidate; no status from guessed data."""
+    if not re.fullmatch(r"[a-z0-9][a-z0-9+.-]*", name):
+        return {"installed": "", "candidate": ""}
+    code, output = run(["env", "LC_ALL=C", "apt-cache", "policy", name], timeout=12)
+    if code:
+        return {"installed": "", "candidate": ""}
+    installed = re.search(r"^\s*Installed:\s*(\S+)", output, re.MULTILINE)
+    candidate = re.search(r"^\s*Candidate:\s*(\S+)", output, re.MULTILINE)
+    def parse(match):
+        return match.group(1) if match and match.group(1) != "(none)" else ""
+    return {"installed": parse(installed), "candidate": parse(candidate)}
+
+
+def driver_choices(gpus):
+    if not any(g["vendor"] == "NVIDIA" for g in gpus):
+        return []
+    choices = {"nvidia-driver"}
+    if command_exists("apt-cache"):
+        code, output = run(["env", "LC_ALL=C", "apt-cache", "search",
+                            "--names-only", "^nvidia(-tesla-[0-9]+)?-driver$"], timeout=20)
+        if code == 0:
+            for line in output.splitlines():
+                name = line.split(" - ", 1)[0].strip()
+                if NVIDIA_NAME.fullmatch(name):
+                    choices.add(name)
+    result = []
+    for name in sorted(choices):
+        state = package_status(name)
+        if state["candidate"] or state["installed"]:
+            result.append({"name": name, **state})
+    return result
+
+
+def simulate_install(name):
+    if not NVIDIA_NAME.fullmatch(name):
+        return 2, "Only repository-backed NVIDIA driver packages are supported."
+    state = package_status(name)
+    if not state["candidate"]:
+        return 3, "No installable candidate for this driver in enabled APT sources."
+    kernel = run(["uname", "-r"], timeout=5)[1].strip()
+    headers = package_status("linux-headers-" + kernel) if kernel else {"installed": "", "candidate": ""}
+    code, output = run(["env", "LC_ALL=C", "apt-get", "-s", "install", name], timeout=45)
+    if code:
+        return code, "APT could not produce a valid installation plan:\n" + output[-8000:]
+    removed = [line.split()[1] for line in output.splitlines() if line.startswith("Remv ")]
+    text = ["Requested driver: " + name,
+            "Repository candidate: " + state["candidate"],
+            "Installed version: " + (state["installed"] or "not installed"),
+            "Running kernel: " + (kernel or "unknown"),
+            "Matching headers: " + (headers["installed"] or "NOT INSTALLED"),
+            "",
+            "APT simulation:", output[-12000:]]
+    if removed:
+        text.append("\nAPT plans to REMOVE: " + ", ".join(removed))
+        text.append("Puresteel refuses automated driver changes that remove packages.")
+        return 4, "\n".join(text)
+    if not headers["installed"]:
+        text.append("\nInstall matching kernel headers before changing an NVIDIA DKMS driver.")
+        return 5, "\n".join(text)
+    return 0, "\n".join(text)
+
 
 def collect():
     data = {
-        "gpus": [],
-        "kernel": "?",
-        "nvidia": "Not installed",
-        "dkms": "dkms unavailable",
-        "switcheroo": False,
-        "nouveau": False,
-        "firmware": [],
-        "vulkan": "Unknown",
-        "vaapi": "Unknown",
+        "gpus": [], "kernel": "?", "nvidia": "Not installed",
+        "dkms": "dkms unavailable", "switcheroo": False, "nouveau": False,
+        "firmware": [], "vulkan": "Unknown", "vaapi": "Unknown",
+        "choices": [], "headers": "", "secureboot": "Unknown",
     }
-
-    code, out = run(["uname", "-r"])
+    code, kernel = run(["uname", "-r"], timeout=5)
     if code == 0:
-        data["kernel"] = out
+        data["kernel"] = kernel.strip()
+        data["headers"] = package_status("linux-headers-" + data["kernel"])["installed"]
 
     if command_exists("lspci"):
-        _, out = run(["lspci", "-nnk"])
-        data["gpus"] = _parse_gpu_blocks(out)
+        data["gpus"] = parse_gpu_blocks(run(["lspci", "-nnk"], timeout=20)[1])
+    data["choices"] = driver_choices(data["gpus"])
 
     if command_exists("nvidia-smi"):
-        code, out = run(
-            ["nvidia-smi", "--query-gpu=name,driver_version", "--format=csv,noheader"],
-            timeout=15
+        code, output = run(["nvidia-smi", "--query-gpu=name,driver_version",
+                            "--format=csv,noheader"], timeout=15)
+        data["nvidia"] = output if code == 0 else "Installed but unavailable:\n" + output[-700:]
+
+    if command_exists("lsmod"):
+        code, output = run(["lsmod"], timeout=10)
+        data["nouveau"] = code == 0 and any(
+            line.split()[0] == "nouveau" for line in output.splitlines()[1:] if line.split()
         )
-        data["nvidia"] = out if code == 0 else "Installed, not active"
-
-    _, lsmod = run(["sh", "-c", "lsmod 2>/dev/null || true"])
-    data["nouveau"] = "nouveau" in lsmod
-
     if command_exists("dkms"):
-        _, out = run(["dkms", "status"], timeout=15)
-        data["dkms"] = out or "No DKMS modules"
-
+        code, output = run(["dkms", "status"], timeout=15)
+        data["dkms"] = output if code == 0 else "DKMS status unavailable:\n" + output[-700:]
     if command_exists("systemctl"):
-        code, _ = run(["systemctl", "is-active", "switcheroo-control.service"], timeout=8)
-        data["switcheroo"] = code == 0
+        data["switcheroo"] = run(["systemctl", "is-active", "switcheroo-control.service"], timeout=8)[0] == 0
 
-    firmware_pkgs = (
-        "firmware-nvidia-graphics",
-        "firmware-intel-graphics",
-        "firmware-intel-misc",
-        "firmware-amd-graphics",
-        "firmware-misc-nonfree",
-    )
-    data["firmware"] = [pkg for pkg in firmware_pkgs if _pkg_installed(pkg)]
+    vendors = {gpu["vendor"] for gpu in data["gpus"]}
+    for vendor in vendors:
+        for name in FIRMWARE.get(vendor, ()):
+            state = package_status(name)
+            data["firmware"].append({
+                "name": name, "installed": state["installed"],
+                "candidate": state["candidate"],
+            })
 
     if command_exists("vulkaninfo"):
-        code, out = run(["vulkaninfo", "--summary"], timeout=20)
-        if code == 0:
-            devices = [l.strip() for l in out.splitlines() if "deviceName" in l]
-            data["vulkan"] = "\n".join(devices[:6]) if devices else "Available"
-        else:
-            data["vulkan"] = "Unavailable"
+        code, output = run(["vulkaninfo", "--summary"], timeout=20)
+        data["vulkan"] = (
+            "\n".join(x.strip() for x in output.splitlines() if "deviceName" in x) or "Available"
+        ) if code == 0 else "Unavailable:\n" + output[-500:]
     else:
-        data["vulkan"] = "vulkan-tools not installed"
+        data["vulkan"] = "vulkan-tools is not installed"
 
     if command_exists("vainfo"):
-        code, out = run(["sh", "-c", "vainfo 2>&1 | head -40"], timeout=20)
-        data["vaapi"] = "Available" if code == 0 else out[:500] or "Unavailable"
+        code, output = run(["vainfo"], timeout=20)
+        data["vaapi"] = "Available" if code == 0 else "Unavailable:\n" + output[-500:]
     else:
-        data["vaapi"] = "vainfo not installed"
+        data["vaapi"] = "vainfo is not installed"
 
+    if command_exists("mokutil"):
+        code, output = run(["mokutil", "--sb-state"], timeout=12)
+        data["secureboot"] = output if code == 0 else "Unavailable / legacy boot"
     return data
 
+
+def install_driver(name):
+    code, output = simulate_install(name)
+    if code:
+        return code, output
+    return privileged("driver-install", name, timeout=7200)
+
+
 def repair(vendor):
-    vendor = vendor.lower()
-    if vendor == "nvidia":
-        return privileged("nvidia-reinstall")
-    if vendor == "intel":
-        return privileged("graphics-repair-intel")
-    if vendor == "amd":
-        return privileged("graphics-repair-amd")
-    return 1, f"Unsupported vendor: {vendor}"
+    action = {
+        "nvidia": "nvidia-reinstall",
+        "intel": "graphics-repair-intel",
+        "amd": "graphics-repair-amd",
+    }.get(vendor.lower())
+    if not action:
+        return 2, "Unsupported GPU vendor"
+    return privileged(action, timeout=7200)
