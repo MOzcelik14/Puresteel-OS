@@ -13,6 +13,9 @@ trap 'rm -rf "$STAGE"' EXIT
 
 mkdir -p "$OUTDIR"
 cp -a "$ROOTFS/." "$STAGE/"
+# Source-tree Python caches are not release artifacts.
+find "$STAGE" -type d -name '__pycache__' -prune -exec rm -rf {} +
+find "$STAGE" -type f -name '*.pyc' -delete
 mkdir -p "$STAGE/DEBIAN"
 
 cat > "$STAGE/DEBIAN/control" <<EOF
@@ -23,10 +26,10 @@ Priority: optional
 Architecture: all
 Maintainer: Puresteel Project <repo@puresteel.local>
 Depends: python3, python3-apt, python3-pyside6.qtcore, python3-pyside6.qtgui, python3-pyside6.qtwidgets, polkitd, pkexec, flatpak, pciutils, dkms, mesa-utils, vulkan-tools, vainfo
-Recommends: switcheroo-control
+Recommends: switcheroo-control, power-profiles-daemon
 Description: Puresteel system management center
  Puresteel Center manages updates, applications, graphics drivers,
- software sources, backups and system reports from one KDE application.
+ profiles, software sources, backups and system reports from Cinnamon.
 EOF
 
 cat > "$STAGE/DEBIAN/postinst" <<'EOF'

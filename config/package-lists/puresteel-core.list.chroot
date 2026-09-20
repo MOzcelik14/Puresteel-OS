@@ -36,8 +36,11 @@ gnome-terminal
 nemo
 gnome-themes-extra
 gvfs-fuse
+gvfs-backends
 xdg-desktop-portal-xapp
 dconf-cli
+papirus-icon-theme
+zenity
 
 locales
 python3-gi

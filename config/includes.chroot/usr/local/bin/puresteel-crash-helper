@@ -1,0 +1,33 @@
+#!/usr/bin/python3
+"""Create a reviewable issue summary without collecting private logs."""
+import argparse
+import os
+import subprocess
+import webbrowser
+from pathlib import Path
+
+parser = argparse.ArgumentParser(description="Create a share-oriented Puresteel issue summary")
+parser.add_argument("--open-issue", action="store_true")
+args = parser.parse_args()
+
+try:
+    info = subprocess.run(
+        ["/usr/local/bin/puresteel-info"], text=True,
+        stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+        timeout=35, check=False,
+    )
+    if info.returncode:
+        raise RuntimeError("Puresteel Info could not collect its allowlisted system summary")
+    path = Path.home() / "puresteel-crash-report.txt"
+    descriptor = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+    os.fchmod(descriptor, 0o600)
+    with os.fdopen(descriptor, "w", encoding="utf-8") as output:
+        output.write(info.stdout)
+        output.write("\nDescribe what happened, reproduction steps and error message here.\n")
+    print("Created:", path)
+    print("Raw logs are deliberately excluded; inspect the file before sharing.")
+    if args.open_issue:
+        webbrowser.open("https://github.com/MOzcelik14/Puresteel-OS/issues/new")
+except (OSError, subprocess.TimeoutExpired, RuntimeError) as exc:
+    print("Could not create crash report:", exc)
+    raise SystemExit(1)

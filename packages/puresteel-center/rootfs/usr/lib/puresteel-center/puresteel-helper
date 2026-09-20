@@ -1,42 +1,358 @@
 #!/usr/bin/env python3
-import os, re, subprocess, sys
+import json
+import os
+import datetime
+import re
+import subprocess
+import sys
+from pathlib import Path
+
+PACKS = {
+    "essentials": {
+        "apt": ["vlc", "p7zip-full", "unzip", "curl"],
+        "flatpak": ["org.onlyoffice.desktopeditors"],
+    },
+    "creator": {
+        "apt": ["ffmpeg"],
+        "flatpak": ["org.kde.kdenlive", "org.audacityteam.Audacity", "org.onlyoffice.desktopeditors"],
+    },
+    "developer": {
+        "apt": ["build-essential", "git", "curl", "python3-pip", "shellcheck"],
+        "flatpak": [],
+    },
+    "gaming": {
+        "apt": ["steam-installer", "wine", "winetricks", "gamemode", "mangohud"],
+        "flatpak": ["com.heroicgameslauncher.hgl", "net.davidotek.pupgui2"],
+    },
+}
+
+TIMESHIFT_CONFIGS = (
+    Path("/etc/timeshift/timeshift.json"),
+    Path("/etc/timeshift.json"),
+)
+LAST_UPDATE = Path("/var/lib/puresteel/last-update-snapshot")
+TIMESHIFT_BIN = Path("/usr/bin/timeshift")
+
 
 def run(cmd):
     print("+", " ".join(cmd), flush=True)
     return subprocess.call(cmd)
 
+
+def capture(cmd):
+    try:
+        p = subprocess.run(cmd, text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, check=False)
+        return p.returncode, p.stdout.strip()
+    except OSError as exc:
+        return 1, str(exc)
+
+
 def safe_pkg(value):
     return bool(re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9+._:-]*", value))
+
+
+def timeshift_configured():
+    for path in TIMESHIFT_CONFIGS:
+        if not path.exists():
+            continue
+        try:
+            data = json.loads(path.read_text(errors="ignore"))
+            if str(data.get("backup_device_uuid", "")).strip():
+                return True
+        except (OSError, ValueError, TypeError):
+            pass
+    return False
+
+
+def root_snapshot_device():
+    findmnt = "/usr/bin/findmnt" if Path("/usr/bin/findmnt").exists() else "findmnt"
+    code, source = capture([findmnt, "-n", "-o", "SOURCE", "/"])
+    if code != 0:
+        return ""
+    source = source.strip().split("[", 1)[0]
+    if source.startswith("/dev/"):
+        return source
+    code, uuid = capture([findmnt, "-n", "-o", "UUID", "/"])
+    if code == 0 and uuid.strip():
+        return uuid.strip()
+    return ""
+
+
+SNAPSHOT_ID_RE = re.compile(r"\b\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}\b")
+
+
+def snapshot_names():
+    """Return real Timeshift snapshot names, or None when listing failed."""
+    if not timeshift_configured():
+        return set()
+    code, output = capture([str(TIMESHIFT_BIN), "--list", "--scripted"])
+    if code and "No snapshots" not in output:
+        print("Could not verify Timeshift snapshots: " + output[-1200:], file=sys.stderr)
+        return None
+    return set(SNAPSHOT_ID_RE.findall(output))
+
+
+def snapshot(comment, mark_last_update=False):
+    timeshift = TIMESHIFT_BIN
+    if not timeshift.exists():
+        print("Timeshift is not installed.", file=sys.stderr)
+        return 1
+    before = snapshot_names() if mark_last_update else set()
+    if before is None:
+        return 1
+    cmd = [str(timeshift), "--create", "--comments", comment[:120], "--tags", "O"]
+    if not timeshift_configured():
+        device = root_snapshot_device()
+        if not device:
+            print("Timeshift needs a configured snapshot device.", file=sys.stderr)
+            return 1
+        print(f"[Puresteel] Initializing Timeshift on {device}...")
+        cmd.extend(["--snapshot-device", device])
+    rc = run(cmd)
+    if rc != 0:
+        print("Snapshot creation failed. No safe update will be started.", file=sys.stderr)
+        return rc
+    if mark_last_update:
+        after = snapshot_names()
+        new = sorted((after or set()) - before) if after is not None else []
+        if len(new) != 1:
+            print("Cannot identify exactly one new restore point; update cancelled.", file=sys.stderr)
+            return 1
+        marker = {"schema": 1, "snapshot": new[0], "created_utc": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+                  "comment": comment, "backup_device_uuid": ""}
+        for path in TIMESHIFT_CONFIGS:
+            try:
+                marker["backup_device_uuid"] = json.loads(path.read_text()).get("backup_device_uuid", "")
+                if marker["backup_device_uuid"]: break
+            except (OSError, ValueError, TypeError):
+                continue
+        LAST_UPDATE.parent.mkdir(parents=True, exist_ok=True)
+        temp = LAST_UPDATE.with_name(LAST_UPDATE.name + ".tmp")
+        temp.write_text(json.dumps(marker, indent=2) + "\n")
+        os.replace(temp, LAST_UPDATE)
+        print(f"Verified pre-update restore point: {new[0]}")
+    return 0
+
+
+def snapshot_list():
+    timeshift = TIMESHIFT_BIN
+    if not timeshift.exists():
+        print("Timeshift is not installed.")
+        return 1
+    if not timeshift_configured():
+        device = root_snapshot_device()
+        print("Timeshift is not initialized yet.")
+        if device:
+            print(f"Puresteel will use {device} as the initial RSYNC snapshot device when you create the first snapshot.")
+        else:
+            print("Puresteel could not determine the root snapshot device automatically.")
+        print("Create a snapshot to initialize Timeshift.")
+        return 0
+    return run([str(timeshift), "--list"])
+
+
+def channel_set(name):
+    conf = Path("/usr/share/puresteel/channels.conf")
+    channels = {}
+    if conf.exists():
+        for line in conf.read_text().splitlines():
+            line = line.strip()
+            if line and not line.startswith("#") and "=" in line:
+                k, v = line.split("=", 1); channels[k.strip()] = v.strip()
+    target = channels.get(name)
+    if not target or target == "unpublished":
+        print(f"Puresteel channel '{name}' is not published yet.", file=sys.stderr)
+        return 3
+    source = Path("/etc/apt/sources.list.d/puresteel.sources")
+    source.write_text(
+        "Types: deb\n"
+        f"URIs: {target}\n"
+        f"Suites: {name}\n"
+        "Components: main\n"
+        "Signed-By: /usr/share/keyrings/puresteel-archive-keyring.asc\n"
+    )
+    Path("/etc/puresteel").mkdir(parents=True, exist_ok=True)
+    Path("/etc/puresteel/channel").write_text(name + "\n")
+    return run(["apt-get", "update"])
+
+
+def repair_packages():
+    run(["dpkg", "--configure", "-a"])
+    return run(["apt-get", "-f", "install", "-y"])
+
+
+def repair_boot():
+    rc = run(["update-initramfs", "-u", "-k", "all"])
+    if rc != 0: return rc
+    return run(["update-grub"])
+
+
+
+# Driver choices are discovered from APT and revalidated as root before install.
+DRIVER_NAME = re.compile(r"nvidia(?:-tesla-[0-9]+)?-driver\Z")
+DRIVER_REPAIR_PACKAGES = {
+    "nvidia": ("nvidia-driver", "nvidia-settings", "switcheroo-control"),
+    "intel": ("firmware-intel-graphics", "firmware-intel-misc", "intel-media-va-driver-non-free",
+              "mesa-vulkan-drivers", "mesa-va-drivers", "libvulkan1"),
+    "amd": ("firmware-amd-graphics", "mesa-vulkan-drivers", "mesa-va-drivers",
+            "libvulkan1", "xserver-xorg-video-amdgpu"),
+}
+
+
+def gpu_present(vendor):
+    code, output = capture(["/usr/bin/lspci", "-nn"])
+    if code:
+        return False
+    tokens = {
+        "nvidia": ("nvidia",),
+        "intel": ("intel corporation",),
+        "amd": ("advanced micro devices", "amd/ati", "ati technologies"),
+    }.get(vendor, ())
+    return any(any(token in line.lower() for token in tokens) and
+               any(cls in line.lower() for cls in
+                   ("vga compatible controller", "3d controller", "display controller"))
+               for line in output.splitlines())
+
+
+def apt_candidate(name):
+    if not re.fullmatch(r"[a-z0-9][a-z0-9+.-]*", name):
+        return ""
+    code, out = capture(["/usr/bin/env", "LC_ALL=C", "/usr/bin/apt-cache", "policy", name])
+    if code:
+        return ""
+    m = re.search(r"^\s*Candidate:\s*(\S+)", out, re.M)
+    return m.group(1) if m and m.group(1) != "(none)" else ""
+
+
+def installed_package(name):
+    code, out = capture(["/usr/bin/dpkg-query", "-W", "-f=${Status}", name])
+    return code == 0 and out.strip() == "install ok installed"
+
+
+def driver_transaction(kind, name):
+    """Repeat all unprivileged checks in the privileged process (TOCTOU guard)."""
+    if kind not in ("install", "repair"):
+        return 2
+    if kind == "install":
+        if not DRIVER_NAME.fullmatch(name) or not gpu_present("nvidia"):
+            print("Not a supported NVIDIA driver or no NVIDIA GPU detected.", file=sys.stderr)
+            return 2
+        packages = (name,)
+        if not installed_package("linux-headers-" + os.uname().release):
+            print("Matching running-kernel headers are missing; driver installation cancelled.", file=sys.stderr)
+            return 5
+    else:
+        if name not in DRIVER_REPAIR_PACKAGES or not gpu_present(name):
+            print("GPU is not present or vendor is unsupported.", file=sys.stderr)
+            return 2
+        packages = DRIVER_REPAIR_PACKAGES[name]
+        if name == "nvidia" and not installed_package("linux-headers-" + os.uname().release):
+            print("Matching running-kernel headers are missing; NVIDIA repair cancelled.", file=sys.stderr)
+            return 5
+    if any(not apt_candidate(package) for package in packages):
+        print("Requested driver packages are not all available from configured APT sources.",
+              file=sys.stderr)
+        return 3
+    arguments = ["install", "--no-remove"]
+    if kind == "repair":
+        arguments.append("--reinstall")
+    arguments += list(packages)
+    code, output = capture(["/usr/bin/env", "LC_ALL=C", "/usr/bin/apt-get", "-s", *arguments])
+    if code:
+        print("APT simulation failed:\n" + output[-8000:], file=sys.stderr)
+        return code
+    if any(line.startswith("Remv ") for line in output.splitlines()):
+        print("APT would remove packages. Automated driver transaction refused.", file=sys.stderr)
+        return 4
+    print("Puresteel verified driver transaction:\n" + output[-6000:], flush=True)
+    return run(["/usr/bin/apt-get", "install", "--no-remove", "-y",
+                *(["--reinstall"] if kind == "repair" else []), *packages])
 
 def main():
     if os.geteuid() != 0:
         print("This helper must run as root.", file=sys.stderr); return 1
     if len(sys.argv) < 2:
         print("Missing action", file=sys.stderr); return 2
-    action=sys.argv[1]
-    if action=="apt-upgrade":
-        if run(["apt-get","update"]) != 0:return 1
-        return run(["apt-get","full-upgrade","-y"])
-    if action in ("apt-install","apt-remove"):
-        if len(sys.argv)!=3 or not safe_pkg(sys.argv[2]):
-            print("Invalid package name",file=sys.stderr);return 2
-        op="install" if action=="apt-install" else "remove"
-        return run(["apt-get",op,"-y",sys.argv[2]])
-    if action=="nvidia-reinstall":
-        if run(["apt-get","update"]) != 0:return 1
-        return run(["apt-get","install","--reinstall","-y","nvidia-driver","nvidia-settings","switcheroo-control"])
-    if action=="graphics-repair-intel":
-        if run(["apt-get","update"]) != 0:return 1
-        return run(["apt-get","install","--reinstall","-y",
-                    "firmware-intel-graphics","firmware-intel-misc",
-                    "intel-media-va-driver-non-free","mesa-vulkan-drivers",
-                    "mesa-va-drivers","libvulkan1"]) 
-    if action=="graphics-repair-amd":
-        if run(["apt-get","update"]) != 0:return 1
-        return run(["apt-get","install","--reinstall","-y",
-                    "firmware-amd-graphics","mesa-vulkan-drivers",
-                    "mesa-va-drivers","libvulkan1","xserver-xorg-video-amdgpu"])
-    print("Unknown action",file=sys.stderr);return 2
+    action = sys.argv[1]
 
-if __name__=="__main__":
+    if action == "apt-upgrade":
+        if run(["apt-get", "update"]) != 0: return 1
+        return run(["apt-get", "full-upgrade", "-y"])
+    if action == "safe-upgrade":
+        rc = snapshot("Before Puresteel system update", mark_last_update=True)
+        if rc != 0:
+            print("Update cancelled: snapshot was not verified. Use the explicit no-snapshot option only if you accept the risk.", file=sys.stderr)
+            return rc
+        if run(["apt-get", "update"]) != 0: return 1
+        return run(["apt-get", "full-upgrade", "-y"])
+    if action in ("apt-install", "apt-remove"):
+        if len(sys.argv) != 3 or not safe_pkg(sys.argv[2]):
+            print("Invalid package name", file=sys.stderr); return 2
+        op = "install" if action == "apt-install" else "remove"
+        return run(["apt-get", op, "-y", sys.argv[2]])
+    if action == "profile-apply":
+        if len(sys.argv) != 3 or sys.argv[2] not in ("balanced", "gaming", "creator", "battery"):
+            print("Invalid Puresteel profile", file=sys.stderr); return 2
+        return run(["/usr/local/sbin/puresteel-profile", "apply", sys.argv[2]])
+    if action == "hardware-mode-set":
+        if len(sys.argv) != 3 or sys.argv[2] not in ("desktop", "laptop", "hybrid-gpu", "low-memory"):
+            print("Invalid hardware mode", file=sys.stderr); return 2
+        Path("/etc/puresteel").mkdir(parents=True, exist_ok=True)
+        Path("/etc/puresteel/hardware-mode").write_text(sys.argv[2] + "\n")
+        if sys.argv[2] == "hybrid-gpu":
+            run(["systemctl", "enable", "--now", "switcheroo-control.service"])
+        return run(["/usr/local/sbin/puresteel-profile", "apply", "balanced"])
+    if action == "snapshot-create":
+        return snapshot(sys.argv[2] if len(sys.argv) > 2 else "Puresteel manual snapshot")
+    if action == "snapshot-list":
+        return snapshot_list()
+    if action == "firmware-refresh":
+        if run(["fwupdmgr", "refresh", "--force"]) != 0: return 1
+        return run(["fwupdmgr", "get-updates"])
+    if action == "firmware-update":
+        if run(["fwupdmgr", "refresh", "--force"]) != 0: return 1
+        return run(["fwupdmgr", "update", "-y"])
+    if action == "flatpak-repair":
+        if not Path("/usr/bin/flatpak").exists(): return 1
+        if run(["flatpak", "repair", "--system"]) != 0: return 1
+        return run(["flatpak", "uninstall", "--system", "--unused", "-y"])
+    if action == "repair-packages": return repair_packages()
+    if action == "repair-boot": return repair_boot()
+    if action == "repair-lightdm":
+        run(["systemctl", "enable", "lightdm.service"])
+        return run(["systemctl", "set-default", "graphical.target"])
+    if action == "repair-nvidia":
+        run(["dpkg", "--configure", "-a"])
+        if Path("/usr/sbin/dkms").exists(): run(["/usr/sbin/dkms", "autoinstall"])
+        return run(["update-initramfs", "-u", "-k", "all"])
+    if action == "mok-enroll":
+        if len(sys.argv) != 3:
+            print("DER key path required", file=sys.stderr); return 2
+        key = Path(sys.argv[2]).resolve()
+        if not key.is_file() or key.suffix.lower() != ".der":
+            print("A readable .der public key is required.", file=sys.stderr); return 2
+        return run(["mokutil", "--import", str(key)])
+    if action == "app-pack":
+        if len(sys.argv) != 3 or sys.argv[2] not in PACKS:
+            print("Unknown app pack", file=sys.stderr); return 2
+        pack = PACKS[sys.argv[2]]
+        if pack["apt"]:
+            if run(["apt-get", "update"]) != 0: return 1
+            if run(["apt-get", "install", "-y", *pack["apt"]]) != 0: return 1
+        if pack["flatpak"] and Path("/usr/bin/flatpak").exists():
+            if run(["flatpak", "install", "--system", "-y", "flathub", *pack["flatpak"]]) != 0: return 1
+        return 0
+    if action == "channel-set":
+        if len(sys.argv) != 3 or sys.argv[2] not in ("stable", "testing"):
+            print("Invalid channel", file=sys.stderr); return 2
+        return channel_set(sys.argv[2])
+    if action == "driver-install":
+        if len(sys.argv) != 3: return 2
+        return driver_transaction("install", sys.argv[2])
+    if action == "driver-repair":
+        if len(sys.argv) != 3: return 2
+        return driver_transaction("repair", sys.argv[2])
+    print("Unknown action", file=sys.stderr); return 2
+
+if __name__ == "__main__":
     raise SystemExit(main())

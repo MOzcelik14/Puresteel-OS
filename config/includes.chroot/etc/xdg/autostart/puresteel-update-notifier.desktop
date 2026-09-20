@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=Puresteel Update Notifier
+Exec=/usr/local/bin/puresteel-update-notifier
+NoDisplay=true
+X-GNOME-Autostart-enabled=true
+OnlyShowIn=X-Cinnamon;

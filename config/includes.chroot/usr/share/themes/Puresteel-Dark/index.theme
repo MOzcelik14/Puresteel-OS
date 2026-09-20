@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=X-GNOME-Metatheme
+Name=Puresteel Dark
+Comment=Puresteel dark desktop theme
+Encoding=UTF-8
+[X-GNOME-Metatheme]
+GtkTheme=Puresteel-Dark
+IconTheme=Puresteel
+CursorTheme=Adwaita
+ButtonLayout=menu:minimize,maximize,close

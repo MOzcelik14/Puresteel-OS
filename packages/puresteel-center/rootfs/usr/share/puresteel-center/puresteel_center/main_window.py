@@ -4,9 +4,11 @@ from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QButtonGroup,QFrame,QHBoxLayout,QLabel,QListWidget,QListWidgetItem,QMainWindow,QPushButton,QStackedWidget,QVBoxLayout,QWidget
 from .i18n import t
 from .pages.home import HomePage
+from .pages.puresteel import PuresteelPage
 from .pages.updates import UpdatesPage
 from .pages.applications import ApplicationsPage
 from .pages.drivers import DriversPage
+from .pages.profiles import ProfilesPage
 from .pages.sources import SourcesPage
 from .pages.backup import BackupPage
 from .pages.reports import ReportsPage
@@ -34,8 +36,8 @@ class MainWindow(QMainWindow):
 
         self.pages=QStackedWidget();self.pages.setObjectName("Pages")
         self.page_objects=[
-            HomePage(self.language),UpdatesPage(self.language),ApplicationsPage(self.language),DriversPage(self.language),
-            SourcesPage(self.language),BackupPage(self.language),ReportsPage(self.language),AboutPage(self.language)
+            HomePage(self.language),PuresteelPage(self.language),UpdatesPage(self.language),ApplicationsPage(self.language),DriversPage(self.language),
+            ProfilesPage(self.language),SourcesPage(self.language),BackupPage(self.language),ReportsPage(self.language),AboutPage(self.language)
         ]
         for p in self.page_objects:self.pages.addWidget(p)
         self.nav.currentRowChanged.connect(self.pages.setCurrentIndex)
@@ -48,11 +50,14 @@ class MainWindow(QMainWindow):
         self.apply_language()
 
     def apply_language(self):
-        self.setWindowTitle(t(self.language,"app_title"));self.lang_label.setText(t(self.language,"language"));self.ver.setText(t(self.language,"version"))
+        self.setWindowTitle(t(self.language,"app_title"));self.lang_label.setText(t(self.language,"language"));self.ver.setText("Puresteel Center 1.3.2")
         self.trb.setChecked(self.language=="tr");self.enb.setChecked(self.language=="en")
-        keys=["home","updates","applications","drivers","sources","backup","reports","about"];cur=self.nav.currentRow();self.nav.clear()
+        keys=["home","puresteel","updates","applications","drivers","profiles","sources","backup","reports","about"];cur=self.nav.currentRow();self.nav.clear()
         for k in keys:
-            it=QListWidgetItem(t(self.language,k));it.setSizeHint(QSize(0,44));self.nav.addItem(it)
+            if k=="puresteel": text="Puresteel"
+            elif k=="profiles": text="Profiller" if self.language=="tr" else "Profiles"
+            else: text=t(self.language,k)
+            it=QListWidgetItem(text);it.setSizeHint(QSize(0,44));self.nav.addItem(it)
         self.nav.setCurrentRow(max(cur,0))
         for p in self.page_objects:
             if hasattr(p,"set_language"):p.set_language(self.language)

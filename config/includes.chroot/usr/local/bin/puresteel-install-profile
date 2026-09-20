@@ -1,0 +1,13 @@
+#!/usr/bin/python3
+import argparse,os,subprocess
+HELPER='/usr/lib/puresteel-center/puresteel-helper'
+p=argparse.ArgumentParser(description='Apply a Puresteel software profile after installation')
+p.add_argument('profile',choices=('standard','minimal','creator','gaming','developer'));a=p.parse_args()
+if a.profile=='minimal':
+ print('Minimal profile keeps the installed base and does not destructively remove packages.');raise SystemExit(0)
+if a.profile=='standard':
+ print('Standard Puresteel installation is already active.');raise SystemExit(0)
+pack=a.profile
+cmd=[HELPER,'app-pack',pack]
+if os.geteuid()!=0:cmd.insert(0,'pkexec')
+raise SystemExit(subprocess.run(cmd,check=False).returncode)

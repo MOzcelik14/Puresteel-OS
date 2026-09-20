@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=X-GNOME-Metatheme
+Name=Puresteel Light
+Comment=Puresteel light desktop theme
+Encoding=UTF-8
+[X-GNOME-Metatheme]
+GtkTheme=Puresteel-Light
+IconTheme=Puresteel
+CursorTheme=Adwaita
+ButtonLayout=menu:minimize,maximize,close

@@ -1,0 +1,65 @@
+#!/usr/bin/python3
+"""Desktop update reminder. Uses cached APT indices; never elevates silently."""
+import hashlib
+import shutil
+import subprocess
+import time
+from pathlib import Path
+
+CRITICAL = (
+    "linux-image", "linux-headers", "nvidia", "firmware-", "grub", "shim",
+    "systemd", "initramfs",
+)
+INTERVAL_SECONDS = 6 * 3600
+STATE = Path.home() / ".cache/puresteel/update-notifier-fingerprint"
+
+
+def check_once():
+    try:
+        result = subprocess.run(
+            ["apt", "list", "--upgradable"], text=True,
+            stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
+            timeout=75, check=False,
+        )
+    except (OSError, subprocess.TimeoutExpired):
+        return
+    if result.returncode:
+        return
+    items = sorted(
+        line.split("/", 1)[0].strip()
+        for line in result.stdout.splitlines()
+        if "/" in line and not line.lower().startswith("listing")
+    )
+    if not items:
+        STATE.unlink(missing_ok=True)
+        return
+    fingerprint = hashlib.sha256("\n".join(items).encode()).hexdigest()
+    try:
+        if STATE.read_text().strip() == fingerprint:
+            return
+    except OSError:
+        pass
+    count = sum(name.startswith(CRITICAL) for name in items)
+    body = f"{len(items)} update(s) available from cached APT indices."
+    if count:
+        body += f" {count} critical system update(s)."
+    if shutil.which("notify-send"):
+        result = subprocess.run(
+            ["notify-send", "-i", "software-update-available",
+             "Puresteel Updates", body], check=False,
+        )
+        if result.returncode:
+            return
+    else:
+        return
+    try:
+        STATE.parent.mkdir(parents=True, exist_ok=True)
+        STATE.write_text(fingerprint + "\n")
+    except OSError:
+        pass
+
+
+if __name__ == "__main__":
+    while True:
+        check_once()
+        time.sleep(INTERVAL_SECONDS)

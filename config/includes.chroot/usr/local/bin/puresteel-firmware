@@ -1,0 +1,17 @@
+#!/usr/bin/python3
+import argparse, subprocess, shutil, os
+HELPER='/usr/lib/puresteel-center/puresteel-helper'
+
+def run(cmd): return subprocess.run(cmd,check=False).returncode
+
+def elevated(action):
+    cmd=[HELPER,action]
+    if os.geteuid()!=0: cmd.insert(0,'pkexec')
+    return run(cmd)
+
+p=argparse.ArgumentParser(prog='puresteel-firmware');p.add_argument('action',choices=('status','check','update'));a=p.parse_args()
+if not shutil.which('fwupdmgr'):
+    print('fwupd is not installed.');raise SystemExit(1)
+if a.action=='status': raise SystemExit(run(['fwupdmgr','get-devices']))
+if a.action=='check': raise SystemExit(elevated('firmware-refresh'))
+raise SystemExit(elevated('firmware-update'))
