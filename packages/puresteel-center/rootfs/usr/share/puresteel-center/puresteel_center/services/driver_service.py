@@ -226,11 +226,8 @@ def install_driver(name):
 
 
 def repair(vendor):
-    action = {
-        "nvidia": "nvidia-reinstall",
-        "intel": "graphics-repair-intel",
-        "amd": "graphics-repair-amd",
-    }.get(vendor.lower())
-    if not action:
-        return 2, "Unsupported GPU vendor"
-    return privileged(action, timeout=7200)
+    vendor = vendor.lower()
+    code, preview = simulate_repair(vendor)
+    if code:
+        return code, preview
+    return privileged("driver-repair", vendor, timeout=7200)

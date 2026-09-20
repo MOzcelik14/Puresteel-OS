@@ -91,6 +91,18 @@ class PrivilegedDriverSafetyTests(unittest.TestCase):
             self.assertEqual(helper.driver_transaction("install", "nvidia-driver"), 5)
             install.assert_not_called()
 
+    def test_repair_dispatch_uses_safety_helper_not_legacy_reinstall(self):
+        with patch.object(service, "simulate_repair", return_value=(0, "Safe plan")), \
+             patch.object(service, "privileged", return_value=(0, "done")) as elevated:
+            self.assertEqual(service.repair("nvidia"), (0, "done"))
+            elevated.assert_called_once_with("driver-repair", "nvidia", timeout=7200)
+
+    def test_repair_refuses_unsafe_plan_before_elevation(self):
+        with patch.object(service, "simulate_repair", return_value=(4, "APT removal")), \
+             patch.object(service, "privileged") as elevated:
+            self.assertEqual(service.repair("intel"), (4, "APT removal"))
+            elevated.assert_not_called()
+
     def test_root_helper_refuses_vendor_without_hardware(self):
         with patch.object(helper, "gpu_present", return_value=False), \
              patch.object(helper, "run") as install:
