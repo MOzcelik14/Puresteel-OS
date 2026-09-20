@@ -2,8 +2,8 @@
 Type=Application
 Name=Welcome to Puresteel
 Name[tr]=Puresteel'e Hoş Geldin
-Comment=Open Puresteel tools and documentation
-Comment[tr]=Puresteel araçlarını ve belgelerini aç
+Comment=Puresteel Plasma tools and documentation
+Comment[tr]=Puresteel Plasma araçları ve belgeleri
 Exec=puresteel-welcome
 Icon=puresteel-logo
 Categories=System;Settings;

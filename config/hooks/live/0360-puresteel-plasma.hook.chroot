@@ -1,0 +1,12 @@
+#!/bin/sh
+set -e
+echo "[Puresteel] Configuring minimal KDE Plasma and SDDM..."
+# Keep first login safe: never auto-log in when KWallet is used for secrets.
+mkdir -p /etc/sddm.conf.d
+if [ -x /usr/bin/systemctl ]; then
+    systemctl enable sddm.service
+    systemctl set-default graphical.target
+fi
+if [ -x /usr/bin/update-alternatives ]; then
+    update-alternatives --set default-displaymanager /usr/bin/sddm 2>/dev/null || true
+fi

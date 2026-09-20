@@ -1,10 +1,10 @@
+# Puresteel minimal KDE Plasma 6, explicitly curated instead of kde-standard/kde-full
 systemd
 systemd-sysv
 live-config
 live-config-systemd
-
+dbus-user-session
 network-manager
-network-manager-gnome
 
 sudo
 curl
@@ -14,6 +14,7 @@ git
 vim
 nano
 bash
+firefox-esr
 
 linux-image-amd64
 firmware-linux
@@ -27,20 +28,41 @@ lshw
 htop
 btop
 
-cinnamon
-cinnamon-core
-cinnamon-l10n
-lightdm
-slick-greeter
-gnome-terminal
-nemo
-gnome-themes-extra
-gvfs-fuse
-gvfs-backends
-xdg-desktop-portal-xapp
-dconf-cli
-papirus-icon-theme
-zenity
+# Plasma desktop essentials: X11 fallback for NVIDIA + Wayland session
+plasma-desktop
+plasma-workspace
+plasma-workspace-wayland
+kwin-wayland
+kwin-x11
+xserver-xorg
+xwayland
+sddm
+sddm-theme-breeze
+breeze
+breeze-gtk-theme
+kf6-breeze-icon-theme
+plasma-nm
+plasma-pa
+powerdevil
+polkit-kde-agent-1
+systemsettings
+kde-config-sddm
+kde-config-gtk-style
+dolphin
+konsole
+ark
+kde-spectacle
+kio-extras
+udisks2
+upower
+bluedevil
+libpam-kwallet5
+kwallet6
+xdg-desktop-portal
+xdg-desktop-portal-kde
+xdg-desktop-portal-gtk
+pipewire-audio
+wireplumber
 
 locales
 python3-gi
