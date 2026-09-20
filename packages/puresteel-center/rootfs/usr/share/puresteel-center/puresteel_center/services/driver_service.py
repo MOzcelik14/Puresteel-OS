@@ -126,6 +126,37 @@ def simulate_install(name):
     return 0, "\n".join(text)
 
 
+
+REPAIR_PACKAGES = {
+    "nvidia": ("nvidia-driver", "nvidia-settings", "switcheroo-control"),
+    "intel": ("firmware-intel-graphics", "firmware-intel-misc",
+              "intel-media-va-driver-non-free", "mesa-vulkan-drivers",
+              "mesa-va-drivers", "libvulkan1"),
+    "amd": ("firmware-amd-graphics", "mesa-vulkan-drivers", "mesa-va-drivers",
+            "libvulkan1", "xserver-xorg-video-amdgpu"),
+}
+
+
+def simulate_repair(vendor):
+    packages = REPAIR_PACKAGES.get(vendor.lower())
+    if not packages:
+        return 2, "Unsupported graphics vendor."
+    if any(not package_status(name)["candidate"] for name in packages):
+        return 3, "A required package is missing from configured APT sources."
+    if vendor == "nvidia":
+        kernel = run(["uname", "-r"], timeout=5)[1].strip()
+        if not package_status("linux-headers-" + kernel)["installed"]:
+            return 5, "Matching running-kernel headers are missing."
+    code, output = run(["env", "LC_ALL=C", "apt-get", "-s", "install",
+                        "--no-remove", "--reinstall", *packages], timeout=45)
+    if code:
+        return code, output[-12000:]
+    removed = [line for line in output.splitlines() if line.startswith("Remv ")]
+    if removed:
+        return 4, "APT would remove packages. Operation refused.\n" + output[-10000:]
+    return 0, "Packages: " + ", ".join(packages) + "\n\n" + output[-12000:]
+
+
 def collect():
     data = {
         "gpus": [], "kernel": "?", "nvidia": "Not installed",
