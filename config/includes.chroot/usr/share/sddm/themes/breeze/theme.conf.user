@@ -1,0 +1,8 @@
+[General]
+showlogo=shown
+showClock=true
+logo=/usr/share/pixmaps/puresteel-installer.png
+color=#d9eaf7
+fontSize=10
+background=/usr/share/backgrounds/puresteel/puresteel-light.png
+type=image

@@ -12,7 +12,7 @@
 
 Puresteel; temiz bir masaüstü deneyimi, oyun ve içerik üretimi araçları, geniş ekran kartı desteği, grafiksel kurulum aracı ve kendi sistem yönetimi/güncelleme altyapısına odaklanan Debian 13 (Trixie) tabanlı bağımsız bir Linux dağıtımıdır.
 
-Puresteel'in güncel masaüstü yığını **Cinnamon + LightDM + Slick Greeter + X11** şeklindedir.
+Puresteel'in güncel masaüstü yığını **minimal KDE Plasma 6 + SDDM + Breeze Light; Wayland ve X11 alternatifi** şeklindedir.
 
 ## ISO'yu tek komutla oluştur
 
@@ -42,7 +42,7 @@ Elle veya geliştirme amaçlı build için [docs/BUILD.md](docs/BUILD.md) belges
 |---|---|
 | **Taban** | Debian 13 (Trixie) |
 | **Mimari** | amd64 + i386 multiarch |
-| **Masaüstü** | Cinnamon / LightDM / Slick Greeter / X11 |
+| **Masaüstü** | minimal Plasma 6 / SDDM / Wayland + X11 |
 | **Kurulum** | Calamares |
 | **Init** | systemd |
 | **Grafik** | Intel, AMD ve NVIDIA; hibrit GPU desteği |
@@ -63,7 +63,7 @@ Puresteel kendi Qt 6 / PySide6 sistem yönetim uygulamasıyla gelir. Güncelleme
 - **NVIDIA** — Debian proprietary sürücü yığını, DKMS, Vulkan ve hibrit grafik entegrasyonu
 - **Hibrit sistemler** — Intel + NVIDIA, AMD + NVIDIA ve Linux grafik yığınının desteklediği diğer çoklu GPU düzenleri
 
-Cinnamon live ortamı Intel + NVIDIA hibrit bir dizüstünde RTX 3050 ile test edilmiştir; `nvidia-smi` başarılı şekilde çalışmıştır.
+Önceki Cinnamon imajı Intel + NVIDIA RTX 3050 cihazda test edilmiştir; yeni minimal Plasma sürümü için ayrı kurulum ve donanım testi gerekir.
 
 [Donanım dokümantasyonu →](docs/HARDWARE.md)
 
@@ -77,7 +77,7 @@ Puresteel; Fish, Starship, Fastfetch, btop, htop, Git, curl, wget, Vim, Nano, fz
 
 ## Masaüstü ve branding
 
-Puresteel X11 üzerinde Cinnamon, LightDM/Slick Greeter, Puresteel duvar kağıdı varsayılanları, Puresteel uygulama menüsü ikonu ve Puresteel'e ait GRUB, Plymouth, ikon ve Calamares branding'ini kullanır. Sistem dili Puresteel Language Settings üzerinden değiştirilebilir.
+Puresteel minimal KDE Plasma 6, SDDM, açık Breeze Light teması, Puresteel duvar kağıdı, ikonları, GRUB, Plymouth ve Calamares kimliğini kullanır. NVIDIA uyumluluğu için X11 oturumu da korunur. Sistem dili Puresteel Language Settings üzerinden değiştirilebilir.
 
 ## Kurulum
 
@@ -99,7 +99,7 @@ Oluşturulan hybrid ISO'yu USB belleğe yazın, UEFI modunda Puresteel live orta
 
 ## Sürüm geçmişi
 
-Yayınlanmış `v1.0.0` etiketi, ilk Puresteel 1.0 "Burak" sürümünün tarihsel kaydı olarak korunur. Güncel `main` hattı Cinnamon kullanır ve eski sürüm geçmişi yeniden yazılmaz.
+Yayınlanmış `v1.0.0` etiketi, ilk Puresteel 1.0 "Burak" sürümünün tarihsel kaydı olarak korunur. Yeni Plasma sürümü ayrı geliştirme branch'inde hazırlanır; eski sürüm geçmişi yeniden yazılmaz.
 
 ## Lisanslama
 

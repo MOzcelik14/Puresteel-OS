@@ -37,6 +37,6 @@ class AboutPage(QWidget):
 
     def set_language(self,lang):
         self.lang=lang;self.title.setText(t(lang,"about_title"))
-        self.subtitle.setText("Puresteel, Debian 13 tabanı üzerinde Cinnamon kullanan bağımsız bir Linux dağıtımıdır." if lang=="tr" else "Puresteel is an independent Debian 13 based Linux distribution using Cinnamon.")
+        self.subtitle.setText("Puresteel, Debian 13 tabanı üzerinde KDE Plasma 6 kullanan bağımsız bir Linux dağıtımıdır." if lang=="tr" else "Puresteel is an independent Debian 13 based Linux distribution using KDE Plasma 6.")
         self.body.setText("Puresteel Center; güncellemeler, uygulamalar, GPU/sürücüler, profiller, kaynaklar, yedekleme ve tanılamayı tek yerde toplar." if lang=="tr" else "Puresteel Center brings updates, applications, GPU/drivers, profiles, sources, backup and diagnostics together in one place.")
         self.git.setText(t(lang,"github"))

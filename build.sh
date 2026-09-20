@@ -24,11 +24,17 @@ mapfile -t COMPONENT_DEBS < <(scripts/build-component-packages.sh)
 mkdir -p config/packages.chroot
 find config/packages.chroot -maxdepth 1 -type f -name 'puresteel-*.deb' -delete
 cp -f "$CENTER_DEB" config/packages.chroot/
-for DEB in "${META_DEBS[@]}" "${COMPONENT_DEBS[@]}"; do
+# Optional Gaming/Creator/Developer roles stay in the signed APT repository.
+for DEB in "${META_DEBS[@]}"; do
+    case "$(basename "$DEB")" in
+        puresteel-base_*.deb|puresteel-desktop_*.deb) cp -f "$DEB" config/packages.chroot/ ;;
+    esac
+done
+for DEB in "${COMPONENT_DEBS[@]}"; do
     cp -f "$DEB" config/packages.chroot/
 done
 
-echo "[Puresteel] Bundled Center + ${#META_DEBS[@]} metapackages + ${#COMPONENT_DEBS[@]} maintained component packages"
+echo "[Puresteel] Bundled Center + 2 lean metapackages + ${#COMPONENT_DEBS[@]} maintained component packages"
 test -f "config/packages.chroot/$(basename "$CENTER_DEB")"
 test -f config/packages.chroot/puresteel-base_*.deb
 test -f config/packages.chroot/puresteel-platform_*.deb
