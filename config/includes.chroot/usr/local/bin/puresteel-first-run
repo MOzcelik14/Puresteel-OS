@@ -63,15 +63,15 @@ class FirstRun(Gtk.Window):
 
         appearance = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
         self.theme = Gtk.ComboBoxText()
-        self.theme.append("dark", "Puresteel Dark")
-        self.theme.append("light", "Puresteel Light")
-        self.theme.set_active_id("dark")
+        self.theme.append("light", "Puresteel / KDE Breeze Light")
+        self.theme.append("dark", "Puresteel / KDE Breeze Dark")
+        self.theme.set_active_id("light")
         appearance.pack_start(Gtk.Label(label="Tema / Theme", xalign=0), False, False, 0)
         appearance.pack_start(self.theme, False, False, 0)
         self.wallpaper = Gtk.ComboBoxText()
         for filename, label in (
-            ("wallpaper.png", "Puresteel Default"),
-            ("puresteel-light.png", "Puresteel Light"),
+            ("puresteel-light.png", "Puresteel Light — Default"),
+            ("wallpaper.png", "Puresteel Midnight"),
             ("puresteel-midnight.svg", "Puresteel Midnight"),
             ("puresteel-orbit.svg", "Puresteel Orbit"),
             ("puresteel-arc.svg", "Puresteel Arc"),
@@ -82,7 +82,7 @@ class FirstRun(Gtk.Window):
             ("puresteel-monolith.svg", "Puresteel Monolith"),
         ):
             self.wallpaper.append(filename, label)
-        self.wallpaper.set_active_id("wallpaper.png")
+        self.wallpaper.set_active_id("puresteel-light.png")
         appearance.pack_start(Gtk.Label(label="Duvar kağıdı / Wallpaper", xalign=0), False, False, 0)
         appearance.pack_start(self.wallpaper, False, False, 0)
         self.add_custom_page("Görünüm / Appearance", appearance)
@@ -155,24 +155,12 @@ class FirstRun(Gtk.Window):
 
     def finish(self, _):
         failures = []
-        dark = self.theme.get_active_id() == "dark"
-        shell_theme = "Puresteel-Dark" if dark else "Puresteel-Light"
-        if have("gsettings"):
-            settings = [
-                ("org.cinnamon.desktop.interface", "gtk-theme", shell_theme),
-                ("org.cinnamon.desktop.interface", "icon-theme", "Puresteel"),
-                ("org.cinnamon.theme", "name", shell_theme),
-            ]
-            wall = Path("/usr/share/backgrounds/puresteel") / self.wallpaper.get_active_id()
-            if not wall.is_file():
-                failures.append("wallpaper missing")
-            else:
-                settings.append(("org.cinnamon.desktop.background", "picture-uri", wall.as_uri()))
-            for schema, key, value in settings:
-                if run_quiet(["gsettings", "set", schema, key, value]) != 0:
-                    failures.append("appearance: " + key)
-        else:
-            failures.append("gsettings unavailable")
+        theme = self.theme.get_active_id() or "light"
+        wallpaper = self.wallpaper.get_active_id() or "puresteel-light.png"
+        rc = run_quiet(["/usr/local/bin/puresteel-apply-defaults",
+                        "--theme", theme, "--wallpaper", wallpaper])
+        if rc != 0:
+            failures.append("Plasma appearance / wallpaper")
 
         locale_name = self.lang.get_active_id()
         if locale_name and not os.environ.get("LANG", "").startswith(locale_name.split(".")[0]):

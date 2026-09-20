@@ -1,39 +1,70 @@
 #!/usr/bin/python3
+"""Apply Puresteel's native Plasma / Breeze appearance in the logged-in session.
+
+Never edit other users' KDE settings or write directly into a plasma
+containment ID. Existing users opt in; new users get /etc/skel defaults.
+"""
+import argparse
+import shutil
 import subprocess
+import sys
+from pathlib import Path
+
+WALLPAPERS = Path("/usr/share/backgrounds/puresteel")
 
 
-def schema_exists(schema):
-    p = subprocess.run(["gsettings", "list-schemas"], text=True, stdout=subprocess.PIPE, check=False)
-    return schema in p.stdout.splitlines()
+def checked(command):
+    if not shutil.which(command[0]):
+        print("Missing KDE Plasma command: " + command[0], file=sys.stderr)
+        return 1
+    result = subprocess.run(command, check=False)
+    return result.returncode
 
 
-def key_exists(schema, key):
-    if not schema_exists(schema):
-        return False
-    p = subprocess.run(["gsettings", "list-keys", schema], text=True, stdout=subprocess.PIPE, check=False)
-    return key in p.stdout.splitlines()
-
-
-def setv(schema, key, value):
-    if key_exists(schema, key):
-        return subprocess.run(["gsettings", "set", schema, key, value], check=False).returncode == 0
-    return False
+def apply(theme, wallpaper):
+    if theme not in ("light", "dark"):
+        return 2
+    if not wallpaper:
+        wallpaper = "puresteel-light.png" if theme == "light" else "wallpaper.png"
+    # Never accept an arbitrary file path via the privileged wrapper.
+    if "/" in wallpaper or wallpaper in ("", ".", ".."):
+        print("Wallpaper must be one bundled Puresteel filename.", file=sys.stderr)
+        return 2
+    image = WALLPAPERS / wallpaper
+    if not image.is_file() or image.suffix.lower() not in (".png", ".jpg", ".jpeg", ".svg"):
+        print("Wallpaper not installed: " + str(image), file=sys.stderr)
+        return 2
+    scheme = "BreezeLight" if theme == "light" else "BreezeDark"
+    desktop = "breeze-light" if theme == "light" else "breeze-dark"
+    commands = [
+        ["plasma-apply-colorscheme", scheme],
+        ["plasma-apply-desktoptheme", desktop],
+        ["kwriteconfig6", "--file", "kdeglobals", "--group", "KDE", "--key",
+         "LookAndFeelPackage", "org.kde.breeze.desktop"],
+        ["kwriteconfig6", "--file", "kdeglobals", "--group", "KDE", "--key", "widgetStyle", "Breeze"],
+        ["kwriteconfig6", "--file", "kdeglobals", "--group", "General", "--key", "ColorScheme", scheme],
+        ["kwriteconfig6", "--file", "kdeglobals", "--group", "Icons", "--key", "Theme", "Puresteel"],
+        ["kwriteconfig6", "--file", "plasmarc", "--group", "Theme", "--key", "name", desktop],
+        ["plasma-apply-wallpaperimage", str(image)],
+    ]
+    failures = []
+    for command in commands:
+        if checked(command):
+            failures.append(command[0])
+    if failures:
+        print("Puresteel Plasma appearance incomplete: " + ", ".join(failures),
+              file=sys.stderr)
+        return 1
+    print("Puresteel Plasma " + theme + " applied with " + image.name)
+    return 0
 
 
 def main():
-    changed = 0
-    # Match Puresteel's GTK and Cinnamon themes consistently.
-    changed += setv("org.cinnamon.desktop.interface", "gtk-theme", "Puresteel-Dark")
-    changed += setv("org.cinnamon.desktop.interface", "icon-theme", "Puresteel")
-    changed += setv("org.cinnamon.desktop.background", "picture-uri", "file:///usr/share/backgrounds/puresteel/wallpaper.png")
-    changed += setv("org.cinnamon.desktop.background", "picture-options", "zoom")
-    changed += setv("org.cinnamon.desktop.default-applications.terminal", "exec", "gnome-terminal")
-    changed += setv("org.cinnamon.theme", "name", "Puresteel-Dark")
-    changed += setv("org.cinnamon.desktop.sound", "theme-name", "Puresteel")
-    changed += setv("org.cinnamon", "favorite-apps", "['puresteel-center.desktop', 'nemo.desktop', 'org.gnome.Terminal.desktop']")
-    changed += setv("org.cinnamon", "panel-edit-mode", "false")
-    print(f"Puresteel defaults applied ({changed} supported settings).")
-    return 0
+    parser = argparse.ArgumentParser(description="Apply Puresteel Plasma defaults")
+    parser.add_argument("--theme", choices=("light", "dark"), default="light")
+    parser.add_argument("--wallpaper", help="Filename from bundled Puresteel backgrounds")
+    args = parser.parse_args()
+    return apply(args.theme, args.wallpaper)
 
 
 if __name__ == "__main__":
