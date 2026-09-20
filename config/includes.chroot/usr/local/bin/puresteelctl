@@ -167,6 +167,7 @@ def main():
     ac=sub.add_parser("accessibility");ac.add_argument("mode",choices=("status","large-text","normal-text","high-contrast","puresteel"));ac.set_defaults(func=lambda a:exec_tool("puresteel-accessibility",[a.mode]))
     cr=sub.add_parser("crash-report");cr.add_argument("--open-issue",action="store_true");cr.set_defaults(func=lambda a:exec_tool("puresteel-crash-helper",["--open-issue"] if a.open_issue else []))
     hr=sub.add_parser("hw-report");hr.set_defaults(func=lambda a:exec_tool("puresteel-hw-report"))
+    wi=sub.add_parser("wifi");wi.add_argument("--open-settings",action="store_true");wi.set_defaults(func=lambda a:exec_tool("puresteel-wifi",["--open-settings"] if a.open_settings else []))
     args=p.parse_args()
     if args.cmd=="profile" and args.action=="apply" and not args.name:p.error("profile apply requires a profile name")
     if args.cmd=="apps" and args.action=="install" and not args.pack:p.error("apps install requires a pack")
