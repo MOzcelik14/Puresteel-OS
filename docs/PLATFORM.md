@@ -1,6 +1,6 @@
 # Puresteel platform layer
 
-Puresteel adds a distro-specific management layer on top of Debian 13 and Cinnamon.
+Puresteel adds a distro-specific management layer on top of Debian 13 and minimal KDE Plasma 6.
 
 ## Daily commands
 
@@ -19,7 +19,7 @@ Puresteel adds a distro-specific management layer on top of Debian 13 and Cinnam
 
 ## Recovery
 
-Use **Puresteel Recovery** from GRUB for package repair, initramfs/GRUB repair, LightDM recovery, NVIDIA DKMS rebuild, Timeshift restore and the last-update rollback workflow.
+Use **Puresteel Recovery** from GRUB for package repair, initramfs/GRUB repair, SDDM recovery, NVIDIA DKMS rebuild, Timeshift restore and the last-update rollback workflow.
 
 ## Secure Boot
 
@@ -70,3 +70,18 @@ package-removing NVIDIA transitions instead of guessing that a replacement is
 safe. The UI uses QThread workers; no long APT transaction runs on the GUI
 thread. A successful APT transaction does **not** mean the driver became active
 without a reboot: DKMS and hardware must be tested on the installed machine.
+
+## Minimal Plasma and Wi-Fi
+
+The Plasma migration chooses explicit desktop essentials instead of `kde-full`
+or `kde-standard`: SDDM, Breeze Light, Dolphin, Konsole, plasma-nm and
+plasma-pa, Polkit KDE agent, Plasma Wayland and a KWin/X11 fallback.
+Creator/Gaming/Developer role metapackages are built and published but are
+**not bundled** into the lean ISO. Large Flatpaks are installed on demand.
+Four frequently used Nerd Font weights replace the former 96-font bundle.
+
+The first login applies the Puresteel wallpaper once, not on every reboot;
+changes made by users persist. KWallet is kept; SDDM password login and
+libpam-kwallet5 handle encrypted Wi-Fi where account and wallet passwords
+match. See [KDE-WIFI.md](KDE-WIFI.md) for older connections and consent-based
+system-wide password storage. No password conversion is automatic.

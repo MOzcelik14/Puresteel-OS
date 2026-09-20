@@ -1,6 +1,6 @@
 # Puresteel ISO integration QA
 
-This is a release gate, not a list of assumptions. Keep PR #3 draft until the
+This is a release gate, not a list of assumptions. Keep the Plasma migration PR draft until the
 fresh ISO has been built and these tests have been recorded. A successful
 syntax/package workflow does not prove an installed system boots.
 
@@ -36,14 +36,18 @@ UEFI/OVMF with a fresh virtual disk if firmware/EFI coverage is required.
 
 ### Record pass/fail for each test
 
-- [ ] Live boot reaches Cinnamon; wallpaper and theme render.
+- [ ] Live boot reaches KDE Plasma Wayland; Puresteel Breeze Light wallpaper and SDDM render.
 - [ ] Calamares completes without modifying disks other than the qcow2.
-- [ ] Installed system boots with LightDM/Cinnamon.
+- [ ] Installed system boots with SDDM/Plasma and also offers X11 fallback.
 - [ ] First Run appears exactly once and persists its completion marker.
-- [ ] Language, Puresteel theme, icon, wallpaper, hardware and power profile apply.
+- [ ] Language, Puresteel Breeze Light and Dark, icon, wallpaper, hardware and power profile apply.
+- [ ] SDDM password login opens a matching-password kdewallet via PAM; no Wi-Fi prompt repeats after login.
+- [ ] Existing agent-owned Wi-Fi connections can be migrated only with user consent; `puresteelctl wifi` leaks no PSK.
+- [ ] Plasma X11 fallback remains available for NVIDIA testing.
+- [ ] No KDE PIM/Akonadi/Discover or large creator/gaming apps are preinstalled.
 - [ ] Puresteel Center and all cards remain accessible at 1366x768.
 - [ ] Profile apply/reboot persists; Doctor displays both swap and ZRAM.
-- [ ] All ten puresteel packages are registered with dpkg, not only copied.
+- [ ] The seven ISO-selected Puresteel packages are registered with dpkg; optional role metapackages are not preinstalled.
 - [ ] `puresteelctl snapshot create` creates a listed, restorable snapshot.
 - [ ] Safe Update aborts if Timeshift fails (use a THROWAWAY VM to force failure).
 - [ ] Safe Update records one real snapshot ID in last-update-snapshot JSON.

@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=Puresteel Plasma Appearance
+Exec=/usr/local/bin/puresteel-desktop-init
+NoDisplay=true
+OnlyShowIn=KDE;
+X-KDE-autostart-phase=0

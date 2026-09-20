@@ -21,7 +21,11 @@ for file in \
     usr/local/sbin/puresteel-recovery \
     etc/grub.d/09_puresteel_recovery \
     usr/lib/puresteel-center/puresteel-helper \
-    usr/share/themes/Puresteel-Dark/cinnamon/cinnamon.css; do
+    etc/sddm.conf.d/10-puresteel.conf \
+    etc/skel/.config/kdeglobals \
+    usr/share/sddm/themes/breeze/theme.conf.user \
+    usr/local/bin/puresteel-wifi \
+    usr/local/bin/puresteel-desktop-init; do
     if ! unsquashfs -cat "$SQUASH" "$file" >/dev/null 2>&1; then
         echo "Missing inside live filesystem: $file" >&2
         exit 1
