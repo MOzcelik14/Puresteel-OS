@@ -3,7 +3,7 @@ set -euo pipefail
 
 REPO="$(cd "$(dirname "$0")/.." && pwd)"
 OUT="$REPO/build/packages"
-VERSION="1.3.1-1"
+VERSION="$(tr -d '[:space:]' < "$REPO/packages/puresteel-center/VERSION")"
 mkdir -p "$OUT"
 
 build_meta() {

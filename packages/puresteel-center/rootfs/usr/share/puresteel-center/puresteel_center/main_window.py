@@ -50,7 +50,7 @@ class MainWindow(QMainWindow):
         self.apply_language()
 
     def apply_language(self):
-        self.setWindowTitle(t(self.language,"app_title"));self.lang_label.setText(t(self.language,"language"));self.ver.setText("Puresteel Center 1.3.1")
+        self.setWindowTitle(t(self.language,"app_title"));self.lang_label.setText(t(self.language,"language"));self.ver.setText("Puresteel Center 1.3.2")
         self.trb.setChecked(self.language=="tr");self.enb.setChecked(self.language=="en")
         keys=["home","puresteel","updates","applications","drivers","profiles","sources","backup","reports","about"];cur=self.nav.currentRow();self.nav.clear()
         for k in keys:

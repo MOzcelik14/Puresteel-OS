@@ -3,7 +3,7 @@ import shlex
 import shutil
 import subprocess
 
-from PySide6.QtCore import QObject, QThread, QTimer, Signal, Slot
+from PySide6.QtCore import QObject, QThread, QTimer, Signal, Slot, Qt
 from PySide6.QtWidgets import (
     QComboBox, QFrame, QGridLayout, QHBoxLayout, QInputDialog, QLabel,
     QMessageBox, QPlainTextEdit, QPushButton, QScrollArea, QTableWidget,
@@ -90,8 +90,7 @@ class DriversPage(QWidget):
             value = QLabel("…")
             value.setObjectName("CardText")
             value.setWordWrap(True)
-            value.setTextInteractionFlags(value.textInteractionFlags() |
-                                           value.textInteractionFlags().__class__.TextSelectableByMouse)
+            value.setTextInteractionFlags(Qt.TextSelectableByMouse)
             box.addWidget(label)
             box.addWidget(value)
             self.info[key] = (label, value)

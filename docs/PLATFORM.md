@@ -55,3 +55,18 @@ models themselves may be unique even in the allowlisted report.
 Validation jobs check syntax, component packages and no-root safety regression tests.
 A successful CI job does **not** prove that Calamares, GRUB Recovery or a real NVIDIA
 machine works; those remain explicit integration tests in `docs/QA.md`.
+
+## GPU driver manager
+
+The Center GPU & Drivers page discovers only NVIDIA driver metapackages visible
+in enabled Debian APT repositories. It shows the active PCI kernel drivers,
+package candidates and installed versions, matching running-kernel headers,
+DKMS, firmware, Secure Boot, Vulkan and actual `vainfo` exit status.
+
+Before installing or repairing, Puresteel runs an APT simulation with
+`--no-remove`; the privileged helper repeats package allowlist, GPU presence,
+kernel headers, APT candidate and removal checks. It refuses potentially
+package-removing NVIDIA transitions instead of guessing that a replacement is
+safe. The UI uses QThread workers; no long APT transaction runs on the GUI
+thread. A successful APT transaction does **not** mean the driver became active
+without a reboot: DKMS and hardware must be tested on the installed machine.
