@@ -2,7 +2,7 @@
 
 Select **Puresteel Recovery** from GRUB when normal boot or the desktop is broken.
 
-Available operations include broken-package repair, initramfs/GRUB rebuild, LightDM repair, NVIDIA DKMS rebuild, Puresteel Doctor, Timeshift listing/restore and the guided **Undo last Puresteel update** flow.
+Available operations include broken-package repair, initramfs/GRUB rebuild, SDDM repair, NVIDIA DKMS rebuild, Puresteel Doctor, Timeshift listing/restore and the guided **Undo last Puresteel update** flow.
 
 Timeshift restore remains interactive on purpose: always verify the selected snapshot and target disk before confirming.
 

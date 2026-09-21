@@ -6,7 +6,7 @@ DEFAULT_REF="main"
 WORKDIR="${PURESTEEL_WORKDIR:-$HOME/.cache/puresteel-builder}"
 OUTPUT_DIR="${PURESTEEL_OUTPUT_DIR:-$PWD}"
 REF="${PURESTEEL_REF:-$DEFAULT_REF}"
-ISO_NAME="${PURESTEEL_ISO_NAME:-Puresteel-Cinnamon-amd64.iso}"
+ISO_NAME="${PURESTEEL_ISO_NAME:-Puresteel-Plasma-amd64.iso}"
 
 say() { printf '\n\033[1;34m[Puresteel]\033[0m %s\n' "$*"; }
 fail() { printf '\n\033[1;31m[Puresteel]\033[0m %s\n' "$*" >&2; exit 1; }
@@ -14,7 +14,7 @@ fail() { printf '\n\033[1;31m[Puresteel]\033[0m %s\n' "$*" >&2; exit 1; }
 command -v apt-get >/dev/null 2>&1 || fail "This builder currently supports Debian, Ubuntu and Linux Mint style APT hosts."
 command -v sudo >/dev/null 2>&1 || fail "sudo is required."
 
-say "Puresteel Cinnamon ISO builder"
+say "Puresteel Plasma 6 ISO builder"
 sudo -v
 
 AVAILABLE_KB="$(df -Pk "$OUTPUT_DIR" | awk 'NR==2 {print $4}')"

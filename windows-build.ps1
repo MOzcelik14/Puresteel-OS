@@ -12,7 +12,7 @@ function Stop-WithMessage([string]$Message) {
     exit 1
 }
 
-Step 'Windows Cinnamon ISO builder'
+Step 'Windows Plasma 6 ISO builder'
 
 if (-not (Get-Command wsl.exe -ErrorAction SilentlyContinue)) {
     Step 'WSL is not enabled. Windows will ask for administrator permission.'
@@ -94,4 +94,4 @@ if ($LASTEXITCODE -ne 0) {
 }
 
 Step 'Done'
-Write-Host "Check $OutputWindows for Puresteel-Cinnamon-amd64.iso and its SHA256 file." -ForegroundColor Green
+Write-Host "Check $OutputWindows for Puresteel-Plasma-amd64.iso and its SHA256 file." -ForegroundColor Green
