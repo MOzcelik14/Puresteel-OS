@@ -80,10 +80,10 @@ Build without publishing:
 Release a new package version:
 
 ```bash
-./scripts/release-center.sh 1.0.2-1
+./scripts/release-center.sh 1.4.0-1
 ```
 
-The release script performs the important packaging steps:
+The source package version is currently `1.4.0-1`, but the committed signed APT index still lists `puresteel-center` version `1.0.1-1`. Merging source code does not update installed systems. Publishing a new version requires the matching signing **private key**, regenerated component packages, signed indexes and a separate commit; do not publish unsigned or mismatched metadata. The release script performs the important packaging steps:
 
 1. updates `packages/puresteel-center/VERSION`,
 2. builds the `.deb`,
@@ -99,7 +99,7 @@ Then commit and push the changed repository files:
 
 ```bash
 git add -A
-git commit -m "Release Puresteel Center 1.0.2"
+git commit -m "Release Puresteel components 1.4.0"
 git push
 ```
 

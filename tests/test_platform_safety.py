@@ -66,5 +66,21 @@ class SnapshotSafetyTests(unittest.TestCase):
                 self.assertEqual(helper.snapshot("test"), 1)
 
 
+    def test_nvidia_repair_stops_if_dpkg_fails(self):
+        with patch.object(helper.os, "geteuid", return_value=0), \
+             patch.object(helper, "run", return_value=19) as commands, \
+             patch.object(sys, "argv", ["puresteel-helper", "repair-nvidia"]):
+            self.assertEqual(helper.main(), 19)
+            commands.assert_called_once_with(["dpkg", "--configure", "-a"])
+
+    def test_nvidia_repair_stops_if_dkms_fails(self):
+        with patch.object(helper.os, "geteuid", return_value=0), \
+             patch.object(helper.Path, "exists", return_value=True), \
+             patch.object(helper, "run", side_effect=[0, 23]) as commands, \
+             patch.object(sys, "argv", ["puresteel-helper", "repair-nvidia"]):
+            self.assertEqual(helper.main(), 23)
+            self.assertEqual(commands.call_count, 2)
+
+
 if __name__ == "__main__":
     unittest.main()

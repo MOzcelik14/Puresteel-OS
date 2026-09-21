@@ -1,6 +1,18 @@
 # Changelog
 
-## Unreleased — Cinnamon development line
+## Unreleased — minimal KDE Plasma 6 (current `main`)
+
+- Returned the development desktop to minimal KDE Plasma 6, SDDM, Breeze Light and Puresteel branding, with Wayland and X11 sessions.
+- Added native Plasma integration for desktop defaults, recovery, admin file access and accessibility; removed obsolete LightDM and Nemo integration.
+- Expanded Puresteel Center with platform tools and no-secret Wi-Fi / KWallet diagnostics.
+- Preserved signed APT releases as separate, explicitly signed publication steps; source merge does not publish a new package or ISO.
+- Improved post-merge release documentation and detection of NVIDIA repair failures.
+
+---
+
+## Historical — Cinnamon development experiment (superseded by Plasma)
+
+This section records an earlier unshipped development direction; it does **not** describe current `main`.
 
 ### Desktop migration
 

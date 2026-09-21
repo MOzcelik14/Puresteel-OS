@@ -39,7 +39,7 @@ report = {
     "graphics": device_lines(("vga compatible", "3d controller", "display controller")),
     "audio": device_lines(("audio device", "multimedia audio")),
     "network": device_lines(("network controller", "ethernet controller")),
-    "desktop": "Cinnamon/X11",
+    "desktop": "KDE Plasma 6 (Wayland or X11)",
 }
 print(json.dumps(report, ensure_ascii=False, indent=2))
 print("Review before sharing: hardware models can still identify a rare device configuration.", file=__import__("sys").stderr)

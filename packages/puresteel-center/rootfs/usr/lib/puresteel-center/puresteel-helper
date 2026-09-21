@@ -326,8 +326,15 @@ def main():
             return 1
         return run(["systemctl", "set-default", "graphical.target"])
     if action == "repair-nvidia":
-        run(["dpkg", "--configure", "-a"])
-        if Path("/usr/sbin/dkms").exists(): run(["/usr/sbin/dkms", "autoinstall"])
+        if len(sys.argv) != 2:
+            return 2
+        rc = run(["dpkg", "--configure", "-a"])
+        if rc != 0:
+            return rc
+        if Path("/usr/sbin/dkms").exists():
+            rc = run(["/usr/sbin/dkms", "autoinstall"])
+            if rc != 0:
+                return rc
         return run(["update-initramfs", "-u", "-k", "all"])
     if action == "mok-enroll":
         if len(sys.argv) != 3:

@@ -1,6 +1,6 @@
 # Puresteel ISO integration QA
 
-This is a release gate, not a list of assumptions. Keep the Plasma migration PR draft until the
+This is a release gate, not a list of assumptions. Do not publish a new Plasma ISO as stable until a
 fresh ISO has been built and these tests have been recorded. A successful
 syntax/package workflow does not prove an installed system boots.
 

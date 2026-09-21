@@ -29,7 +29,6 @@ build_component() {
                  "$IN"/usr/local/sbin/puresteel-oem-prepare \
                  "$IN"/usr/local/bin/mintlocale \
                  "$IN"/usr/share/applications/puresteel-*.desktop \
-                 "$IN"/usr/share/nemo/actions/puresteel-*.nemo_action \
                  "$IN"/usr/share/doc/puresteel/OEM.md \
                  "$IN"/usr/share/doc/puresteel/SECURE-BOOT.md \
                  "$IN"/usr/share/puresteel/channels.conf \
