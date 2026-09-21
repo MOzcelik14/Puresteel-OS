@@ -69,7 +69,7 @@ Puresteel kendi Qt 6 / PySide6 sistem yönetim uygulamasıyla gelir. Güncelleme
 
 ## Oyun ve içerik üretimi
 
-Varsayılan imaj Steam, Wine, Winetricks, i386 multiarch, Vulkan kütüphaneleri, Heroic Games Launcher, ProtonUp-Qt, Kdenlive, Audacity, TubeConverter, ONLYOFFICE Desktop Editors, Zen Browser, VLC ve Audacious içerir. Flatpak uygulamaları sistem genelinde Flathub üzerinden kurulur.
+Minimal imaj temel masaüstü ve grafik araçları, Firefox ESR, VLC ve Audacious içerir. Steam, Wine, Heroic, ProtonUp-Qt, Kdenlive, Audacity ve ONLYOFFICE gibi oyun/içerik üretimi yazılımları Puresteel Center üzerinden isteğe bağlı paketlerle kurulur; Flatpak/Flathub hazır gelir ancak büyük uygulamalar önden yüklenmez.
 
 ## Power-user varsayılanları
 
@@ -99,7 +99,7 @@ Oluşturulan hybrid ISO'yu USB belleğe yazın, UEFI modunda Puresteel live orta
 
 ## Sürüm geçmişi
 
-Yayınlanmış `v1.0.0` etiketi, ilk Puresteel 1.0 "Burak" sürümünün tarihsel kaydı olarak korunur. Yeni Plasma sürümü ayrı geliştirme branch'inde hazırlanır; eski sürüm geçmişi yeniden yazılmaz.
+Yayınlanmış `v1.0.0` etiketi, ilk Puresteel 1.0 "Burak" sürümünün tarihsel kaydı olarak korunur. Güncel minimal Plasma sürümü `main` dalında geliştirilir; eski sürüm geçmişi yeniden yazılmaz.
 
 ## Lisanslama
 

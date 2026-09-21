@@ -36,14 +36,14 @@ The Linux bootstrap script:
 The expected output is:
 
 ```text
-Puresteel-1.0-Burak-amd64.iso
-Puresteel-1.0-Burak-amd64.iso.sha256
+Puresteel-Plasma-amd64.iso
+Puresteel-Plasma-amd64.iso.sha256
 ```
 
-By default the bootstrap script prefers the `v1.0.0` tag when it exists. For development testing:
+By default the bootstrap script builds `main` (the current minimal Plasma edition). To build a specific tag or branch instead:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/MOzcelik14/Puresteel-OS/main/bootstrap.sh | PURESTEEL_REF=main bash
+curl -fsSL https://raw.githubusercontent.com/MOzcelik14/Puresteel-OS/main/bootstrap.sh | PURESTEEL_REF=v1.0.0 bash
 ```
 
 ## Manual Linux build
@@ -107,7 +107,7 @@ Example:
 
 ```text
 config/packages.chroot/
-└── puresteel-center_1.0.1-1_all.deb
+└── puresteel-center_<current-version>_all.deb
 ```
 
 ## Puresteel Center package
@@ -121,10 +121,10 @@ Build the current Center package without publishing it:
 Release a new Center version and update APT metadata:
 
 ```bash
-./scripts/release-center.sh 1.0.2-1
+./scripts/release-center.sh 1.4.0-1
 ```
 
-See [UPDATES.md](UPDATES.md) before publishing package updates.
+The source package version is currently `1.4.0-1`; the signed online repository still lists the historical `1.0.1-1` Center package until a separate signed release. An ISO build does not publish APT packages. See [UPDATES.md](UPDATES.md) before publishing package updates.
 
 ## Test the ISO in QEMU
 

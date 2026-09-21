@@ -69,7 +69,7 @@ An earlier Cinnamon image was tested on an Intel + NVIDIA RTX 3050 laptop. The n
 
 ## Gaming and creative software
 
-The default image includes Steam, Wine, Winetricks, i386 multiarch, Vulkan libraries, Heroic Games Launcher, ProtonUp-Qt, Kdenlive, Audacity, TubeConverter, ONLYOFFICE Desktop Editors, Zen Browser, VLC and Audacious. Flatpak applications are installed system-wide from Flathub.
+The minimal image includes core desktop and graphics tooling, Firefox ESR, VLC and Audacious. Gaming and creator applications such as Steam, Wine, Heroic, ProtonUp-Qt, Kdenlive, Audacity and ONLYOFFICE are optional packs installed through Puresteel Center; Flatpak/Flathub is configured but large apps are not preinstalled.
 
 ## Power-user defaults
 
@@ -99,7 +99,7 @@ Write the generated hybrid ISO to a USB drive, boot the Puresteel live environme
 
 ## Release history
 
-The published `v1.0.0` tag is preserved as the original Puresteel 1.0 "Burak" release. The new Plasma migration is developed separately and does not rewrite and does not rewrite that historical release.
+The published `v1.0.0` tag is preserved as the original Puresteel 1.0 "Burak" release. The new Plasma migration is developed separately and does not rewrite that historical release.
 
 ## Licensing
 

@@ -60,14 +60,16 @@ The stable source can be built locally with:
 curl -fsSL https://raw.githubusercontent.com/MOzcelik14/Puresteel-OS/main/bootstrap.sh | bash
 ```
 
-The builder prefers the `v1.0.0` source tag when available and produces:
+The builder now builds the current `main` Plasma development source and produces:
 
 ```text
-Puresteel-1.0-Burak-amd64.iso
-Puresteel-1.0-Burak-amd64.iso.sha256
+Puresteel-Plasma-amd64.iso
+Puresteel-Plasma-amd64.iso.sha256
 ```
 
 ## Notes
+
+To explicitly build the historical release tag, set `PURESTEEL_REF=v1.0.0` when running the current bootstrap script. The current `main` image is not a new stable release until installation and hardware QA are complete.
 
 The historical RC1 image used GNOME and predates the KDE migration, Puresteel Center, AMD support and the signed Puresteel package repository. It should not be used as a description of the final 1.0 system.
 
