@@ -23,6 +23,11 @@ class PlasmaIntegrationTests(unittest.TestCase):
         self.assertNotIn("org.cinnamon", value)
         self.assertIn("kwriteconfig6", value)
         self.assertIn("plasma-apply-colorscheme", value)
+    def test_center_konsole_and_wifi_diagnostic(self):
+        value = src("packages/puresteel-center/rootfs/usr/share/puresteel-center/puresteel_center/pages/puresteel.py")
+        self.assertNotIn("gnome-terminal", value)
+        self.assertIn('["konsole", "--hold", "-e", "/bin/sh", "-lc", command]', value)
+        self.assertIn('self.launch_terminal("puresteel-wifi")', value)
     def test_dolphin_admin_protocol_is_packaged(self):
         self.assertIn('["dolphin", uri]', src("config/includes.chroot/usr/local/bin/puresteel-open-admin"))
         self.assertIn("\nkio-admin\n", src("config/package-lists/puresteel-core.list.chroot"))
