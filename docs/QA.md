@@ -36,11 +36,11 @@ UEFI/OVMF with a fresh virtual disk if firmware/EFI coverage is required.
 
 ### Record pass/fail for each test
 
-- [ ] Live boot reaches Cinnamon; wallpaper and theme render.
+- [ ] Live boot reaches KDE Plasma Wayland; wallpaper and theme render.
 - [ ] Calamares completes without modifying disks other than the qcow2.
-- [ ] Installed system boots with LightDM/Cinnamon.
+- [ ] Installed system boots with SDDM/KDE Plasma.
 - [ ] First Run appears exactly once and persists its completion marker.
-- [ ] Language, Puresteel theme, icon, wallpaper, hardware and power profile apply.
+- [ ] Language, Breeze Light + Puresteel branding, icon, wallpaper, hardware and power profile apply.
 - [ ] Puresteel Center and all cards remain accessible at 1366x768.
 - [ ] Profile apply/reboot persists; Doctor displays both swap and ZRAM.
 - [ ] All ten puresteel packages are registered with dpkg, not only copied.

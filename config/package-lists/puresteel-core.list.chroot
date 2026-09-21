@@ -45,6 +45,7 @@ xdg-desktop-portal-kde
 kde-cli-tools
 kio-extras
 kio-admin
+x11-xserver-utils
 breeze
 breeze-gtk-theme
 kwallet6

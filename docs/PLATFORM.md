@@ -1,6 +1,6 @@
 # Puresteel platform layer
 
-Puresteel adds a distro-specific management layer on top of Debian 13 and Cinnamon.
+Puresteel adds a distro-specific management layer on top of Debian 13 and minimal KDE Plasma 6.
 
 ## Daily commands
 
@@ -19,7 +19,7 @@ Puresteel adds a distro-specific management layer on top of Debian 13 and Cinnam
 
 ## Recovery
 
-Use **Puresteel Recovery** from GRUB for package repair, initramfs/GRUB repair, LightDM recovery, NVIDIA DKMS rebuild, Timeshift restore and the last-update rollback workflow.
+Use **Puresteel Recovery** from GRUB for package repair, initramfs/GRUB repair, SDDM recovery, NVIDIA DKMS rebuild, Timeshift restore and the last-update rollback workflow.
 
 ## Secure Boot
 
