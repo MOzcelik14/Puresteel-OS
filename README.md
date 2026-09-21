@@ -108,4 +108,4 @@ Puresteel combines software distributed under multiple upstream licenses. Debian
 
 ### KDE Wallet and Wi-Fi
 
-Puresteel installs Debian's `libpam-kwallet5` integration and uses SDDM password login by default. The encrypted `kdewallet` is therefore unlocked with the same login password, so Plasma NetworkManager can retrieve saved Wi-Fi credentials without asking again after each reboot. Installer autologin is hidden by default because an autologin session has no password for PAM to use when unlocking an encrypted wallet. citeturn943285search5turn542915search1
+Puresteel installs Debian's `libpam-kwallet5` integration and uses SDDM password login by default. The encrypted `kdewallet` is therefore unlocked with the same login password, so Plasma NetworkManager can retrieve saved Wi-Fi credentials without asking again after each reboot. Installer autologin is hidden by default because an autologin session has no password for PAM to use when unlocking an encrypted wallet.

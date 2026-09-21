@@ -108,4 +108,4 @@ Puresteel farklı upstream lisanslara sahip yazılımları bir araya getirir. De
 
 ### KDE Wallet ve Wi-Fi
 
-Puresteel, Debian'ın `libpam-kwallet5` PAM entegrasyonunu kurar ve SDDM'de parola ile oturum açmayı varsayılan yapar. Böylece şifreli `kdewallet` giriş parolasıyla açılır ve Plasma NetworkManager kayıtlı Wi-Fi parolasını her yeniden başlatmada tekrar sormaz. Otomatik giriş, PAM'in wallet'ı açmak için kullanacağı bir giriş parolası olmadığı için kurucuda varsayılan olarak gizlenir. citeturn943285search5turn542915search1
+Puresteel, Debian'ın `libpam-kwallet5` PAM entegrasyonunu kurar ve SDDM'de parola ile oturum açmayı varsayılan yapar. Böylece şifreli `kdewallet` giriş parolasıyla açılır ve Plasma NetworkManager kayıtlı Wi-Fi parolasını her yeniden başlatmada tekrar sormaz. Otomatik giriş, PAM'in wallet'ı açmak için kullanacağı bir giriş parolası olmadığı için kurucuda varsayılan olarak gizlenir.
