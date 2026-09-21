@@ -142,10 +142,10 @@ Build the package:
 Publish a new version into the Puresteel APT repository:
 
 ```bash
-./scripts/release-center.sh 1.0.2-1
+./scripts/release-center.sh 1.4.0-1
 ```
 
-The release script also places the current `.deb` in `config/packages.chroot/` so future ISO builds include the same package locally.
+This script requires the private Puresteel archive signing key. It rebuilds Center and component packages, signs the APT repository, and also stages the current `.deb` files in `config/packages.chroot/` so future ISO builds include matching package versions locally. The committed online repository still contains older signed packages until a separate signed release is published. Never publish unsigned metadata.
 
 ## Updating installed systems
 
