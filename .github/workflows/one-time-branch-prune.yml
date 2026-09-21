@@ -1,0 +1,82 @@
+name: One-time audited branch pruning
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  prune:
+    if: "${{ github.event_name == 'push' && startsWith(github.event.head_commit.message, 'chore: prune audited Puresteel branches') }}"
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Preserve divergent history and remove audited obsolete branches
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          python3 - <<'PY'
+          import json
+          import os
+          import urllib.error
+          import urllib.parse
+          import urllib.request
+
+          expected = {
+          "cinnamon-migration": "f2b9c3f2412ff38d05f45e7c5e35aff99e9ad7b9",
+          "docs/puresteel-refresh": "009b14400e0217b616a9d95bf411c607e8ab6c46",
+          "feat/bootstrap-terminal-ui": "9e27dd640be3553c03fa7dd35749ecb35f011dad",
+          "feat/interactive-iso-builder-menu": "bee30f41690923d840247ecd835bd13a915b94ff",
+          "fix/plasma-website-release-guide": "07a3b857fb58b76887c1c332fa995eb670ab9305",
+          "fix/post-merge-plasma-audit": "0cab622f8ff41e5433d82a5db08ed5793d6c52f9",
+          "puresteel-minimal-plasma": "ee849aad4d716dd1069e0eeae0965df164f6f767",
+          "puresteel-platform-tools": "228295a4dc81b1eb1537c39b07fe05fcab9682c7"
+          }
+          temporary_branch = "chore/audited-branch-cleanup"
+          archives = {
+              "docs/puresteel-refresh": "archive/docs-puresteel-refresh-2026-09-16",
+              "puresteel-minimal-plasma": "archive/puresteel-minimal-plasma-2026-09-20",
+          }
+          root = "https://api.github.com/repos/" + os.environ["GH_REPO"]
+          headers = {
+              "Authorization": "Bearer " + os.environ["GH_TOKEN"],
+              "Accept": "application/vnd.github+json",
+              "X-GitHub-Api-Version": "2022-11-28",
+          }
+
+          def request(method, path, data=None):
+              raw = None if data is None else json.dumps(data).encode()
+              extra = dict(headers)
+              if data is not None:
+                  extra["Content-Type"] = "application/json"
+              req = urllib.request.Request(root + path, data=raw, headers=extra, method=method)
+              with urllib.request.urlopen(req, timeout=30) as res:
+                  value = res.read()
+                  return json.loads(value) if value else None
+
+          def branch_path(name):
+              return "/git/ref/heads/" + urllib.parse.quote(name, safe="/")
+
+          open_prs = request("GET", "/pulls?state=open&per_page=100")
+          if open_prs:
+              raise SystemExit("Open PRs detected; refusing branch pruning.")
+
+          for branch, sha in expected.items():
+              current = request("GET", branch_path(branch))["object"]["sha"]
+              if current != sha:
+                  raise SystemExit("Branch changed; refusing pruning: " + branch)
+          request("GET", branch_path(temporary_branch))
+
+          for branch, tag in archives.items():
+              sha = expected[branch]
+              request("POST", "/git/refs", {"ref": "refs/tags/" + tag, "sha": sha})
+              print("Preserved historical commits under tag:", tag)
+
+          for branch in (*expected, temporary_branch):
+              request("DELETE", "/git/refs/heads/" + urllib.parse.quote(branch, safe="/"))
+              print("Deleted:", branch)
+          print("Done. Only main remains as a branch.")
+          PY
