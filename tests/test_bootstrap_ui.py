@@ -69,6 +69,27 @@ class BuilderInterfaceTests(unittest.TestCase):
         self.assertIn("--build", result.stdout)
         self.assertIn("--text-menu", result.stdout)
 
+    @unittest.skipUnless(__import__("shutil").which("script"), "util-linux script unavailable")
+    def test_text_menu_can_exit_without_building(self):
+        import shlex
+        with tempfile.TemporaryDirectory() as root:
+            output = Path(root) / "output"
+            clone = Path(root) / "clone"
+            env = dict(os.environ, TERM="dumb", NO_COLOR="1",
+                       PURESTEEL_OUTPUT_DIR=str(output),
+                       PURESTEEL_WORKDIR=str(clone))
+            cmd = "/bin/bash " + shlex.quote(str(BUILDER)) + " --text-menu"
+            result = subprocess.run(
+                ["script", "-q", "-e", "-c", cmd, "/dev/null"],
+                input="0\n", text=True, capture_output=True,
+                timeout=12, check=False, env=env,
+            )
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            self.assertIn("PURESTEEL MENU", result.stdout)
+            self.assertIn("Menu closed", result.stdout)
+            self.assertFalse(output.exists())
+            self.assertFalse(clone.exists())
+
     def test_verbose_preview_and_invalid_flag(self):
         result = call("--verbose", "--preview")
         self.assertEqual(result.returncode, 0, result.stderr)
