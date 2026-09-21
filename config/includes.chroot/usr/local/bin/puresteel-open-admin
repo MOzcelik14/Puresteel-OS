@@ -8,4 +8,4 @@ if len(sys.argv) != 2:
     raise SystemExit("Usage: puresteel-open-admin PATH")
 p = Path(sys.argv[1]).expanduser().resolve()
 uri = "admin://" + quote(str(p), safe="/")
-raise SystemExit(subprocess.call(["nemo", uri]))
+raise SystemExit(subprocess.call(["dolphin", uri]))

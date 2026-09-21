@@ -29,7 +29,7 @@ Depends: python3, python3-apt, python3-pyside6.qtcore, python3-pyside6.qtgui, py
 Recommends: switcheroo-control, power-profiles-daemon
 Description: Puresteel system management center
  Puresteel Center manages updates, applications, graphics drivers,
- profiles, software sources, backups and system reports from Cinnamon.
+ profiles, software sources, backups and system reports from Plasma.
 EOF
 
 cat > "$STAGE/DEBIAN/postinst" <<'EOF'

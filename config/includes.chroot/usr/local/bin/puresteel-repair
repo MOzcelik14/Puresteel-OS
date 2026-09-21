@@ -10,7 +10,7 @@ HELPER = "/usr/lib/puresteel-center/puresteel-helper"
 ACTIONS = [
     ("Broken packages", "repair-packages"),
     ("Initramfs + GRUB", "repair-boot"),
-    ("LightDM graphical boot", "repair-lightdm"),
+    ("SDDM graphical boot", "repair-sddm"),
     ("NVIDIA DKMS/initramfs", "repair-nvidia"),
     ("Flatpak installation", "flatpak-repair"),
 ]

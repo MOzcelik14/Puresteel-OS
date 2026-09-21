@@ -1,10 +1,61 @@
 #!/usr/bin/python3
-import argparse,subprocess
-p=argparse.ArgumentParser();p.add_argument('mode',choices=('status','large-text','normal-text','high-contrast','puresteel'));a=p.parse_args()
-def gs(*x):return subprocess.run(['gsettings',*x],check=False).returncode
-if a.mode=='status':
-    subprocess.run(['gsettings','get','org.cinnamon.desktop.interface','text-scaling-factor']);subprocess.run(['gsettings','get','org.cinnamon.desktop.interface','gtk-theme']);raise SystemExit(0)
-if a.mode=='large-text':raise SystemExit(gs('set','org.cinnamon.desktop.interface','text-scaling-factor','1.25'))
-if a.mode=='normal-text':raise SystemExit(gs('set','org.cinnamon.desktop.interface','text-scaling-factor','1.0'))
-if a.mode=='high-contrast':raise SystemExit(gs('set','org.cinnamon.desktop.interface','gtk-theme','HighContrast'))
-raise SystemExit(gs('set','org.cinnamon.desktop.interface','gtk-theme','Puresteel-Dark'))
+"""Puresteel Plasma accessibility preferences (per-user; never writes as root)."""
+import argparse
+import os
+import shutil
+import subprocess
+import sys
+
+SCHEMES = ("BreezeHighContrast", "BreezeHighContrastDark")
+
+def run(args):
+    try:
+        return subprocess.run(args, check=False).returncode
+    except OSError as exc:
+        print(str(exc), file=sys.stderr)
+        return 1
+
+def main():
+    p = argparse.ArgumentParser(description="Puresteel KDE Plasma accessibility")
+    p.add_argument("mode", choices=("status", "large-text", "normal-text", "high-contrast", "puresteel"))
+    mode = p.parse_args().mode
+    if os.geteuid() == 0:
+        print("Run as the desktop user, not root.", file=sys.stderr)
+        return 2
+    if mode == "puresteel":
+        return run(["/usr/local/bin/puresteel-apply-defaults", "--theme", "light"])
+    if mode in ("large-text", "normal-text"):
+        if not shutil.which("kwriteconfig6"):
+            print("KDE configuration tools are missing.", file=sys.stderr)
+            return 1
+        dpi = "120" if mode == "large-text" else "0"
+        rc = run(["kwriteconfig6", "--file", "kdeglobals", "--group", "General", "--key", "forceFontDPI", dpi])
+        if rc == 0:
+            print("Plasma font DPI saved. Log out and in if applications do not refresh.")
+        return rc
+    if mode == "status":
+        if not shutil.which("kreadconfig6"):
+            return 1
+        for group, key in (("General", "forceFontDPI"), ("General", "ColorScheme")):
+            print(key + ":")
+            rc = run(["kreadconfig6", "--file", "kdeglobals", "--group", group, "--key", key])
+            if rc:
+                return rc
+        return 0
+    if not shutil.which("plasma-apply-colorscheme"):
+        return 1
+    try:
+        available = subprocess.run(["plasma-apply-colorscheme", "--list-schemes"],
+                                   check=False, capture_output=True, text=True)
+    except OSError:
+        return 1
+    if available.returncode != 0:
+        return available.returncode
+    for scheme in SCHEMES:
+        if scheme in available.stdout:
+            return run(["plasma-apply-colorscheme", scheme])
+    print("No installed Breeze high-contrast scheme. Install it or choose one in System Settings.", file=sys.stderr)
+    return 1
+
+if __name__ == "__main__":
+    raise SystemExit(main())
