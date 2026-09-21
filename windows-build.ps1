@@ -88,7 +88,7 @@ Step 'Building Puresteel inside WSL2'
 Write-Host "The ISO will be copied to: $OutputWindows" -ForegroundColor DarkGray
 Write-Host 'The Linux build may ask for your WSL user password for sudo.' -ForegroundColor DarkGray
 
-& wsl.exe -d $Distro -- bash -lc "cd '$EscapedOutput' && bash '$EscapedScript'"
+& wsl.exe -d $Distro -- bash -lc "cd '$EscapedOutput' && bash '$EscapedScript' --build
 if ($LASTEXITCODE -ne 0) {
     Stop-WithMessage 'The Puresteel build failed. Review the output above for the first error.'
 }

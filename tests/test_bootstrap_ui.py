@@ -41,6 +41,34 @@ class BuilderInterfaceTests(unittest.TestCase):
             self.assertFalse(output.exists())
             self.assertFalse(clone.exists())
 
+    def test_menu_preview_no_writes_and_no_tty(self):
+        with tempfile.TemporaryDirectory() as root:
+            output = Path(root) / "no-menu-output"
+            clone = Path(root) / "no-menu-clone"
+            env = dict(os.environ, PATH="/nonexistent", NO_COLOR="1",
+                       PURESTEEL_OUTPUT_DIR=str(output),
+                       PURESTEEL_WORKDIR=str(clone))
+            result = call("--preview-menu", env=env)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertIn("PURESTEEL MENU", result.stdout)
+            self.assertIn("Build settings", result.stdout)
+            self.assertIn("Preview only", result.stdout)
+            self.assertFalse(output.exists())
+            self.assertFalse(clone.exists())
+
+    def test_no_terminal_fails_closed(self):
+        result = call()
+        self.assertEqual(result.returncode, 2)
+        self.assertIn("--build", result.stderr)
+        self.assertIn("--preview-menu", result.stderr)
+
+    def test_help_mentions_menu_and_unattended_build(self):
+        result = call("--help")
+        self.assertEqual(result.returncode, 0)
+        self.assertIn("Interactive menu", result.stdout)
+        self.assertIn("--build", result.stdout)
+        self.assertIn("--text-menu", result.stdout)
+
     def test_verbose_preview_and_invalid_flag(self):
         result = call("--verbose", "--preview")
         self.assertEqual(result.returncode, 0, result.stderr)
