@@ -52,6 +52,8 @@ UEFI/OVMF with a fresh virtual disk if firmware/EFI coverage is required.
 - [ ] Safe Update aborts if Timeshift fails (use a THROWAWAY VM to force failure).
 - [ ] Safe Update records one real snapshot ID in last-update-snapshot JSON.
 - [ ] GRUB Puresteel Recovery opens console on the installed VM.
+- [ ] SDDM repair enables `sddm.service` (not LightDM) from the Repair GUI and GRUB Recovery.
+- [ ] Dolphin `admin://` opens via `kio-admin` after explicit Polkit approval.
 - [ ] Undo Last Update displays recorded snapshot, verifies it exists and requests confirmation.
 - [ ] After disposable test change, Timeshift restores a chosen snapshot.
 - [ ] `puresteel-info` and crash report contain no SSID, username, MAC, IP or raw journal logs.

@@ -56,6 +56,7 @@ class PuresteelPage(QWidget):
             ("snapshot", lambda: self.launch("puresteel-snapshots")),
             ("safe_update", lambda: self.start_action("safe-upgrade", (), 7200)),
             ("battery", lambda: self.launch_terminal("puresteel-battery")),
+            ("wifi", lambda: self.launch_terminal("puresteel-wifi")),
             ("firmware", lambda: self.launch_terminal("puresteel-firmware status")),
             ("health", lambda: self.launch_terminal("puresteel-health all")),
             ("logs", lambda: self.launch_terminal("puresteel-logs")),
@@ -108,6 +109,7 @@ class PuresteelPage(QWidget):
             "snapshot": (("Snapshot", "Timeshift geri dönüş noktalarını yönet."), ("Snapshots", "Manage Timeshift restore points.")),
             "safe_update": (("Güvenli Güncelle", "Doğrulanmış snapshot oluşturmadan güncellemez."), ("Safe Update", "Requires a verified snapshot before upgrading.")),
             "battery": (("Pil Sağlığı", "Kapasite, döngü ve güç profili."), ("Battery Health", "Capacity, cycles and power profile.")),
+            "wifi": (("Wi-Fi / KWallet", "Şifreleri göstermeden Wi-Fi saklama ve cüzdan durumunu denetle."), ("Wi-Fi / KWallet", "Check Wi-Fi secret storage and wallet setup without reading passwords.")),
             "firmware": (("Firmware", "fwupd cihaz durumunu göster."), ("Firmware", "Show fwupd device status.")),
             "health": (("Sistem Sağlığı", "Gaming/Creator bağımlılıklarını denetle."), ("System Health", "Check Gaming/Creator dependencies.")),
             "logs": (("Loglar", "Tanılama günlüklerini göster."), ("Logs", "Show diagnostic logs.")),
@@ -134,7 +136,7 @@ class PuresteelPage(QWidget):
 
     def launch_terminal(self, command):
         try:
-            subprocess.Popen(["gnome-terminal", "--", "sh", "-lc", command + "; printf '\\nPress Enter to close...'; read x"])
+            subprocess.Popen(["konsole", "--hold", "-e", "/bin/sh", "-lc", command])
         except OSError as exc:
             QMessageBox.warning(self, "Puresteel", str(exc))
 

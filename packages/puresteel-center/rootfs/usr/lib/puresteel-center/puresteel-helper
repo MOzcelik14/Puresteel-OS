@@ -318,8 +318,12 @@ def main():
         return run(["flatpak", "uninstall", "--system", "--unused", "-y"])
     if action == "repair-packages": return repair_packages()
     if action == "repair-boot": return repair_boot()
-    if action == "repair-lightdm":
-        run(["systemctl", "enable", "lightdm.service"])
+    if action == "repair-sddm":
+        if len(sys.argv) != 2 or not Path("/usr/bin/sddm").is_file():
+            print("SDDM is not installed or unexpected arguments provided.", file=sys.stderr)
+            return 2
+        if run(["systemctl", "enable", "--force", "sddm.service"]) != 0:
+            return 1
         return run(["systemctl", "set-default", "graphical.target"])
     if action == "repair-nvidia":
         run(["dpkg", "--configure", "-a"])
