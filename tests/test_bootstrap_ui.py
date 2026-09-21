@@ -41,6 +41,55 @@ class BuilderInterfaceTests(unittest.TestCase):
             self.assertFalse(output.exists())
             self.assertFalse(clone.exists())
 
+    def test_menu_preview_no_writes_and_no_tty(self):
+        with tempfile.TemporaryDirectory() as root:
+            output = Path(root) / "no-menu-output"
+            clone = Path(root) / "no-menu-clone"
+            env = dict(os.environ, PATH="/nonexistent", NO_COLOR="1",
+                       PURESTEEL_OUTPUT_DIR=str(output),
+                       PURESTEEL_WORKDIR=str(clone))
+            result = call("--preview-menu", env=env)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertIn("PURESTEEL MENU", result.stdout)
+            self.assertIn("Build settings", result.stdout)
+            self.assertIn("Preview only", result.stdout)
+            self.assertFalse(output.exists())
+            self.assertFalse(clone.exists())
+
+    def test_no_terminal_fails_closed(self):
+        result = call()
+        self.assertEqual(result.returncode, 2)
+        self.assertIn("--build", result.stderr)
+        self.assertIn("--preview-menu", result.stderr)
+
+    def test_help_mentions_menu_and_unattended_build(self):
+        result = call("--help")
+        self.assertEqual(result.returncode, 0)
+        self.assertIn("Interactive menu", result.stdout)
+        self.assertIn("--build", result.stdout)
+        self.assertIn("--text-menu", result.stdout)
+
+    @unittest.skipUnless(__import__("shutil").which("script"), "util-linux script unavailable")
+    def test_text_menu_can_exit_without_building(self):
+        import shlex
+        with tempfile.TemporaryDirectory() as root:
+            output = Path(root) / "output"
+            clone = Path(root) / "clone"
+            env = dict(os.environ, TERM="dumb", NO_COLOR="1",
+                       PURESTEEL_OUTPUT_DIR=str(output),
+                       PURESTEEL_WORKDIR=str(clone))
+            cmd = "/bin/bash " + shlex.quote(str(BUILDER)) + " --text-menu"
+            result = subprocess.run(
+                ["script", "-q", "-e", "-c", cmd, "/dev/null"],
+                input="0\n", text=True, capture_output=True,
+                timeout=12, check=False, env=env,
+            )
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            self.assertIn("PURESTEEL MENU", result.stdout)
+            self.assertIn("Menu closed", result.stdout)
+            self.assertFalse(output.exists())
+            self.assertFalse(clone.exists())
+
     def test_verbose_preview_and_invalid_flag(self):
         result = call("--verbose", "--preview")
         self.assertEqual(result.returncode, 0, result.stderr)

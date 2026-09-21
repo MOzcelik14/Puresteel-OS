@@ -24,6 +24,22 @@ The Windows helper uses WSL2. It looks for an existing Debian/Ubuntu WSL distrib
 
 The actual build is performed inside the Linux filesystem for reliability and speed. The final ISO and SHA256 checksum are copied back to the Windows directory from which PowerShell was started.
 
+The Linux builder opens an interactive terminal menu by default: build the ISO, edit the Git ref, ISO filename or output folder, toggle detailed logs, check prerequisites, inspect previous logs, or exit. If `whiptail` is already available, the menu uses arrow keys and dialog boxes; otherwise the numbered Bash menu works with no extra dependency. Since menu answers come from `/dev/tty`, the normal `curl | bash` command works interactively. Windows/WSL explicitly passes `--build` to retain unattended ISO generation.
+
+Preview the new menu **without running sudo or writing files**:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/MOzcelik14/Puresteel-OS/main/bootstrap.sh | bash -s -- --preview-menu
+```
+
+To build without a terminal (scripts, CI), explicitly pass `--build`:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/MOzcelik14/Puresteel-OS/main/bootstrap.sh | bash -s -- --build
+```
+
+Use `--text-menu` for numbered menu input, `--check` for a read-only system check, or `--preview` to show the existing five build phases. Choosing Exit or cancelling never starts a build. The `curl` script **builds an ISO**, not an installation onto the current computer.
+
 The Linux bootstrap script:
 
 1. verifies `sudo` and available disk space,

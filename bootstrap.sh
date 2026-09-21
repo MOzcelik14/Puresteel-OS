@@ -10,6 +10,11 @@ REF="${PURESTEEL_REF:-$DEFAULT_REF}"
 ISO_NAME="${PURESTEEL_ISO_NAME:-Puresteel-Plasma-amd64.iso}"
 VERBOSE=0
 PREVIEW=0
+PREVIEW_MENU=0
+CHECK_ONLY=0
+DIRECT=0
+TEXT_MENU=0
+TTY_READY=0
 CURRENT_STAGE="Initialization"
 LOG=""
 LB_TMP=""
@@ -18,9 +23,16 @@ usage() {
     cat <<'HELP'
 Puresteel Plasma 6 ISO Builder
 
-Usage: bash bootstrap.sh [--preview] [--verbose] [--help]
+Usage: bash bootstrap.sh [--menu | --build | --check | --preview-menu | --preview] [--verbose]
 
-  --preview   Show the terminal UI without sudo, downloads, writes or ISO build.
+  (no args)       Interactive menu with a controlling terminal.
+
+  --menu         Open interactive builder menu.
+  --text-menu    Use numbered menu instead of whiptail.
+  --build        Build immediately (unattended or WSL).
+  --check        Read-only tool/disk check.
+  --preview-menu Preview the menu without sudo, downloads or writes.
+  --preview      Preview five build stages without sudo, downloads or writes.
   --verbose   Show APT, live-build and Git output while saving the full log.
   --help      Show this help.
 
@@ -38,6 +50,11 @@ HELP
 for arg in "$@"; do
     case "$arg" in
         --preview) PREVIEW=1 ;;
+        --preview-menu) PREVIEW_MENU=1 ;;
+        --check) CHECK_ONLY=1 ;;
+        --menu) DIRECT=0 ;;
+        --text-menu) TEXT_MENU=1 ;;
+        --build) DIRECT=1 ;;
         --verbose) VERBOSE=1 ;;
         --help|-h) usage; exit 0 ;;
         *) printf 'Unknown option: %s\n' "$arg" >&2; usage >&2; exit 2 ;;
@@ -139,6 +156,205 @@ run_logged() {
         "$@" >> "$LOG" 2>&1
     fi
 }
+
+# Unlike stdin, /dev/tty works while the script itself arrives via curl | bash.
+open_tty() {
+    if { exec 3<>/dev/tty; } 2>/dev/null; then
+        if [[ -t 3 ]]; then TTY_READY=1; return 0; fi
+        exec 3>&-
+    fi
+    return 1
+}
+
+read_tty() {
+    local reply=""
+    printf '%s' "$1" >&3
+    IFS= read -r -u 3 reply || return 1
+    REPLY="$reply"
+}
+
+use_whiptail() {
+    [[ "$TTY_READY" -eq 1 && "$TEXT_MENU" -eq 0 && "${TERM:-dumb}" != "dumb" ]] &&
+        command -v whiptail >/dev/null 2>&1
+}
+
+menu_preview() {
+    banner
+    printf '\n%s  ┌──────────── PURESTEEL MENU ────────────┐%s\n' "$C_BLUE" "$C_RESET"
+    printf '  │  1. Create Puresteel ISO              │\n'
+    printf '  │  2. Build settings                    │\n'
+    printf '  │  3. Check system suitability          │\n'
+    printf '  │  4. View previous build log           │\n'
+    printf '  │  5. About Puresteel                   │\n'
+    printf '  │                                        │\n'
+    printf '  │  0. Exit                              │\n'
+    printf '%s  └────────────────────────────────────────┘%s\n' "$C_BLUE" "$C_RESET"
+}
+
+choose() {
+    local title="$1" description="$2"
+    shift 2
+    if use_whiptail; then
+        # Save captured stdout on FD 4, draw UI on the terminal, capture choice.
+        whiptail --title "$title" --menu "$description" 20 76 10 "$@" \
+            4>&1 1>&3 2>&4 4>&-
+    else
+        if [[ "$title" != "Puresteel ISO Builder" ]]; then
+            printf '\n%s\n' "$title" >&3
+            while [[ "$#" -gt 1 ]]; do
+                printf '  %s) %s\n' "$1" "$2" >&3
+                shift 2
+            done
+        fi
+        read_tty '  Selection: ' || return 1
+        printf '%s\n' "$REPLY"
+    fi
+}
+
+ask_setting() {
+    local title="$1" current="$2" answer=""
+    if use_whiptail; then
+        answer="$(whiptail --title "$title" --inputbox "Cancel to keep the current value." \
+            12 76 "$current" 4>&1 1>&3 2>&4 4>&-)" || return 1
+    else
+        read_tty "  $title [$current]: " || return 1
+        answer="$REPLY"
+        [[ -n "$answer" ]] || return 1
+    fi
+    SETTING_REPLY="$answer"
+}
+
+pause_menu() { read_tty $'\n  Press Enter to return... ' || true; }
+
+valid_ref() {
+    [[ "$1" =~ ^[a-zA-Z0-9][a-zA-Z0-9._/-]*$ ]] &&
+        [[ "$1" != *'..'* && "$1" != */ && "$1" != *.lock ]]
+}
+
+valid_iso_name() {
+    [[ "$1" == *.iso && "$1" != */* && "$1" != -* ]]
+}
+
+settings_menu() {
+    local choice proposed
+    while :; do
+        choice="$(choose "Build settings" "Choose an option; settings apply only to this run." \
+            1 "Source branch/tag: $REF" \
+            2 "Image filename: $ISO_NAME" \
+            3 "Output directory: $OUTPUT_DIR" \
+            4 "Verbose log: $([[ "$VERBOSE" -eq 1 ]] && printf ON || printf OFF)" \
+            0 "Back")" || return 0
+        case "$choice" in
+            1)
+                if ask_setting "Source branch/tag" "$REF"; then
+                    proposed="$SETTING_REPLY"
+                    if valid_ref "$proposed"; then REF="$proposed"
+                    else printf 'Invalid branch or tag.\n'; pause_menu; fi
+                fi ;;
+            2)
+                if ask_setting "ISO filename" "$ISO_NAME"; then
+                    proposed="$SETTING_REPLY"
+                    if valid_iso_name "$proposed"; then ISO_NAME="$proposed"
+                    else printf 'ISO filename must end in .iso, with no slash or leading dash.\n'; pause_menu; fi
+                fi ;;
+            3)
+                if ask_setting "Output directory" "$OUTPUT_DIR"; then
+                    proposed="$SETTING_REPLY"
+                    if [[ -n "$proposed" && "$proposed" != -* ]]; then OUTPUT_DIR="$proposed"
+                    else printf 'Invalid output directory.\n'; pause_menu; fi
+                fi ;;
+            4) VERBOSE=$((1 - VERBOSE)) ;;
+            0) return 0 ;;
+            *) printf 'Invalid choice.\n'; pause_menu ;;
+        esac
+    done
+}
+
+preflight() {
+    local missing=0 cmd location probe available
+    printf '\n  PURESTEEL REQUIREMENTS (read-only)\n'
+    for cmd in apt-get sudo git df realpath sha256sum; do
+        if command -v "$cmd" >/dev/null 2>&1; then printf '  [✓] %s\n' "$cmd"
+        else printf '  [!] Missing: %s\n' "$cmd"; missing=1; fi
+    done
+    for location in "$OUTPUT_DIR" "$(dirname -- "$WORKDIR")"; do
+        probe="$location"
+        while [[ ! -e "$probe" && "$probe" != "/" ]]; do probe="$(dirname -- "$probe")"; done
+        if command -v df >/dev/null 2>&1; then
+            available="$(df -Pk -- "$probe" | awk 'NR==2 {print $4}')"
+            if [[ "$available" =~ ^[0-9]+$ && "$available" -ge 31457280 ]]; then
+                printf '  [✓] 30 GiB free: %s\n' "$location"
+            else printf '  [!] Need 30 GiB free: %s\n' "$location"; missing=1; fi
+        fi
+    done
+    if command -v lb >/dev/null 2>&1; then
+        printf '  [i] %s\n' "$(lb --version 2>/dev/null | head -n1 || true)"
+    else printf '  [i] live-build will be installed during build.\n'; fi
+    printf '  No sudo requested. No changes made.\n'
+    return "$missing"
+}
+
+previous_log() {
+    local path="$OUTPUT_DIR/puresteel-bootstrap.log"
+    if [[ -f "$path" ]]; then
+        printf '\n  Recent output from %s:\n' "$path"
+        tail -n 55 -- "$path"
+    else printf '\n  No previous log at %s\n' "$path"; fi
+    pause_menu
+}
+
+menu_loop() {
+    local choice
+    while :; do
+        if ! use_whiptail; then menu_preview; fi
+        choice="$(choose "Puresteel ISO Builder" "Debian 13 / Plasma 6 / amd64" \
+            1 "Create Puresteel ISO" 2 "Build settings" \
+            3 "Check system suitability" 4 "View previous build log" \
+            5 "About Puresteel" 0 "Exit")" ||
+            { printf '\nMenu closed; no ISO built.\n'; exit 0; }
+        case "$choice" in
+            1)
+                if use_whiptail; then
+                    whiptail --title "Build confirmation" --yesno \
+                        "Build $REF to $OUTPUT_DIR/$ISO_NAME? This uses sudo and downloads build dependencies." \
+                        12 76 3<&3 1>&3 2>&3 || continue
+                else
+                    read_tty '  Build with sudo? [y/N]: ' || continue
+                    case "$REPLY" in y|Y|yes|YES|e|E|evet|EVET) ;; *) continue ;; esac
+                fi
+                return 0 ;;
+            2) settings_menu ;;
+            3) preflight || true; pause_menu ;;
+            4) previous_log ;;
+            5)
+                printf '\n  Puresteel · Debian 13 · minimal KDE Plasma 6\n'
+                printf '  Builds an installer ISO; does not install Puresteel on this machine.\n'
+                printf '  https://github.com/MOzcelik14/Puresteel-OS\n'
+                pause_menu ;;
+            0) printf '\nMenu closed; no ISO built.\n'; exit 0 ;;
+            *) printf 'Invalid choice.\n'; pause_menu ;;
+        esac
+    done
+}
+
+if [[ "$PREVIEW_MENU" -eq 1 ]]; then
+    menu_preview
+    note "Preview only: no sudo, downloads, directories or ISO build."
+    exit 0
+fi
+
+if [[ "$CHECK_ONLY" -eq 1 ]]; then
+    preflight
+    exit "$?"
+fi
+
+if [[ "$PREVIEW" -eq 0 && "$DIRECT" -eq 0 ]]; then
+    if ! open_tty; then
+        printf 'Interactive menu needs a terminal; use --build for unattended builds, or --preview-menu.\n' >&2
+        exit 2
+    fi
+    menu_loop
+fi
 
 banner
 if [[ "$PREVIEW" -eq 1 ]]; then
