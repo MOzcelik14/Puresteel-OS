@@ -1,109 +1,28 @@
 #!/usr/bin/python3
-import subprocess
-import threading
+import subprocess,sys
 from pathlib import Path
-
-import gi
-gi.require_version("Gtk", "3.0")
-from gi.repository import Gtk, GLib
-
-
-class DoctorWindow(Gtk.Window):
+from PySide6.QtCore import QObject,QThread,Signal,Slot
+from PySide6.QtWidgets import QApplication,QFileDialog,QHBoxLayout,QLabel,QMainWindow,QPushButton,QTextEdit,QVBoxLayout,QWidget
+class Worker(QObject):
+    done=Signal(int,str)
+    def __init__(self,admin):super().__init__();self.admin=admin
+    @Slot()
+    def run(self):
+        cmd=["/usr/local/bin/puresteel-doctor"];cmd=(["pkexec"]+cmd) if self.admin else cmd
+        try:p=subprocess.run(cmd,text=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,timeout=120,check=False);self.done.emit(p.returncode,p.stdout)
+        except Exception as e:self.done.emit(1,str(e))
+class W(QMainWindow):
     def __init__(self):
-        super().__init__(title="Puresteel System Doctor")
-        self.set_default_size(900, 650)
-        self.set_border_width(16)
-        self.connect("destroy", Gtk.main_quit)
-
-        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
-        self.add(box)
-
-        title = Gtk.Label()
-        title.set_markup("<span size='x-large' weight='bold'>Puresteel System Doctor</span>")
-        title.set_xalign(0)
-        box.pack_start(title, False, False, 0)
-
-        self.status = Gtk.Label(label="Collecting system information…")
-        self.status.set_xalign(0)
-        box.pack_start(self.status, False, False, 0)
-
-        scroller = Gtk.ScrolledWindow()
-        scroller.set_hexpand(True)
-        scroller.set_vexpand(True)
-        self.view = Gtk.TextView()
-        self.view.set_editable(False)
-        self.view.set_monospace(True)
-        self.view.set_wrap_mode(Gtk.WrapMode.NONE)
-        scroller.add(self.view)
-        box.pack_start(scroller, True, True, 0)
-
-        row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
-        self.refresh_btn = Gtk.Button(label="Refresh")
-        self.admin_btn = Gtk.Button(label="Run with administrator access")
-        self.save_btn = Gtk.Button(label="Save report…")
-        self.close_btn = Gtk.Button(label="Close")
-        self.refresh_btn.connect("clicked", lambda *_: self.collect(False))
-        self.admin_btn.connect("clicked", lambda *_: self.collect(True))
-        self.save_btn.connect("clicked", self.save_report)
-        self.close_btn.connect("clicked", lambda *_: self.close())
-        row.pack_start(self.refresh_btn, False, False, 0)
-        row.pack_start(self.admin_btn, False, False, 0)
-        row.pack_start(self.save_btn, False, False, 0)
-        row.pack_end(self.close_btn, False, False, 0)
-        box.pack_end(row, False, False, 0)
-
-        self.report = ""
-        self.collect(False)
-
-    def collect(self, admin=False):
-        self.refresh_btn.set_sensitive(False)
-        self.admin_btn.set_sensitive(False)
-        self.status.set_text("Collecting system information…")
-        self.view.get_buffer().set_text("")
-        threading.Thread(target=self._worker, args=(admin,), daemon=True).start()
-
-    def _worker(self, admin):
-        cmd = ["/usr/local/bin/puresteel-doctor"]
-        if admin:
-            cmd = ["pkexec", *cmd]
-        try:
-            p = subprocess.run(cmd, text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, timeout=120, check=False)
-            text = p.stdout.strip() or f"Puresteel Doctor exited with code {p.returncode}."
-            ok = p.returncode == 0
-        except (OSError, subprocess.TimeoutExpired) as exc:
-            text = str(exc)
-            ok = False
-        GLib.idle_add(self._show_report, text, ok, admin)
-
-    def _show_report(self, text, ok, admin):
-        self.report = text + "\n"
-        self.view.get_buffer().set_text(self.report)
-        if ok:
-            self.status.set_text("Report ready" + (" (administrator)" if admin else ""))
-        else:
-            self.status.set_text("Doctor finished with an error")
-        self.refresh_btn.set_sensitive(True)
-        self.admin_btn.set_sensitive(True)
-        return False
-
-    def save_report(self, *_):
-        chooser = Gtk.FileChooserDialog(
-            title="Save Puresteel Doctor report",
-            parent=self,
-            action=Gtk.FileChooserAction.SAVE,
-        )
-        chooser.add_buttons(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL, Gtk.STOCK_SAVE, Gtk.ResponseType.OK)
-        chooser.set_do_overwrite_confirmation(True)
-        chooser.set_current_name("puresteel-doctor.txt")
-        if chooser.run() == Gtk.ResponseType.OK:
-            try:
-                Path(chooser.get_filename()).write_text(self.report)
-                self.status.set_text("Report saved.")
-            except OSError as exc:
-                self.status.set_text(f"Could not save report: {exc}")
-        chooser.destroy()
-
-
-w = DoctorWindow()
-w.show_all()
-Gtk.main()
+        super().__init__();self.resize(900,650);c=QWidget();self.setCentralWidget(c);l=QVBoxLayout(c);self.status=QLabel();l.addWidget(self.status);self.out=QTextEdit();self.out.setReadOnly(True);l.addWidget(self.out);r=QHBoxLayout();l.addLayout(r)
+        for n,a in (("Refresh",False),("Run as administrator",True)):
+            b=QPushButton(n);b.clicked.connect(lambda _=False,x=a:self.collect(x));r.addWidget(b)
+        s=QPushButton("Save report…");s.clicked.connect(self.save);r.addWidget(s);self.thread=None;self.collect(False)
+    def collect(self,admin):
+        if self.thread:return
+        self.status.setText("Collecting…");self.thread=QThread(self);self.worker=Worker(admin);self.worker.moveToThread(self.thread);self.thread.started.connect(self.worker.run);self.worker.done.connect(self.show);self.worker.done.connect(self.thread.quit);self.thread.finished.connect(self.finish);self.thread.start()
+    def show(self,code,text):self.out.setPlainText(text);self.status.setText("Report ready." if code==0 else f"Doctor failed ({code}).")
+    def finish(self):self.thread=None;self.worker=None
+    def save(self):
+        p,_=QFileDialog.getSaveFileName(self,"Save report",str(Path.home()/"puresteel-doctor.txt"))
+        if p:Path(p).write_text(self.out.toPlainText())
+app=QApplication(sys.argv);w=W();w.show();raise SystemExit(app.exec())

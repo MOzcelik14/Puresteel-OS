@@ -1,132 +1,28 @@
 #!/usr/bin/python3
-import os
-import subprocess
-import sys
+import os,subprocess,sys
 from pathlib import Path
-
-ALLOWED = {
-    "en_US.UTF-8": ("English (United States)", "en_US:en"),
-    "tr_TR.UTF-8": ("Türkçe (Türkiye)", "tr_TR:tr"),
-}
-
-
-def apply_locale(locale_name: str) -> int:
-    if locale_name not in ALLOWED:
-        print("Unsupported locale", file=sys.stderr)
-        return 2
-
-    language = ALLOWED[locale_name][1]
-    subprocess.run(["/usr/sbin/locale-gen", locale_name], check=True)
-    subprocess.run(
-        ["/usr/sbin/update-locale", f"LANG={locale_name}", f"LANGUAGE={language}"],
-        check=True,
-    )
-    return 0
-
-
-def current_locale() -> str:
-    locale_file = Path("/etc/default/locale")
-    if locale_file.exists():
-        for line in locale_file.read_text(errors="ignore").splitlines():
+ALLOWED={"en_US.UTF-8":("English (United States)","en_US:en"),"tr_TR.UTF-8":("Türkçe (Türkiye)","tr_TR:tr")}
+def apply_locale(name):
+    if name not in ALLOWED:return 2
+    subprocess.run(["/usr/sbin/locale-gen",name],check=True)
+    subprocess.run(["/usr/sbin/update-locale",f"LANG={name}",f"LANGUAGE={ALLOWED[name][1]}"],check=True);return 0
+def current():
+    p=Path("/etc/default/locale")
+    if p.exists():
+        for line in p.read_text(errors="ignore").splitlines():
             if line.startswith("LANG="):
-                value = line.split("=", 1)[1].strip().strip('"')
-                if value in ALLOWED:
-                    return value
-    value = os.environ.get("LANG", "")
-    return value if value in ALLOWED else "en_US.UTF-8"
-
-
-def privileged_apply(locale_name: str) -> int:
-    command = ["/usr/local/bin/mintlocale", "--apply", locale_name]
-
-    # Puresteel live sessions normally have passwordless sudo. Installed systems
-    # fall back to Polkit so the desktop can display a graphical auth prompt.
-    sudo_test = subprocess.run(
-        ["sudo", "-n", "true"],
-        stdout=subprocess.DEVNULL,
-        stderr=subprocess.DEVNULL,
-    )
-    if sudo_test.returncode == 0:
-        return subprocess.run(["sudo", "-n", *command]).returncode
-    return subprocess.run(["pkexec", *command]).returncode
-
-
-def run_gui() -> int:
-    import gi
-
-    gi.require_version("Gtk", "3.0")
-    from gi.repository import Gtk
-
-    window = Gtk.Window(title="Puresteel Language Settings")
-    window.set_border_width(24)
-    window.set_default_size(460, 220)
-    window.set_position(Gtk.WindowPosition.CENTER)
-    window.connect("destroy", Gtk.main_quit)
-
-    box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=14)
-    window.add(box)
-
-    title = Gtk.Label()
-    title.set_markup("<b>System language / Sistem dili</b>")
-    title.set_xalign(0)
-    box.pack_start(title, False, False, 0)
-
-    info = Gtk.Label(
-        label=(
-            "Choose the interface language for Puresteel.\n"
-            "Puresteel arayüz dilini seçin."
-        )
-    )
-    info.set_xalign(0)
-    info.set_line_wrap(True)
-    box.pack_start(info, False, False, 0)
-
-    combo = Gtk.ComboBoxText()
-    locales = list(ALLOWED.keys())
-    for locale_name in locales:
-        combo.append(locale_name, ALLOWED[locale_name][0])
-    combo.set_active_id(current_locale())
-    box.pack_start(combo, False, False, 0)
-
-    status = Gtk.Label(label="")
-    status.set_xalign(0)
-    status.set_line_wrap(True)
-    box.pack_start(status, False, False, 0)
-
-    button = Gtk.Button(label="Apply system-wide / Sisteme uygula")
-    box.pack_end(button, False, False, 0)
-
-    def on_apply(_button):
-        locale_name = combo.get_active_id()
-        if not locale_name:
-            return
-        button.set_sensitive(False)
-        status.set_text("Applying… / Uygulanıyor…")
-        while Gtk.events_pending():
-            Gtk.main_iteration()
-        rc = privileged_apply(locale_name)
-        if rc == 0:
-            status.set_text(
-                "Done. Log out and back in to apply the new language.\n"
-                "Tamamlandı. Yeni dil için oturumu kapatıp tekrar açın."
-            )
-        else:
-            status.set_text(
-                "Language change failed. Authentication may have been cancelled.\n"
-                "Dil değiştirilemedi. Yetkilendirme iptal edilmiş olabilir."
-            )
-        button.set_sensitive(True)
-
-    button.connect("clicked", on_apply)
-    window.show_all()
-    Gtk.main()
-    return 0
-
-
-if __name__ == "__main__":
-    if len(sys.argv) == 3 and sys.argv[1] == "--apply":
-        if os.geteuid() != 0:
-            print("Root privileges are required", file=sys.stderr)
-            raise SystemExit(1)
-        raise SystemExit(apply_locale(sys.argv[2]))
-    raise SystemExit(run_gui())
+                v=line.split("=",1)[1].strip().strip('"')
+                if v in ALLOWED:return v
+    return "tr_TR.UTF-8" if os.environ.get("LANG","").startswith("tr") else "en_US.UTF-8"
+if len(sys.argv)==3 and sys.argv[1]=="--apply":
+    if os.geteuid()!=0:raise SystemExit(1)
+    raise SystemExit(apply_locale(sys.argv[2]))
+from PySide6.QtWidgets import QApplication,QComboBox,QLabel,QMessageBox,QPushButton,QVBoxLayout,QWidget
+app=QApplication(sys.argv);w=QWidget();w.setWindowTitle("Puresteel Language Settings");w.resize(460,220);l=QVBoxLayout(w)
+l.addWidget(QLabel("System language / Sistem dili"));combo=QComboBox()
+for k,(label,_) in ALLOWED.items():combo.addItem(label,k)
+combo.setCurrentIndex(combo.findData(current()));l.addWidget(combo);status=QLabel();l.addWidget(status);b=QPushButton("Apply system-wide / Sisteme uygula");l.addWidget(b)
+def go():
+    b.setEnabled(False);rc=subprocess.run(["pkexec","/usr/local/bin/mintlocale","--apply",combo.currentData()],check=False).returncode
+    status.setText("Done. Log out and back in. / Tamamlandı. Oturumu kapatıp açın." if rc==0 else "Language change failed / Dil değiştirilemedi");b.setEnabled(True)
+b.clicked.connect(go);w.show();raise SystemExit(app.exec())

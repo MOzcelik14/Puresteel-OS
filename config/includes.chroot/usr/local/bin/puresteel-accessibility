@@ -1,10 +1,26 @@
 #!/usr/bin/python3
-import argparse,subprocess
-p=argparse.ArgumentParser();p.add_argument('mode',choices=('status','large-text','normal-text','high-contrast','puresteel'));a=p.parse_args()
-def gs(*x):return subprocess.run(['gsettings',*x],check=False).returncode
-if a.mode=='status':
-    subprocess.run(['gsettings','get','org.cinnamon.desktop.interface','text-scaling-factor']);subprocess.run(['gsettings','get','org.cinnamon.desktop.interface','gtk-theme']);raise SystemExit(0)
-if a.mode=='large-text':raise SystemExit(gs('set','org.cinnamon.desktop.interface','text-scaling-factor','1.25'))
-if a.mode=='normal-text':raise SystemExit(gs('set','org.cinnamon.desktop.interface','text-scaling-factor','1.0'))
-if a.mode=='high-contrast':raise SystemExit(gs('set','org.cinnamon.desktop.interface','gtk-theme','HighContrast'))
-raise SystemExit(gs('set','org.cinnamon.desktop.interface','gtk-theme','Puresteel-Dark'))
+import argparse
+import shutil
+import subprocess
+
+p=argparse.ArgumentParser()
+p.add_argument("mode",choices=("status","large-text","normal-text","high-contrast","puresteel"))
+a=p.parse_args()
+
+def run(args):
+    try:return subprocess.run(args,check=False).returncode
+    except OSError:return 1
+
+if a.mode=="status":
+    for key in ("ColorScheme","XftDPI"):
+        subprocess.run(["kreadconfig6","--file","kdeglobals","--group","General","--key",key],check=False)
+    raise SystemExit(0)
+if a.mode=="large-text":
+    raise SystemExit(run(["kwriteconfig6","--file","kdeglobals","--group","General","--key","XftDPI","120"]))
+if a.mode=="normal-text":
+    raise SystemExit(run(["kwriteconfig6","--file","kdeglobals","--group","General","--delete","XftDPI"]))
+if a.mode=="high-contrast":
+    # KDE's shipped high-contrast scheme may differ by installation; do not invent one.
+    print("Use System Settings > Colors & Themes > Colors to select a high-contrast scheme.")
+    raise SystemExit(0)
+raise SystemExit(subprocess.run(["/usr/local/bin/puresteel-apply-defaults"],check=False).returncode)

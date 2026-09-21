@@ -1,40 +1,31 @@
 #!/usr/bin/python3
+import shutil
 import subprocess
+from pathlib import Path
 
+WALLPAPER = Path("/usr/share/backgrounds/puresteel/wallpaper.png")
 
-def schema_exists(schema):
-    p = subprocess.run(["gsettings", "list-schemas"], text=True, stdout=subprocess.PIPE, check=False)
-    return schema in p.stdout.splitlines()
-
-
-def key_exists(schema, key):
-    if not schema_exists(schema):
-        return False
-    p = subprocess.run(["gsettings", "list-keys", schema], text=True, stdout=subprocess.PIPE, check=False)
-    return key in p.stdout.splitlines()
-
-
-def setv(schema, key, value):
-    if key_exists(schema, key):
-        return subprocess.run(["gsettings", "set", schema, key, value], check=False).returncode == 0
-    return False
-
+def run(args):
+    try:
+        return subprocess.run(args, check=False).returncode
+    except OSError:
+        return 1
 
 def main():
-    changed = 0
-    # Match Puresteel's GTK and Cinnamon themes consistently.
-    changed += setv("org.cinnamon.desktop.interface", "gtk-theme", "Puresteel-Dark")
-    changed += setv("org.cinnamon.desktop.interface", "icon-theme", "Puresteel")
-    changed += setv("org.cinnamon.desktop.background", "picture-uri", "file:///usr/share/backgrounds/puresteel/wallpaper.png")
-    changed += setv("org.cinnamon.desktop.background", "picture-options", "zoom")
-    changed += setv("org.cinnamon.desktop.default-applications.terminal", "exec", "gnome-terminal")
-    changed += setv("org.cinnamon.theme", "name", "Puresteel-Dark")
-    changed += setv("org.cinnamon.desktop.sound", "theme-name", "Puresteel")
-    changed += setv("org.cinnamon", "favorite-apps", "['puresteel-center.desktop', 'nemo.desktop', 'org.gnome.Terminal.desktop']")
-    changed += setv("org.cinnamon", "panel-edit-mode", "false")
-    print(f"Puresteel defaults applied ({changed} supported settings).")
-    return 0
-
+    rc = 0
+    if shutil.which("lookandfeeltool"):
+        rc |= run(["lookandfeeltool", "-a", "org.kde.breeze.desktop"])
+    if shutil.which("kwriteconfig6"):
+        for group, key, value in (
+            ("General", "ColorScheme", "BreezeLight"),
+            ("Icons", "Theme", "breeze"),
+            ("KDE", "widgetStyle", "Breeze"),
+        ):
+            rc |= run(["kwriteconfig6", "--file", "kdeglobals", "--group", group, "--key", key, value])
+    if WALLPAPER.is_file() and shutil.which("plasma-apply-wallpaperimage"):
+        rc |= run(["plasma-apply-wallpaperimage", str(WALLPAPER)])
+    print("Puresteel KDE defaults applied." if rc == 0 else "Some KDE defaults could not be applied.")
+    return rc
 
 if __name__ == "__main__":
     raise SystemExit(main())

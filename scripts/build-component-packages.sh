@@ -98,7 +98,7 @@ EOF
     echo "$output"
 }
 
-build_component puresteel-platform "python3, python3-gi, gir1.2-gtk-3.0, puresteel-center (>= $VERSION), polkitd, pkexec, pciutils" "Puresteel tools, welcome, doctor and system control"
+build_component puresteel-platform "python3, puresteel-center (>= $VERSION), polkitd, pkexec, pciutils" "Puresteel tools, welcome, doctor and system control"
 build_component puresteel-recovery "puresteel-platform (>= $VERSION), timeshift, initramfs-tools, grub-common" "Puresteel recovery console and rollback"
 build_component puresteel-branding "breeze, sddm-theme-breeze" "Puresteel artwork and KDE login/desktop branding"
 build_component puresteel-default-settings "puresteel-branding (>= $VERSION), plasma-workspace, kde-cli-tools, fish" "Puresteel KDE Plasma, terminal and memory defaults"

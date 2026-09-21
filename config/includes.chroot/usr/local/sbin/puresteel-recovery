@@ -11,7 +11,7 @@ LAST_UPDATE=/var/lib/puresteel/last-update-snapshot
 pause() { printf '\nPress Enter to continue... '; read _answer; }
 apt_repair() { echo "[Puresteel] Repairing package state..."; dpkg --configure -a && apt-get -f install; }
 boot_repair() { echo "[Puresteel] Rebuilding initramfs and GRUB..."; update-initramfs -u -k all && update-grub; }
-lightdm_repair() { echo "[Puresteel] Restoring LightDM..."; systemctl enable lightdm.service && systemctl set-default graphical.target; }
+sddm_repair() { echo "[Puresteel] Restoring SDDM..."; systemctl disable lightdm.service 2>/dev/null || true; systemctl enable sddm.service && systemctl set-default graphical.target; }
 nvidia_repair() {
     echo "[Puresteel] Rebuilding NVIDIA DKMS/initramfs..."
     dpkg --configure -a || return 1
@@ -73,7 +73,7 @@ Puresteel Recovery
 ==================
 1) Repair interrupted/broken packages
 2) Rebuild initramfs and GRUB
-3) Restore LightDM graphical boot
+3) Restore SDDM graphical boot
 4) Rebuild NVIDIA DKMS/initramfs
 5) Run Puresteel Doctor
 6) List Timeshift snapshots
@@ -89,7 +89,7 @@ EOF
         case "$choice" in
             1) perform apt_repair; pause ;;
             2) perform boot_repair; pause ;;
-            3) perform lightdm_repair; pause ;;
+            3) perform sddm_repair; pause ;;
             4) perform nvidia_repair; pause ;;
             5) /usr/local/bin/puresteel-doctor 2>&1 | less -R 2>/dev/null || /usr/local/bin/puresteel-doctor; pause ;;
             6) snapshot_list; pause ;;
@@ -109,11 +109,11 @@ case "${1:-}" in
     --boot-menu|"") menu ;;
     apt) perform apt_repair ;;
     boot) perform boot_repair ;;
-    lightdm) perform lightdm_repair ;;
+    sddm|lightdm) perform sddm_repair ;;
     nvidia) perform nvidia_repair ;;
     doctor) /usr/local/bin/puresteel-doctor ;;
     snapshots) snapshot_list ;;
     restore) snapshot_restore ;;
     undo-update) undo_last_update ;;
-    *) echo "Usage: puresteel-recovery [apt|boot|lightdm|nvidia|doctor|snapshots|restore|undo-update|--boot-menu]"; exit 2 ;;
+    *) echo "Usage: puresteel-recovery [apt|boot|sddm|nvidia|doctor|snapshots|restore|undo-update|--boot-menu]"; exit 2 ;;
 esac
