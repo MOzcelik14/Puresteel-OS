@@ -40,6 +40,22 @@ Puresteel-Plasma-amd64.iso
 Puresteel-Plasma-amd64.iso.sha256
 ```
 
+The Linux builder displays a five-stage Puresteel terminal interface and saves the complete APT, Git and live-build transcript to `puresteel-bootstrap.log` beside the ISO. The detailed live-build output is also saved under the build workdir as `build.log`. Failures show the recent log lines; use `--verbose` if you want to watch the full process live.
+
+Preview the exact terminal design **without invoking sudo, installing packages, cloning source or creating an ISO** (the `curl` command only fetches this script):
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/MOzcelik14/Puresteel-OS/main/bootstrap.sh | bash -s -- --preview
+```
+
+For verbose output while actually building:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/MOzcelik14/Puresteel-OS/main/bootstrap.sh | bash -s -- --verbose
+```
+
+The builder does **not** install Puresteel on the host; it creates a bootable installer ISO. ANSI colors are used only on a terminal and can be disabled with `NO_COLOR=1`.
+
 By default the bootstrap script builds `main` (the current minimal Plasma edition). To build a specific tag or branch instead:
 
 ```bash
