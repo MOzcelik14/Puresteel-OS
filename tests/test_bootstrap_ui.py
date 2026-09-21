@@ -1,0 +1,53 @@
+"""Puresteel ISO builder UI guards; only execute non-mutating preview/help."""
+import os
+import subprocess
+import tempfile
+import unittest
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+BUILDER = ROOT / "bootstrap.sh"
+
+
+def call(*args, env=None):
+    return subprocess.run(
+        ["/bin/bash", str(BUILDER), *args],
+        capture_output=True, text=True, check=False, timeout=12,
+        env=env,
+    )
+
+
+class BuilderInterfaceTests(unittest.TestCase):
+    def test_help_explains_iso_not_host_install(self):
+        result = call("--help")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("BUILDS a live ISO", result.stdout)
+        self.assertIn("--preview", result.stdout)
+
+    def test_preview_does_not_write_or_use_sudo_git_apt(self):
+        with tempfile.TemporaryDirectory() as root:
+            output = Path(root) / "no-output"
+            clone = Path(root) / "no-clone"
+            env = dict(os.environ, PATH="/nonexistent", NO_COLOR="1",
+                       PURESTEEL_OUTPUT_DIR=str(output),
+                       PURESTEEL_WORKDIR=str(clone))
+            result = call("--preview", env=env)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertIn("P U R E S T E E L", result.stdout)
+            self.assertIn("01/05", result.stdout)
+            self.assertIn("05/05", result.stdout)
+            self.assertIn("Nothing was installed or generated", result.stdout)
+            self.assertNotIn("\x1b[", result.stdout)
+            self.assertFalse(output.exists())
+            self.assertFalse(clone.exists())
+
+    def test_verbose_preview_and_invalid_flag(self):
+        result = call("--verbose", "--preview")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        invalid = call("--unknown")
+        self.assertEqual(invalid.returncode, 2)
+        self.assertIn("Unknown option", invalid.stderr)
+
+
+if __name__ == "__main__":
+    unittest.main()
