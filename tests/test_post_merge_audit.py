@@ -25,6 +25,15 @@ class PostMergeAuditTests(unittest.TestCase):
         self.assertIn('"desktop": "KDE Plasma 6 (Wayland or X11)"', report)
         self.assertNotIn('"desktop": "Cinnamon/X11"', report)
 
+
+    def test_public_website_describes_current_plasma_edition(self):
+        html = source("docs/index.html")
+        for outdated in ("Cinnamon", "LightDM", "Slick Greeter", "Nemo"):
+            self.assertNotIn(outdated, html)
+        self.assertIn("Current main · Plasma 6", html)
+        self.assertIn("Güncel main · Plasma 6", html)
+        self.assertIn("Wayland + X11", html)
+
     def test_iso_build_does_not_claim_to_publish_signed_apt(self):
         for path in ("build.sh", ".github/workflows/validate.yml"):
             self.assertNotIn("release-center.sh", source(path))
