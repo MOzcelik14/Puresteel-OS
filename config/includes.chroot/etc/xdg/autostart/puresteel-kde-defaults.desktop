@@ -1,8 +1,0 @@
-[Desktop Entry]
-Type=Application
-Name=Puresteel KDE Defaults
-Exec=/usr/local/bin/puresteel-kde-defaults
-OnlyShowIn=KDE;
-X-KDE-autostart-after=panel
-NoDisplay=true
-Terminal=false

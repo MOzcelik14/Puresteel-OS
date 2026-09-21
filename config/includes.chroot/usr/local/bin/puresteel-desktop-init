@@ -1,0 +1,23 @@
+#!/usr/bin/python3
+"""Apply initial Puresteel Plasma wallpaper once, without overwriting preferences."""
+import os
+import subprocess
+from pathlib import Path
+
+if os.geteuid() == 0:
+    raise SystemExit(0)
+os_info = Path("/etc/os-release")
+if not os_info.exists() or "ID=puresteel" not in os_info.read_text().splitlines():
+    raise SystemExit(0)
+state = Path.home() / ".config/puresteel"
+if (state / "plasma-defaults-applied").exists() or (state / "first-run-complete").exists():
+    raise SystemExit(0)
+result = subprocess.run(
+    ["/usr/local/bin/puresteel-apply-defaults", "--theme", "light",
+     "--wallpaper", "puresteel-light.png"],
+    check=False,
+)
+if result.returncode == 0:
+    state.mkdir(parents=True, exist_ok=True)
+    (state / "plasma-defaults-applied").write_text("light\n")
+raise SystemExit(result.returncode)

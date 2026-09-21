@@ -4,7 +4,7 @@ TRANSLATIONS = {
         "home":"Ana Sayfa","updates":"Güncellemeler","applications":"Uygulamalar",
         "drivers":"Sürücüler","sources":"Yazılım Kaynakları","backup":"Yedekleme",
         "reports":"Sistem Raporları","about":"Hakkında","language":"Dil",
-        "version":"Puresteel Center 1.4.0",
+        "version":"Puresteel Center 1.3.2",
 
         "welcome_kicker":"PURESTEEL",
         "welcome_title":"Puresteel'e hoş geldin",
@@ -55,7 +55,7 @@ TRANSLATIONS = {
         "report_ready":"Rapor hazır.","report_sections":"Kernel, disk, bellek, GPU, başarısız servisler ve journal hataları toplanır.",
 
         "about_title":"Puresteel hakkında",
-        "about_text":"Puresteel, Debian tabanı üzerinde KDE Plasma kullanan bağımsız bir Linux dağıtımıdır.",
+        "about_text":"Puresteel, Debian tabanı üzerinde Cinnamon kullanan bağımsız bir Linux dağıtımıdır.",
         "about_center":"Puresteel Center; Mint araçlarının tek tek sunduğu temel yönetim işlevlerini Puresteel için tek uygulamada birleştirmeyi amaçlar.",
         "github":"GitHub deposu",
         "status_ok":"Tamam","status_warn":"Uyarı","status_missing":"Bulunamadı",
@@ -66,7 +66,7 @@ TRANSLATIONS = {
         "home":"Home","updates":"Updates","applications":"Applications",
         "drivers":"Drivers","sources":"Sources","backup":"Backup",
         "reports":"System Reports","about":"About","language":"Language",
-        "version":"Puresteel Center 1.4.0",
+        "version":"Puresteel Center 1.3.2",
 
         "welcome_kicker":"PURESTEEL",
         "welcome_title":"Welcome to Puresteel",
@@ -117,7 +117,7 @@ TRANSLATIONS = {
         "report_ready":"Report ready.","report_sections":"Collects kernel, disk, memory, GPU, failed services and journal errors.",
 
         "about_title":"About Puresteel",
-        "about_text":"Puresteel is an independent Debian-based Linux distribution using KDE Plasma.",
+        "about_text":"Puresteel is an independent Debian-based Linux distribution using Cinnamon.",
         "about_center":"Puresteel Center aims to combine the core management jobs commonly split across Mint utilities into a single Puresteel application.",
         "github":"GitHub repository",
         "status_ok":"OK","status_warn":"Warning","status_missing":"Missing",

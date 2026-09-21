@@ -27,8 +27,10 @@ build_component() {
             copy "$IN"/usr/local/bin/puresteel* \
                  "$IN"/usr/local/sbin/puresteel-profile \
                  "$IN"/usr/local/sbin/puresteel-oem-prepare \
+                 "$IN"/usr/local/bin/mintlocale \
                  "$IN"/usr/share/applications/puresteel-*.desktop \
-                                  "$IN"/usr/share/doc/puresteel/OEM.md \
+                 "$IN"/usr/share/nemo/actions/puresteel-*.nemo_action \
+                 "$IN"/usr/share/doc/puresteel/OEM.md \
                  "$IN"/usr/share/doc/puresteel/SECURE-BOOT.md \
                  "$IN"/usr/share/puresteel/channels.conf \
                  "$IN"/etc/xdg/autostart/puresteel-*.desktop \
@@ -42,15 +44,18 @@ build_component() {
             ;;
         puresteel-branding)
             copy "$IN"/usr/share/backgrounds/puresteel \
+                 "$IN"/usr/share/themes/Puresteel-* \
                  "$IN"/usr/share/icons/Puresteel \
-                 "$IN"/usr/share/sounds/Puresteel \
-                 "$IN"/usr/share/sddm/themes/breeze/theme.conf.user
+                 "$IN"/usr/share/pixmaps/puresteel-installer.png \
+                 "$IN"/usr/share/plymouth/themes/puresteel \
+                 "$IN"/usr/share/sddm/themes/breeze/theme.conf.user \
+                 "$IN"/usr/share/sounds/Puresteel
             ;;
         puresteel-default-settings)
             copy "$IN"/etc/xdg/kdeglobals \
-                 "$IN"/etc/xdg/kwalletrc \
                  "$IN"/etc/sddm.conf.d/10-puresteel.conf \
-                 "$IN"/etc/xdg/autostart/puresteel-kde-defaults.desktop \
+                 "$IN"/etc/skel/.config/kdeglobals \
+                 "$IN"/etc/skel/.config/plasmarc \
                  "$IN"/etc/fish/conf.d/puresteel.fish \
                  "$IN"/etc/xdg/fastfetch/config.jsonc \
                  "$IN"/etc/sysctl.d/99-puresteel-memory.conf \
@@ -83,22 +88,14 @@ exit 0
 EOF
         chmod 755 "$stage/DEBIAN/postinst"
     fi
-    if [[ "$name" == "puresteel-default-settings" ]]; then
-        cat > "$stage/DEBIAN/postinst" <<'EOF'
-#!/bin/sh
-set -e
-if command -v dconf >/dev/null 2>&1; then dconf update; fi
-exit 0
-EOF
-        chmod 755 "$stage/DEBIAN/postinst"
-    fi
+    # KDE defaults use XDG and /etc/skel; existing user settings stay intact.
     local output="$OUT/${name}_${VERSION}_all.deb"
     dpkg-deb --root-owner-group --build "$stage" "$output" >&2
     rm -rf "$stage"
     echo "$output"
 }
 
-build_component puresteel-platform "python3, puresteel-center (>= $VERSION), polkitd, pkexec, pciutils" "Puresteel tools, welcome, doctor and system control"
+build_component puresteel-platform "python3, python3-gi, gir1.2-gtk-3.0, puresteel-center (>= $VERSION), polkitd, pkexec, pciutils" "Puresteel tools, welcome, doctor and system control"
 build_component puresteel-recovery "puresteel-platform (>= $VERSION), timeshift, initramfs-tools, grub-common" "Puresteel recovery console and rollback"
-build_component puresteel-branding "breeze, sddm-theme-breeze" "Puresteel artwork and KDE login/desktop branding"
-build_component puresteel-default-settings "puresteel-branding (>= $VERSION), plasma-workspace, kde-cli-tools, fish" "Puresteel KDE Plasma, terminal and memory defaults"
+build_component puresteel-branding "breeze, kf6-breeze-icon-theme, sddm-theme-breeze" "Puresteel light KDE artwork, SDDM, icons and wallpapers"
+build_component puresteel-default-settings "puresteel-branding (>= $VERSION), sddm, plasma-desktop, fish" "Puresteel Plasma, terminal and memory defaults"

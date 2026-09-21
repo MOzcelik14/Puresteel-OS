@@ -1,38 +1,45 @@
-QMainWindow,QWidget#Root{background:#f4f6f8;color:#17212b;font-family:"Noto Sans",sans-serif;font-size:14px}
-QFrame#Sidebar{background:#ffffff;border-right:1px solid #d8dee6}
-QLabel#BrandText{background:transparent;color:#17212b;font-size:18px;font-weight:800}
-QListWidget#Navigation{background:transparent;color:#51606f;border:none;outline:none}
+/* Puresteel Center: native Plasma-inspired, light-first UI; no forced dark canvas. */
+QMainWindow,QWidget#Root{background:#f5f8fc;color:#1b2e42;font-family:"Noto Sans",sans-serif;font-size:13px}
+QFrame#Sidebar{background:#edf3f9;border-right:1px solid #d8e3ee}
+QLabel#BrandText{background:transparent;color:#143350;font-size:18px;font-weight:800}
+QListWidget#Navigation{background:transparent;color:#38556f;border:none;outline:none}
 QListWidget#Navigation::item{background:transparent;border-radius:9px;padding-left:14px;margin:1px}
-QListWidget#Navigation::item:hover{background:#eef3f8;color:#17212b}
-QListWidget#Navigation::item:selected{background:#dcecf9;color:#10253a;font-weight:800}
-QFrame#LanguageBox{background:#f7f9fb;border:1px solid #d8dee6;border-radius:11px}
-QLabel#SidebarCaption{background:transparent;color:#6b7785;font-size:11px;font-weight:700}
-QPushButton#LanguageButton{background:#fff;color:#4d5c6b;border:1px solid #ccd5df;border-radius:7px;padding:7px;font-weight:800}
-QPushButton#LanguageButton:checked{background:#dcecf9;color:#10253a;border-color:#9dc7e8}
-QLabel#VersionLabel{background:transparent;color:#7b8794;font-size:11px}
-QStackedWidget#Pages,QWidget#ContentPage{background:#f4f6f8}
-QFrame#HeroPanel,QFrame#Card{background:#fff;border:1px solid #d8dee6;border-radius:16px}
-QFrame#Card:hover{background:#fafdff;border-color:#a9c8e1}
-QLabel#Eyebrow,QLabel#CardNumber{background:transparent;color:#3478a8;font-size:11px;font-weight:800}
-QLabel#PageTitle{background:transparent;color:#17212b;font-size:34px;font-weight:800}
-QLabel#Lead,QLabel#CardText{background:transparent;color:#5d6b78}
-QLabel#CardTitle{background:transparent;color:#1f2b36;font-size:17px;font-weight:800}
-QPushButton#PrimaryButton{background:#2f78a8;color:#fff;border:none;border-radius:9px;padding:10px 16px;font-weight:800}
-QPushButton#PrimaryButton:hover{background:#25678f}
-QPushButton#SecondaryButton{background:#fff;color:#275f86;border:1px solid #9fc3dd;border-radius:9px;padding:10px 16px;font-weight:700}
-QPushButton#SecondaryButton:hover{background:#eef7fd}
-QLabel#StatusLabel{background:transparent;color:#617486}
-QFrame#Notice{background:#f1f7fb;border:1px solid #c8deee;border-radius:11px}
-QFrame#Notice QLabel{background:transparent;color:#496476}
+QListWidget#Navigation::item:hover{background:#dceafa;color:#163e62}
+QListWidget#Navigation::item:selected{background:#d0e4fa;color:#114a80;font-weight:800}
+QFrame#LanguageBox{background:#fff;border:1px solid #dae5ef;border-radius:11px}
+QLabel#SidebarCaption{background:transparent;color:#5c758e;font-size:11px;font-weight:700}
+QPushButton#LanguageButton{background:#f4f8fc;color:#3f627f;border:1px solid #dae5ef;border-radius:7px;padding:7px;font-weight:800}
+QPushButton#LanguageButton:checked{background:#2778c7;color:#fff;border-color:#2778c7}
+QLabel#VersionLabel{background:transparent;color:#627e98;font-size:11px}
+QStackedWidget#Pages,QWidget#ContentPage{background:#f5f8fc}
+QFrame#HeroPanel{background:#fff;border:1px solid #d9e5f0;border-radius:18px}
+QLabel#Eyebrow{background:transparent;color:#2571b5;font-size:11px;font-weight:800}
+QLabel#PageTitle{background:transparent;color:#183b59;font-size:33px;font-weight:800}
+QLabel#Lead{background:transparent;color:#526b83;font-size:15px}
+QLabel#HeroLogo{background:transparent}
+QFrame#Card{background:#fff;border:1px solid #d9e5f0;border-radius:14px}
+QFrame#Card:hover{background:#f5faff;border-color:#9ec5eb}
+QLabel#CardNumber{background:transparent;color:#2574b8;font-size:11px;font-weight:800}
+QLabel#CardTitle{background:transparent;color:#203e58;font-size:17px;font-weight:800}
+QLabel#CardText{background:transparent;color:#58718a}
+QPushButton#PrimaryButton{background:#287bc9;color:#fff;border:none;border-radius:9px;padding:10px 16px;font-weight:800}
+QPushButton#PrimaryButton:hover{background:#155e9e}
+QPushButton#PrimaryButton:disabled{background:#b5c9db;color:#eee}
+QPushButton#SecondaryButton{background:#f0f6fc;color:#215783;border:1px solid #b9d4ec;border-radius:9px;padding:10px 16px;font-weight:700}
+QPushButton#SecondaryButton:hover{background:#dfedfb}
+QPushButton#SecondaryButton:disabled{color:#8296a8;background:#eef2f7}
+QLabel#StatusLabel{background:transparent;color:#476a87}
+QFrame#Notice{background:#eff6fd;border:1px solid #c6ddee;border-radius:11px}
+QFrame#Notice QLabel{background:transparent;color:#385a76}
 QListWidget#DataList,QListWidget#UpdateList,QTextEdit#ReportText,QTextEdit,QTableWidget#DataTable,QTabWidget::pane{
- background:#fff;color:#24313d;border:1px solid #d8dee6;border-radius:12px;outline:none}
+ background:#fff;color:#253f57;border:1px solid #d6e4f0;border-radius:12px;outline:none}
 QListWidget#DataList::item,QListWidget#UpdateList::item{min-height:28px;padding-left:6px}
-QTableWidget#DataTable{gridline-color:#e0e6ec;selection-background-color:#dbeefb;selection-color:#17212b}
-QHeaderView::section{background:#eef2f6;color:#384858;border:none;border-right:1px solid #d8dee6;padding:8px;font-weight:700}
-QLineEdit,QComboBox{background:#fff;color:#17212b;border:1px solid #cbd4dd;border-radius:8px;padding:8px;selection-background-color:#cce7f7}
-QCheckBox{color:#26333f;spacing:8px}
-QTabBar::tab{background:#eef2f6;color:#617182;border:1px solid #d8dee6;padding:9px 16px}
-QTabBar::tab:selected{background:#fff;color:#1b4f73}
-QScrollBar:vertical{background:#eef2f6;width:10px}
-QScrollBar::handle:vertical{background:#bac7d2;min-height:30px;border-radius:5px}
+QTableWidget#DataTable{gridline-color:#e4edf5;selection-background-color:#d9ebfc;selection-color:#163f61}
+QHeaderView::section{background:#eef5fb;color:#2c506f;border:none;border-right:1px solid #d5e4f0;padding:8px;font-weight:700}
+QLineEdit,QComboBox{background:#fff;color:#253f57;border:1px solid #c5d9eb;border-radius:8px;padding:8px;selection-background-color:#a7d3f5}
+QCheckBox{color:#253f57;spacing:8px}
+QTabBar::tab{background:#f1f6fb;color:#56748e;border:1px solid #d6e4f0;padding:9px 16px}
+QTabBar::tab:selected{background:#dceafa;color:#1d5685}
+QScrollBar:vertical{background:#f5f8fc;width:10px}
+QScrollBar::handle:vertical{background:#b3cbe0;min-height:30px;border-radius:5px}
 QScrollBar::add-line:vertical,QScrollBar::sub-line:vertical{height:0}

@@ -1,7 +1,7 @@
 [Icon Theme]
 Name=Puresteel
-Comment=Puresteel desktop icon theme
-Inherits=Papirus-Dark,Papirus,Adwaita,hicolor
+Comment=Puresteel icons with native KDE Breeze fallback
+Inherits=breeze,Papirus,Adwaita,hicolor
 Directories=places/16,places/22,places/24,places/32,places/64,places/96
 
 [places/16]

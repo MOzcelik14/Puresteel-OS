@@ -1,0 +1,15 @@
+[KDE]
+LookAndFeelPackage=org.kde.breeze.desktop
+widgetStyle=Breeze
+SingleClick=false
+
+[General]
+ColorScheme=BreezeLight
+Name=Breeze Light
+
+[Icons]
+Theme=Puresteel
+
+[WM]
+activeBackground=239,244,250
+inactiveBackground=239,244,250

@@ -2,10 +2,10 @@
 Type=Application
 Name=Puresteel First Run
 Name[tr]=Puresteel İlk Ayarlar
-Comment=Configure Puresteel after installation
-Comment[tr]=Kurulumdan sonra Puresteel'i yapılandır
+Comment=Finish setting up Puresteel Plasma
+Comment[tr]=Puresteel Plasma ilk ayarlarını tamamla
 Exec=/usr/local/bin/puresteel-first-run
 Icon=puresteel-installer
 OnlyShowIn=KDE;
-X-KDE-autostart-after=panel
+X-KDE-autostart-phase=2
 Terminal=false

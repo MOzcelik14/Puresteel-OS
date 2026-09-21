@@ -1,7 +1,11 @@
 #!/usr/bin/python3
-import subprocess,sys
+import subprocess
+import sys
 from pathlib import Path
 from urllib.parse import quote
-if len(sys.argv)!=2: raise SystemExit("Usage: puresteel-open-admin PATH")
-p=Path(sys.argv[1]).expanduser().resolve()
-raise SystemExit(subprocess.call(["dolphin","admin://"+quote(str(p),safe="/")]))
+
+if len(sys.argv) != 2:
+    raise SystemExit("Usage: puresteel-open-admin PATH")
+p = Path(sys.argv[1]).expanduser().resolve()
+uri = "admin://" + quote(str(p), safe="/")
+raise SystemExit(subprocess.call(["nemo", uri]))

@@ -1,0 +1,20 @@
+/* Puresteel Light — Cinnamon shell identity */
+@import url("../../../cinnamon/theme/cinnamon.css");
+stage { font-family: "Sans"; }
+#panel { background-color: rgba(242,246,252,0.97); color: #172033; border-top: 1px solid rgba(20,35,55,0.10); }
+.panel-button { color: #1b2840; border-radius: 7px; }
+.panel-button:hover, .panel-button:active, .panel-button:checked { background-color: rgba(59,111,201,0.16); color: #101725; }
+.menu { background-color: #f8fbff; border: 1px solid #cad5e5; border-radius: 10px; color: #182238; }
+.menu-item { border-radius: 7px; padding: 7px 10px; }
+.menu-item:hover, .menu-item:active { background-color: #dfeaf9; }
+.popup-menu-content { padding: 8px; }
+.notification-button, .modal-dialog-button { background-color: #e1e9f4; color: #172033; border-radius: 8px; padding: 8px 14px; }
+.notification-button:hover, .modal-dialog-button:hover { background-color: #cdddf3; }
+.notification { background-color: #f8fbff; color: #182238; border: 1px solid #cad5e5; border-radius: 10px; }
+.workspace-switcher-container { background-color: rgba(244,248,253,0.96); border-radius: 12px; padding: 10px; }
+.window-list-item-box { border-radius: 7px; padding: 4px 8px; }
+.window-list-item-box:hover { background-color: rgba(59,111,201,0.12); }
+.window-list-item-box:active, .window-list-item-box:checked { background-color: rgba(59,111,201,0.20); }
+.calendar { background-color: #f8fbff; color: #182238; }
+.calendar-day-base:hover, .calendar-day-base:focus { background-color: #dfeaf9; border-radius: 999px; }
+.calendar-today { background-color: #3b6fc9; color: white; border-radius: 999px; }

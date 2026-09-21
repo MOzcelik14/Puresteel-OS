@@ -29,7 +29,7 @@ Depends: python3, python3-apt, python3-pyside6.qtcore, python3-pyside6.qtgui, py
 Recommends: switcheroo-control, power-profiles-daemon
 Description: Puresteel system management center
  Puresteel Center manages updates, applications, graphics drivers,
- profiles, software sources, backups and system reports from KDE Plasma.
+ profiles, software sources, backups and system reports from Cinnamon.
 EOF
 
 cat > "$STAGE/DEBIAN/postinst" <<'EOF'
@@ -37,6 +37,9 @@ cat > "$STAGE/DEBIAN/postinst" <<'EOF'
 set -e
 if command -v update-desktop-database >/dev/null 2>&1; then
     update-desktop-database /usr/share/applications >/dev/null 2>&1 || true
+fi
+if command -v gtk-update-icon-cache >/dev/null 2>&1; then
+    gtk-update-icon-cache -q -f /usr/share/icons/hicolor >/dev/null 2>&1 || true
 fi
 exit 0
 EOF

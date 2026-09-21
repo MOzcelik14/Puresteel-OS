@@ -1,6 +1,0 @@
-[Wallet]
-Enabled=true
-Default Wallet=kdewallet
-Use One Wallet=true
-Close When Idle=false
-Close on Screensaver=false

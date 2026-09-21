@@ -1,31 +1,71 @@
 #!/usr/bin/python3
+"""Apply Puresteel's native Plasma / Breeze appearance in the logged-in session.
+
+Never edit other users' KDE settings or write directly into a plasma
+containment ID. Existing users opt in; new users get /etc/skel defaults.
+"""
+import argparse
 import shutil
 import subprocess
+import sys
 from pathlib import Path
 
-WALLPAPER = Path("/usr/share/backgrounds/puresteel/wallpaper.png")
+WALLPAPERS = Path("/usr/share/backgrounds/puresteel")
 
-def run(args):
-    try:
-        return subprocess.run(args, check=False).returncode
-    except OSError:
+
+def checked(command):
+    if not shutil.which(command[0]):
+        print("Missing KDE Plasma command: " + command[0], file=sys.stderr)
         return 1
+    result = subprocess.run(command, check=False)
+    return result.returncode
+
+
+def apply(theme, wallpaper):
+    if theme not in ("light", "dark"):
+        return 2
+    if not wallpaper:
+        wallpaper = "puresteel-light.png" if theme == "light" else "wallpaper.png"
+    # Never accept an arbitrary file path via the privileged wrapper.
+    if "/" in wallpaper or wallpaper in ("", ".", ".."):
+        print("Wallpaper must be one bundled Puresteel filename.", file=sys.stderr)
+        return 2
+    image = WALLPAPERS / wallpaper
+    if not image.is_file() or image.suffix.lower() not in (".png", ".jpg", ".jpeg", ".svg"):
+        print("Wallpaper not installed: " + str(image), file=sys.stderr)
+        return 2
+    scheme = "BreezeLight" if theme == "light" else "BreezeDark"
+    desktop = "breeze-light" if theme == "light" else "breeze-dark"
+    commands = [
+        ["plasma-apply-colorscheme", scheme],
+        ["plasma-apply-desktoptheme", desktop],
+        ["kwriteconfig6", "--file", "kdeglobals", "--group", "KDE", "--key",
+         "LookAndFeelPackage", "org.kde.breeze.desktop"],
+        ["kwriteconfig6", "--file", "kdeglobals", "--group", "KDE", "--key", "widgetStyle", "Breeze"],
+        ["kwriteconfig6", "--file", "kdeglobals", "--group", "General", "--key", "ColorScheme", scheme],
+        ["kwriteconfig6", "--file", "kdeglobals", "--group", "Icons", "--key", "Theme", "Puresteel"],
+        ["kwriteconfig6", "--file", "plasmarc", "--group", "Theme", "--key", "name", desktop],
+        ["plasma-apply-wallpaperimage", str(image)],
+    ]
+    failures = []
+    for command in commands:
+        if checked(command):
+            failures.append(command[0])
+    if failures:
+        print("Puresteel Plasma appearance incomplete: " + ", ".join(failures),
+              file=sys.stderr)
+        return 1
+    print("Puresteel Plasma " + theme + " applied with " + image.name)
+    return 0
+
 
 def main():
-    rc = 0
-    if shutil.which("lookandfeeltool"):
-        rc |= run(["lookandfeeltool", "-a", "org.kde.breeze.desktop"])
-    if shutil.which("kwriteconfig6"):
-        for group, key, value in (
-            ("General", "ColorScheme", "BreezeLight"),
-            ("Icons", "Theme", "breeze"),
-            ("KDE", "widgetStyle", "Breeze"),
-        ):
-            rc |= run(["kwriteconfig6", "--file", "kdeglobals", "--group", group, "--key", key, value])
-    if WALLPAPER.is_file() and shutil.which("plasma-apply-wallpaperimage"):
-        rc |= run(["plasma-apply-wallpaperimage", str(WALLPAPER)])
-    print("Puresteel KDE defaults applied." if rc == 0 else "Some KDE defaults could not be applied.")
-    return rc
+    parser = argparse.ArgumentParser(description="Apply Puresteel Plasma defaults")
+    parser.add_argument("--theme", choices=("light", "dark"), default="light")
+    parser.add_argument("--wallpaper", help="Filename from bundled Puresteel backgrounds")
+    args = parser.parse_args()
+    return apply(args.theme, args.wallpaper)
+
 
 if __name__ == "__main__":
     raise SystemExit(main())

@@ -1,10 +1,9 @@
+[KDE]
+LookAndFeelPackage=org.kde.breeze.desktop
+widgetStyle=Breeze
+
 [General]
 ColorScheme=BreezeLight
 
 [Icons]
-Theme=breeze
-
-[KDE]
-LookAndFeelPackage=org.kde.breeze.desktop
-widgetStyle=Breeze
-SingleClick=false
+Theme=Puresteel

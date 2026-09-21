@@ -13,7 +13,7 @@ for title,cmd in (
  ('DKMS',['dkms','status']),
  ('Kernel',['journalctl','-b','-k','--no-pager','-n','120']),
  ('NetworkManager',['journalctl','-b','-u','NetworkManager','--no-pager','-n','80']),
- ('SDDM',['journalctl','-b','-u','sddm','--no-pager','-n','80'])):
+ ('LightDM',['journalctl','-b','-u','lightdm','--no-pager','-n','80'])):
     parts.append(f'\n== {title} ==\n{cap(cmd)}')
 out=''.join(parts);print(out)
 if a.save:

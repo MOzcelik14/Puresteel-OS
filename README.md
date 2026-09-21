@@ -12,7 +12,7 @@
 
 Puresteel is an independent Debian 13 (Trixie) based Linux distribution focused on a clean desktop, gaming and creator tooling, broad graphics support, a graphical installer, and Puresteel's own system-management and update infrastructure.
 
-The current Puresteel desktop stack is **minimal KDE Plasma 6 + SDDM on Wayland**. Puresteel intentionally does not install `kde-standard` or `kde-full`; only the desktop shell, core settings, Dolphin, Konsole, networking, power/display integration and the Puresteel tools are selected.
+The current Puresteel desktop stack is **minimal KDE Plasma 6 + SDDM + Breeze Light, Wayland with X11 fallback**.
 
 ## Build the ISO with one command
 
@@ -42,7 +42,7 @@ For manual and development builds, see [docs/BUILD.md](docs/BUILD.md).
 |---|---|
 | **Base** | Debian 13 (Trixie) |
 | **Architecture** | amd64 + i386 multiarch |
-| **Desktop** | KDE Plasma 6 / SDDM / Wayland |
+| **Desktop** | minimal Plasma 6 / SDDM / Wayland + X11 |
 | **Installer** | Calamares |
 | **Init** | systemd |
 | **Graphics** | Intel, AMD and NVIDIA; hybrid-GPU support |
@@ -63,7 +63,7 @@ Puresteel ships its own Qt 6 / PySide6 system management application with module
 - **NVIDIA** — Debian proprietary driver stack, DKMS, Vulkan and hybrid graphics integration
 - **Hybrid systems** — Intel + NVIDIA, AMD + NVIDIA and other multi-GPU layouts supported by the Linux graphics stack
 
-The KDE Plasma live environment has been validated on an Intel + NVIDIA laptop with an RTX 3050, including successful `nvidia-smi` operation.
+An earlier Cinnamon image was tested on an Intel + NVIDIA RTX 3050 laptop. The new minimal Plasma edition still requires separate fresh-install and hardware verification.
 
 [Hardware documentation →](docs/HARDWARE.md)
 
@@ -77,7 +77,7 @@ Puresteel includes Fish, Starship, Fastfetch, btop, htop, Git, curl, wget, Vim, 
 
 ## Desktop and branding
 
-Puresteel uses a minimal KDE Plasma 6 session on Wayland with SDDM, Puresteel wallpaper defaults, the Breeze Light defaults with Puresteel wallpaper and application branding, and Puresteel GRUB, Plymouth, icon and Calamares branding. System language switching is available through Puresteel Language Settings.
+Puresteel uses minimal KDE Plasma 6 with SDDM and a Puresteel Breeze Light default, branded wallpaper, icons, GRUB, Plymouth and Calamares. An X11 session is retained for GPU compatibility. System language switching is available through Puresteel Language Settings.
 
 ## Installation
 
@@ -99,13 +99,8 @@ Write the generated hybrid ISO to a USB drive, boot the Puresteel live environme
 
 ## Release history
 
-The published `v1.0.0` tag is preserved as the original Puresteel 1.0 "Burak" release. Current development uses minimal KDE Plasma 6 and does not rewrite that historical release.
+The published `v1.0.0` tag is preserved as the original Puresteel 1.0 "Burak" release. The new Plasma migration is developed separately and does not rewrite and does not rewrite that historical release.
 
 ## Licensing
 
 Puresteel combines software distributed under multiple upstream licenses. Debian packages, Flatpak applications and third-party components retain their own licenses. The image may include Debian non-free firmware and proprietary NVIDIA components where configured.
-
-
-### KDE Wallet and Wi-Fi
-
-Puresteel installs Debian's `libpam-kwallet5` integration and uses SDDM password login by default. The encrypted `kdewallet` is therefore unlocked with the same login password, so Plasma NetworkManager can retrieve saved Wi-Fi credentials without asking again after each reboot. Installer autologin is hidden by default because an autologin session has no password for PAM to use when unlocking an encrypted wallet.

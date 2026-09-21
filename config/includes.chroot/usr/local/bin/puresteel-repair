@@ -1,25 +1,88 @@
 #!/usr/bin/python3
-import subprocess,sys
-from PySide6.QtCore import QObject,QThread,Signal,Slot
-from PySide6.QtWidgets import QApplication,QLabel,QMainWindow,QMessageBox,QPushButton,QTextEdit,QVBoxLayout,QWidget
-HELPER="/usr/lib/puresteel-center/puresteel-helper"
-ACTIONS=[("Broken packages","repair-packages"),("Initramfs + GRUB","repair-boot"),("SDDM graphical boot","repair-sddm"),("NVIDIA DKMS/initramfs","repair-nvidia"),("Flatpak installation","flatpak-repair")]
-class Worker(QObject):
- done=Signal(int,str)
- def __init__(self,a):super().__init__();self.a=a
- @Slot()
- def run(self):
-  try:p=subprocess.run(["pkexec",HELPER,self.a],text=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,timeout=7200,check=False);self.done.emit(p.returncode,p.stdout)
-  except Exception as e:self.done.emit(1,str(e))
-class W(QMainWindow):
- def __init__(self):
-  super().__init__();self.resize(700,520);c=QWidget();self.setCentralWidget(c);l=QVBoxLayout(c);self.status=QLabel("Choose a repair action.");l.addWidget(self.status);self.out=QTextEdit();self.out.setReadOnly(True);l.addWidget(self.out);self.buttons=[]
-  for n,a in ACTIONS:b=QPushButton("Repair "+n);b.clicked.connect(lambda _=False,x=a,y=n:self.go(x,y));l.addWidget(b);self.buttons.append(b)
-  self.thread=None
- def go(self,a,n):
-  if self.thread or QMessageBox.question(self,"Puresteel Repair","Run repair: "+n+"?")!=QMessageBox.Yes:return
-  for b in self.buttons:b.setEnabled(False)
-  self.thread=QThread(self);self.worker=Worker(a);self.worker.moveToThread(self.thread);self.thread.started.connect(self.worker.run);self.worker.done.connect(self.done);self.worker.done.connect(self.thread.quit);self.thread.finished.connect(self.finish);self.thread.start()
- def done(self,c,o):self.out.setPlainText(o);self.status.setText("Repair completed." if c==0 else f"Repair FAILED ({c}).")
- def finish(self):self.thread=None;self.worker=None;[b.setEnabled(True) for b in self.buttons]
-app=QApplication(sys.argv);w=W();w.show();raise SystemExit(app.exec())
+"""Repair actions run off the GTK main loop; failures are never shown as success."""
+import subprocess
+import threading
+import gi
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk, GLib
+
+HELPER = "/usr/lib/puresteel-center/puresteel-helper"
+ACTIONS = [
+    ("Broken packages", "repair-packages"),
+    ("Initramfs + GRUB", "repair-boot"),
+    ("LightDM graphical boot", "repair-lightdm"),
+    ("NVIDIA DKMS/initramfs", "repair-nvidia"),
+    ("Flatpak installation", "flatpak-repair"),
+]
+
+
+class RepairWindow(Gtk.Window):
+    def __init__(self):
+        super().__init__(title="Puresteel Repair")
+        self.set_default_size(680, 500)
+        self.set_border_width(18)
+        self.connect("destroy", Gtk.main_quit)
+        self.buttons = []
+        body = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
+        self.add(body)
+        heading = Gtk.Label()
+        heading.set_markup("<span size='x-large' weight='bold'>Puresteel Repair</span>")
+        heading.set_xalign(0)
+        body.pack_start(heading, False, False, 0)
+        self.status = Gtk.Label(label="Review each repair before running.")
+        self.status.set_line_wrap(True)
+        self.status.set_xalign(0)
+        body.pack_start(self.status, False, False, 0)
+        self.output = Gtk.TextView()
+        self.output.set_editable(False)
+        self.output.set_monospace(True)
+        scroller = Gtk.ScrolledWindow()
+        scroller.add(self.output)
+        body.pack_start(scroller, True, True, 0)
+        for name, action in ACTIONS:
+            button = Gtk.Button(label="Repair " + name)
+            button.connect("clicked", self.start, name, action)
+            body.pack_start(button, False, False, 0)
+            self.buttons.append(button)
+
+    def start(self, _button, label, action):
+        question = Gtk.MessageDialog(
+            transient_for=self, flags=0,
+            message_type=Gtk.MessageType.QUESTION,
+            buttons=Gtk.ButtonsType.YES_NO,
+            text="Run repair: " + label + "?",
+        )
+        accepted = question.run() == Gtk.ResponseType.YES
+        question.destroy()
+        if not accepted:
+            return
+        for button in self.buttons:
+            button.set_sensitive(False)
+        self.status.set_text("Repair running: " + label)
+        threading.Thread(target=self.worker, args=(action,), daemon=True).start()
+
+    def worker(self, action):
+        try:
+            result = subprocess.run(
+                ["pkexec", HELPER, action],
+                text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                timeout=7200, check=False,
+            )
+            code, output = result.returncode, result.stdout
+        except (OSError, subprocess.TimeoutExpired) as exc:
+            code, output = 1, str(exc)
+        GLib.idle_add(self.finished, code, output)
+
+    def finished(self, code, output):
+        self.output.get_buffer().set_text(
+            output or ("Completed." if code == 0 else "Failed."))
+        self.status.set_text("Repair completed." if code == 0 else
+                             f"Repair FAILED (exit {code}). Review output.")
+        for button in self.buttons:
+            button.set_sensitive(True)
+        return False
+
+
+window = RepairWindow()
+window.show_all()
+Gtk.main()

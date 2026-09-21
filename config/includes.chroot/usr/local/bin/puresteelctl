@@ -114,37 +114,27 @@ def cmd_channel(args):
     return elevated("channel-set", args.name)
 
 
-def gset(schema, key, value):
-    if not shutil.which("gsettings"): return 1
-    code, schemas = capture(["gsettings", "list-schemas"])
-    if code != 0 or schema not in schemas.splitlines(): return 1
-    code, keys = capture(["gsettings", "list-keys", schema])
-    if code != 0 or key not in keys.splitlines(): return 1
-    return run(["gsettings", "set", schema, key, value])
-
-
 def cmd_theme(args):
     if args.action == "status":
-        scheme = capture(["kreadconfig6", "--file", "kdeglobals", "--group", "General", "--key", "ColorScheme"])
-        icons = capture(["kreadconfig6", "--file", "kdeglobals", "--group", "Icons", "--key", "Theme"])
-        print("colors=" + (scheme[1] if scheme[0] == 0 else "unavailable"))
-        print("icons=" + (icons[1] if icons[0] == 0 else "unavailable"))
-        return 0
-    laf = "org.kde.breeze.desktop" if args.name == "light" else "org.kde.breezedark.desktop"
-    scheme = "BreezeLight" if args.name == "light" else "BreezeDark"
-    rc = run(["lookandfeeltool", "-a", laf]) if shutil.which("lookandfeeltool") else 1
-    if shutil.which("kwriteconfig6"):
-        rc |= run(["kwriteconfig6", "--file", "kdeglobals", "--group", "General", "--key", "ColorScheme", scheme])
-        rc |= run(["kwriteconfig6", "--file", "kdeglobals", "--group", "Icons", "--key", "Theme", "breeze"])
+        commands = (
+            ("color scheme", ["kreadconfig6", "--file", "kdeglobals",
+                              "--group", "General", "--key", "ColorScheme"]),
+            ("icon theme", ["kreadconfig6", "--file", "kdeglobals",
+                            "--group", "Icons", "--key", "Theme"]),
+            ("plasma theme", ["kreadconfig6", "--file", "plasmarc",
+                              "--group", "Theme", "--key", "name"]),
+        )
+        result = 0
+        for label, command in commands:
+            code, out = capture(command)
+            print(f"{label}: {out if code == 0 and out else 'unavailable'}")
+            result |= code
+        return result
+    command = ["/usr/local/bin/puresteel-apply-defaults", "--theme", args.name]
     if args.wallpaper:
-        wall = Path("/usr/share/backgrounds/puresteel") / args.wallpaper
-        if not wall.is_file():
-            print(f"Wallpaper not found: {wall}")
-            return 2
-        if shutil.which("plasma-apply-wallpaperimage"):
-            rc |= run(["plasma-apply-wallpaperimage", str(wall)])
-    print(f"KDE theme applied: {scheme}")
-    return rc
+        command += ["--wallpaper", args.wallpaper]
+    return run(command)
+
 
 def exec_tool(name, extra=None):
     path=shutil.which(name) or name
@@ -177,6 +167,7 @@ def main():
     ac=sub.add_parser("accessibility");ac.add_argument("mode",choices=("status","large-text","normal-text","high-contrast","puresteel"));ac.set_defaults(func=lambda a:exec_tool("puresteel-accessibility",[a.mode]))
     cr=sub.add_parser("crash-report");cr.add_argument("--open-issue",action="store_true");cr.set_defaults(func=lambda a:exec_tool("puresteel-crash-helper",["--open-issue"] if a.open_issue else []))
     hr=sub.add_parser("hw-report");hr.set_defaults(func=lambda a:exec_tool("puresteel-hw-report"))
+    wi=sub.add_parser("wifi");wi.add_argument("--open-settings",action="store_true");wi.set_defaults(func=lambda a:exec_tool("puresteel-wifi",["--open-settings"] if a.open_settings else []))
     args=p.parse_args()
     if args.cmd=="profile" and args.action=="apply" and not args.name:p.error("profile apply requires a profile name")
     if args.cmd=="apps" and args.action=="install" and not args.pack:p.error("apps install requires a pack")

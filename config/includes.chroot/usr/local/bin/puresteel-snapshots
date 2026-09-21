@@ -1,26 +1,125 @@
 #!/usr/bin/python3
-import subprocess,sys
-from PySide6.QtCore import QObject,QThread,Signal,Slot
-from PySide6.QtWidgets import QApplication,QInputDialog,QLabel,QMainWindow,QMessageBox,QPushButton,QTextEdit,QVBoxLayout,QWidget
-HELPER="/usr/lib/puresteel-center/puresteel-helper"
-class Worker(QObject):
- done=Signal(int,str)
- def __init__(self,a,args):super().__init__();self.a=a;self.args=args
- @Slot()
- def run(self):
-  try:p=subprocess.run(["pkexec",HELPER,self.a,*self.args],text=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,timeout=3600,check=False);self.done.emit(p.returncode,p.stdout)
-  except Exception as e:self.done.emit(1,str(e))
-class W(QMainWindow):
- def __init__(self):
-  super().__init__();self.resize(820,560);c=QWidget();self.setCentralWidget(c);l=QVBoxLayout(c);self.status=QLabel();l.addWidget(self.status);self.out=QTextEdit();self.out.setReadOnly(True);l.addWidget(self.out);self.refresh=QPushButton("Refresh");self.create=QPushButton("Create snapshot");l.addWidget(self.refresh);l.addWidget(self.create);self.refresh.clicked.connect(lambda:self.go("snapshot-list",[]));self.create.clicked.connect(self.new);self.thread=None;self.go("snapshot-list",[])
- def go(self,a,args):
-  if self.thread:return
-  self.refresh.setEnabled(False);self.create.setEnabled(False);self.thread=QThread(self);self.worker=Worker(a,args);self.worker.moveToThread(self.thread);self.thread.started.connect(self.worker.run);self.worker.done.connect(lambda c,o:self.done(a,c,o));self.worker.done.connect(self.thread.quit);self.thread.finished.connect(self.finish);self.thread.start()
- def new(self):
-  text,ok=QInputDialog.getText(self,"Create snapshot","Comment:",text="Puresteel manual snapshot")
-  if ok:self.go("snapshot-create",[text or "Puresteel manual snapshot"])
- def done(self,a,c,o):
-  self.out.setPlainText(o);self.status.setText("Done." if c==0 else f"Failed ({c}).")
-  if c!=0:QMessageBox.warning(self,"Puresteel Snapshots",o[-4000:] or "Operation failed")
- def finish(self):self.thread=None;self.worker=None;self.refresh.setEnabled(True);self.create.setEnabled(True)
-app=QApplication(sys.argv);w=W();w.show();raise SystemExit(app.exec())
+import subprocess
+import threading
+
+import gi
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk, GLib
+
+HELPER = "/usr/lib/puresteel-center/puresteel-helper"
+
+
+class SnapshotWindow(Gtk.Window):
+    def __init__(self):
+        super().__init__(title="Puresteel Snapshots")
+        self.set_default_size(820, 560)
+        self.set_border_width(16)
+        self.connect("destroy", Gtk.main_quit)
+
+        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
+        self.add(box)
+
+        title = Gtk.Label()
+        title.set_markup("<span size='x-large' weight='bold'>Puresteel Snapshots</span>")
+        title.set_xalign(0)
+        box.pack_start(title, False, False, 0)
+
+        self.status = Gtk.Label(label="Loading snapshots…")
+        self.status.set_xalign(0)
+        self.status.set_line_wrap(True)
+        box.pack_start(self.status, False, False, 0)
+
+        scroller = Gtk.ScrolledWindow()
+        scroller.set_hexpand(True)
+        scroller.set_vexpand(True)
+        self.view = Gtk.TextView()
+        self.view.set_editable(False)
+        self.view.set_monospace(True)
+        self.view.set_wrap_mode(Gtk.WrapMode.NONE)
+        scroller.add(self.view)
+        box.pack_start(scroller, True, True, 0)
+
+        note = Gtk.Label(label="Snapshot restore is intentionally handled from Puresteel Recovery for safety.")
+        note.set_xalign(0)
+        note.set_line_wrap(True)
+        box.pack_start(note, False, False, 0)
+
+        row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
+        self.refresh_btn = Gtk.Button(label="Refresh")
+        self.create_btn = Gtk.Button(label="Create snapshot")
+        close_btn = Gtk.Button(label="Close")
+        self.refresh_btn.connect("clicked", lambda *_: self.refresh())
+        self.create_btn.connect("clicked", self.create_snapshot)
+        close_btn.connect("clicked", lambda *_: self.close())
+        row.pack_start(self.refresh_btn, False, False, 0)
+        row.pack_start(self.create_btn, False, False, 0)
+        row.pack_end(close_btn, False, False, 0)
+        box.pack_end(row, False, False, 0)
+
+        self.refresh()
+
+    def set_busy(self, busy, text=None):
+        self.refresh_btn.set_sensitive(not busy)
+        self.create_btn.set_sensitive(not busy)
+        if text:
+            self.status.set_text(text)
+
+    def run_helper(self, action, *args):
+        cmd = ["pkexec", HELPER, action, *args]
+        try:
+            p = subprocess.run(cmd, text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, timeout=3600 if action == "snapshot-create" else 120, check=False)
+            return p.returncode, p.stdout.strip()
+        except (OSError, subprocess.TimeoutExpired) as exc:
+            return 1, str(exc)
+
+    def refresh(self):
+        self.set_busy(True, "Loading snapshots…")
+        threading.Thread(target=self._refresh_worker, daemon=True).start()
+
+    def _refresh_worker(self):
+        code, out = self.run_helper("snapshot-list")
+        GLib.idle_add(self._show_list, code, out)
+
+    def _show_list(self, code, out):
+        self.view.get_buffer().set_text(out or ("No snapshots found." if code == 0 else "Could not read snapshots."))
+        self.set_busy(False, "Snapshots ready." if code == 0 else "Could not load snapshots.")
+        return False
+
+    def create_snapshot(self, *_):
+        dialog = Gtk.Dialog(title="Create snapshot", parent=self, flags=0)
+        dialog.add_buttons(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL, "Create", Gtk.ResponseType.OK)
+        area = dialog.get_content_area()
+        entry = Gtk.Entry()
+        entry.set_text("Puresteel manual snapshot")
+        entry.set_activates_default(True)
+        area.pack_start(Gtk.Label(label="Comment:"), False, False, 6)
+        area.pack_start(entry, False, False, 6)
+        dialog.set_default_response(Gtk.ResponseType.OK)
+        dialog.show_all()
+        response = dialog.run()
+        comment = entry.get_text().strip() or "Puresteel manual snapshot"
+        dialog.destroy()
+        if response != Gtk.ResponseType.OK:
+            return
+        self.set_busy(True, "Creating snapshot…")
+        threading.Thread(target=self._create_worker, args=(comment,), daemon=True).start()
+
+    def _create_worker(self, comment):
+        code, out = self.run_helper("snapshot-create", comment)
+        GLib.idle_add(self._created, code, out)
+
+    def _created(self, code, out):
+        if code == 0:
+            self.status.set_text("Snapshot created.")
+            self.refresh()
+        else:
+            self.set_busy(False, "Snapshot could not be created.")
+            dlg = Gtk.MessageDialog(parent=self, flags=0, message_type=Gtk.MessageType.ERROR, buttons=Gtk.ButtonsType.OK, text="Snapshot failed")
+            dlg.format_secondary_text(out[-4000:] or "Unknown error")
+            dlg.run(); dlg.destroy()
+        return False
+
+
+w = SnapshotWindow()
+w.show_all()
+Gtk.main()

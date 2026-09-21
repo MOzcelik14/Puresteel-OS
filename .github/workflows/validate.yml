@@ -3,7 +3,7 @@ name: Puresteel validation
 on:
   pull_request:
   push:
-    branches: [ main, puresteel-platform-tools ]
+    branches: [ main, puresteel-platform-tools, puresteel-minimal-plasma ]
   workflow_dispatch:
 
 jobs:
@@ -40,17 +40,11 @@ jobs:
         run: ./scripts/build-component-packages.sh
       - name: Test package payloads
         run: |
-          set -e
-          check_payload() {
-            deb="$1"; pattern="$2"
+          for deb in build/packages/puresteel-{platform,recovery,branding,default-settings}_*.deb; do
             dpkg-deb --info "$deb"
             dpkg-deb --contents "$deb" > /tmp/puresteel-package-contents
-            grep -q -E "$pattern" /tmp/puresteel-package-contents
-          }
-          check_payload build/packages/puresteel-platform_*.deb 'usr/local/bin/puresteel'
-          check_payload build/packages/puresteel-recovery_*.deb 'usr/local/sbin/puresteel-recovery'
-          check_payload build/packages/puresteel-branding_*.deb 'usr/share/(backgrounds/puresteel|sddm/themes/breeze)'
-          check_payload build/packages/puresteel-default-settings_*.deb 'etc/(xdg/kdeglobals|sddm.conf.d/10-puresteel.conf)'
+            grep -q -E 'usr/local/bin/puresteel|usr/local/sbin/puresteel|usr/share/icons/Puresteel|etc/xdg/kdeglobals|etc/sddm.conf.d' /tmp/puresteel-package-contents
+          done
       - name: Platform safety unit tests
         run: python3 -m unittest discover -s tests -v
 

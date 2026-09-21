@@ -1,0 +1,65 @@
+#!/usr/bin/python3
+"""No-secret KWallet/NetworkManager health helper for Plasma."""
+import argparse
+import shutil
+import subprocess
+from pathlib import Path
+
+
+def cap(args):
+    try:
+        proc = subprocess.run(args, text=True, capture_output=True, timeout=12, check=False)
+        return proc.returncode, proc.stdout.strip()
+    except (OSError, subprocess.TimeoutExpired):
+        return 1, ""
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Puresteel Plasma Wi-Fi diagnostic")
+    parser.add_argument("--open-settings", action="store_true")
+    args = parser.parse_args()
+    if args.open_settings:
+        return subprocess.run(["systemsettings"], check=False).returncode if shutil.which("systemsettings") else 1
+    print("Puresteel Wi-Fi / KWallet diagnostic — no passwords are read.")
+    pam = Path("/etc/pam.d/sddm")
+    ready = pam.exists() and any(
+        "pam_kwallet5.so" in row and not row.lstrip().startswith("#")
+        for row in pam.read_text(errors="replace").splitlines()
+    )
+    code, status = cap(["dpkg-query", "-W", "-f=$" + "{Status}", "libpam-kwallet5"])
+    print("SDDM wallet PAM:", "configured" if ready and code == 0 and
+          status == "install ok installed" else "check /etc/pam.d/sddm and libpam-kwallet5")
+    print("Autounlock requires normal password login and a wallet password that matches it.")
+    if not shutil.which("nmcli"):
+        print("NetworkManager tools not found.")
+        return 1
+    code, entries = cap(["nmcli", "-g", "UUID,TYPE", "connection", "show"])
+    if code:
+        print("Could not read network profiles.")
+        return code
+    found = False
+    for line in entries.splitlines():
+        if ":" not in line:
+            continue
+        uuid, kind = line.split(":", 1)
+        if kind not in ("802-11-wireless", "wifi"):
+            continue
+        found = True
+        _, flags = cap(["nmcli", "-g", "802-11-wireless-security.psk-flags",
+                        "connection", "show", uuid])
+        _, name = cap(["nmcli", "-g", "connection.id", "connection", "show", uuid])
+        source = ("NetworkManager system storage" if flags.strip() in ("0", "0 (none)", "none")
+                  else "Agent-owned (usually KWallet)" if flags.strip().startswith("1")
+                  else "Unknown / another secret mode")
+        print("Wi-Fi connection " + (name or uuid) + ": " + source)
+    if not found:
+        print("No saved Wi-Fi connections.")
+    print("\nTo fix repeat prompts use System Settings > Wi-Fi & Internet >")
+    print("your connection > Wi-Fi Security. Keep user-only encrypted with")
+    print("working KWallet login, or opt into all-users (not wallet-encrypted).")
+    print("Connection names may be sensitive; review output before sharing.")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
