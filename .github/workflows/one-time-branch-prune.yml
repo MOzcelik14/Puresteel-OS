@@ -9,7 +9,7 @@ permissions:
 
 jobs:
   prune:
-    if: ${{ github.event_name == 'push' && startsWith(github.event.head_commit.message, 'chore: prune audited Puresteel branches') }}
+    if: "${{ github.event_name == 'push' && startsWith(github.event.head_commit.message, 'chore: prune audited Puresteel branches') }}"
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
