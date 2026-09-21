@@ -34,7 +34,7 @@ jobs:
           "fix/post-merge-plasma-audit": "0cab622f8ff41e5433d82a5db08ed5793d6c52f9",
           "puresteel-minimal-plasma": "ee849aad4d716dd1069e0eeae0965df164f6f767",
           "puresteel-platform-tools": "228295a4dc81b1eb1537c39b07fe05fcab9682c7"
-}
+          }
           temporary_branch = "chore/audited-branch-cleanup"
           archives = {
               "docs/puresteel-refresh": "archive/docs-puresteel-refresh-2026-09-16",
