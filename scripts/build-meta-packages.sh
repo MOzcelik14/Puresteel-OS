@@ -29,7 +29,7 @@ EOF
 }
 
 build_meta puresteel-base "systemd-sysv, network-manager, flatpak, zram-tools, puresteel-platform (>= $VERSION)" "Puresteel base system"
-build_meta puresteel-desktop "cinnamon-core, lightdm, slick-greeter, nemo, puresteel-branding (>= $VERSION), puresteel-default-settings (>= $VERSION), puresteel-recovery (>= $VERSION)" "Puresteel Cinnamon desktop"
+build_meta puresteel-desktop "plasma-desktop, plasma-workspace, kwin-wayland, sddm, plasma-nm, dolphin, konsole, libpam-kwallet5, puresteel-branding (>= $VERSION), puresteel-default-settings (>= $VERSION), puresteel-recovery (>= $VERSION)" "Puresteel minimal KDE Plasma desktop"
 build_meta puresteel-gaming "steam-installer, wine, winetricks, gamemode, mangohud" "Puresteel gaming stack"
 build_meta puresteel-creator "ffmpeg, flatpak" "Puresteel creator stack"
 build_meta puresteel-developer "build-essential, git, curl" "Puresteel developer stack"

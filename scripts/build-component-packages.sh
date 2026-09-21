@@ -28,8 +28,7 @@ build_component() {
                  "$IN"/usr/local/sbin/puresteel-profile \
                  "$IN"/usr/local/sbin/puresteel-oem-prepare \
                  "$IN"/usr/share/applications/puresteel-*.desktop \
-                 "$IN"/usr/share/nemo/actions/puresteel-*.nemo_action \
-                 "$IN"/usr/share/doc/puresteel/OEM.md \
+                                  "$IN"/usr/share/doc/puresteel/OEM.md \
                  "$IN"/usr/share/doc/puresteel/SECURE-BOOT.md \
                  "$IN"/usr/share/puresteel/channels.conf \
                  "$IN"/etc/xdg/autostart/puresteel-*.desktop \
@@ -43,12 +42,15 @@ build_component() {
             ;;
         puresteel-branding)
             copy "$IN"/usr/share/backgrounds/puresteel \
-                 "$IN"/usr/share/themes/Puresteel-* \
                  "$IN"/usr/share/icons/Puresteel \
-                 "$IN"/usr/share/sounds/Puresteel
+                 "$IN"/usr/share/sounds/Puresteel \
+                 "$IN"/usr/share/sddm/themes/breeze/theme.conf.user
             ;;
         puresteel-default-settings)
-            copy "$IN"/etc/dconf/db/local.d/00-puresteel \
+            copy "$IN"/etc/xdg/kdeglobals \
+                 "$IN"/etc/xdg/kwalletrc \
+                 "$IN"/etc/sddm.conf.d/10-puresteel.conf \
+                 "$IN"/etc/xdg/autostart/puresteel-kde-defaults.desktop \
                  "$IN"/etc/fish/conf.d/puresteel.fish \
                  "$IN"/etc/xdg/fastfetch/config.jsonc \
                  "$IN"/etc/sysctl.d/99-puresteel-memory.conf \
@@ -98,5 +100,5 @@ EOF
 
 build_component puresteel-platform "python3, python3-gi, gir1.2-gtk-3.0, puresteel-center (>= $VERSION), polkitd, pkexec, pciutils" "Puresteel tools, welcome, doctor and system control"
 build_component puresteel-recovery "puresteel-platform (>= $VERSION), timeshift, initramfs-tools, grub-common" "Puresteel recovery console and rollback"
-build_component puresteel-branding "papirus-icon-theme" "Puresteel artwork, themes, icons and wallpapers"
-build_component puresteel-default-settings "puresteel-branding (>= $VERSION), dconf-cli, fish" "Puresteel Cinnamon, terminal and memory defaults"
+build_component puresteel-branding "breeze, sddm-theme-breeze" "Puresteel artwork and KDE login/desktop branding"
+build_component puresteel-default-settings "puresteel-branding (>= $VERSION), plasma-workspace, kde-cli-tools, fish" "Puresteel KDE Plasma, terminal and memory defaults"

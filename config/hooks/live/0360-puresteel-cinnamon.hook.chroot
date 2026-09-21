@@ -1,6 +1,0 @@
-#!/bin/sh
-set -e
-
-echo "[Puresteel] Preparing Cinnamon desktop defaults..."
-dconf update
-systemctl enable lightdm.service 2>/dev/null || true

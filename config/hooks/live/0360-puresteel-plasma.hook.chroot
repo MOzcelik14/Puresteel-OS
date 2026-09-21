@@ -1,0 +1,9 @@
+#!/bin/sh
+set -e
+
+echo "[Puresteel] Preparing minimal KDE Plasma defaults..."
+systemctl enable sddm.service 2>/dev/null || true
+systemctl set-default graphical.target 2>/dev/null || true
+
+# Keep the live session KDE-native and make sure no legacy display manager wins.
+systemctl disable lightdm.service 2>/dev/null || true

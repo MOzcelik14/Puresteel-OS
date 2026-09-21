@@ -4,7 +4,7 @@ live-config
 live-config-systemd
 
 network-manager
-network-manager-gnome
+plasma-nm
 
 sudo
 curl
@@ -27,22 +27,28 @@ lshw
 htop
 btop
 
-cinnamon
-cinnamon-core
-cinnamon-l10n
-lightdm
-slick-greeter
-gnome-terminal
-nemo
-gnome-themes-extra
-gvfs-fuse
-gvfs-backends
-xdg-desktop-portal-xapp
-dconf-cli
-papirus-icon-theme
-zenity
+# Minimal KDE Plasma 6 desktop: no kde-standard/kde-full application bundles.
+plasma-desktop
+plasma-workspace
+kwin-wayland
+sddm
+sddm-theme-breeze
+dolphin
+konsole
+systemsettings
+kscreen
+powerdevil
+plasma-pa
+bluedevil
+polkit-kde-agent-1
+xdg-desktop-portal-kde
+kde-cli-tools
+kio-extras
+kio-admin
+breeze
+breeze-gtk-theme
+kwallet6
+libpam-kwallet5
 
 locales
-python3-gi
-gir1.2-gtk-3.0
 pkexec
