@@ -12,7 +12,7 @@
 
 Puresteel is an independent Debian 13 (Trixie) based Linux distribution focused on a clean desktop, gaming and creator tooling, broad graphics support, a graphical installer, and Puresteel's own system-management and update infrastructure.
 
-The current Puresteel desktop stack is **minimal KDE Plasma 6 + SDDM on Wayland**.
+The current Puresteel desktop stack is **minimal KDE Plasma 6 + SDDM on Wayland**. Puresteel intentionally does not install `kde-standard` or `kde-full`; only the desktop shell, core settings, Dolphin, Konsole, networking, power/display integration and the Puresteel tools are selected.
 
 ## Build the ISO with one command
 
@@ -104,3 +104,8 @@ The published `v1.0.0` tag is preserved as the original Puresteel 1.0 "Burak" re
 ## Licensing
 
 Puresteel combines software distributed under multiple upstream licenses. Debian packages, Flatpak applications and third-party components retain their own licenses. The image may include Debian non-free firmware and proprietary NVIDIA components where configured.
+
+
+### KDE Wallet and Wi-Fi
+
+Puresteel installs Debian's `libpam-kwallet5` integration and uses SDDM password login by default. The encrypted `kdewallet` is therefore unlocked with the same login password, so Plasma NetworkManager can retrieve saved Wi-Fi credentials without asking again after each reboot. Installer autologin is hidden by default because an autologin session has no password for PAM to use when unlocking an encrypted wallet. citeturn943285search5turn542915search1

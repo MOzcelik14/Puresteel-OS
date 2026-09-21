@@ -4,7 +4,7 @@ TRANSLATIONS = {
         "home":"Ana Sayfa","updates":"Güncellemeler","applications":"Uygulamalar",
         "drivers":"Sürücüler","sources":"Yazılım Kaynakları","backup":"Yedekleme",
         "reports":"Sistem Raporları","about":"Hakkında","language":"Dil",
-        "version":"Puresteel Center 1.3.2",
+        "version":"Puresteel Center 1.4.0",
 
         "welcome_kicker":"PURESTEEL",
         "welcome_title":"Puresteel'e hoş geldin",
@@ -66,7 +66,7 @@ TRANSLATIONS = {
         "home":"Home","updates":"Updates","applications":"Applications",
         "drivers":"Drivers","sources":"Sources","backup":"Backup",
         "reports":"System Reports","about":"About","language":"Language",
-        "version":"Puresteel Center 1.3.2",
+        "version":"Puresteel Center 1.4.0",
 
         "welcome_kicker":"PURESTEEL",
         "welcome_title":"Welcome to Puresteel",

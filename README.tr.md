@@ -12,7 +12,7 @@
 
 Puresteel; temiz bir masaüstü deneyimi, oyun ve içerik üretimi araçları, geniş ekran kartı desteği, grafiksel kurulum aracı ve kendi sistem yönetimi/güncelleme altyapısına odaklanan Debian 13 (Trixie) tabanlı bağımsız bir Linux dağıtımıdır.
 
-Puresteel'in güncel masaüstü yığını **minimal KDE Plasma 6 + SDDM + Wayland** şeklindedir.
+Puresteel'in güncel masaüstü yığını **minimal KDE Plasma 6 + SDDM + Wayland** şeklindedir. `kde-standard` veya `kde-full` kurulmaz; yalnızca Plasma masaüstü, temel ayarlar, Dolphin, Konsole, ağ, güç/ekran bileşenleri ve Puresteel araçları seçilir.
 
 ## ISO'yu tek komutla oluştur
 
@@ -104,3 +104,8 @@ Yayınlanmış `v1.0.0` etiketi, ilk Puresteel 1.0 "Burak" sürümünün tarihse
 ## Lisanslama
 
 Puresteel farklı upstream lisanslara sahip yazılımları bir araya getirir. Debian paketleri, Flatpak uygulamaları ve üçüncü taraf bileşenler kendi lisanslarını korur. Yapılandırmaya bağlı olarak imaj Debian non-free firmware ve proprietary NVIDIA bileşenleri içerebilir.
+
+
+### KDE Wallet ve Wi-Fi
+
+Puresteel, Debian'ın `libpam-kwallet5` PAM entegrasyonunu kurar ve SDDM'de parola ile oturum açmayı varsayılan yapar. Böylece şifreli `kdewallet` giriş parolasıyla açılır ve Plasma NetworkManager kayıtlı Wi-Fi parolasını her yeniden başlatmada tekrar sormaz. Otomatik giriş, PAM'in wallet'ı açmak için kullanacağı bir giriş parolası olmadığı için kurucuda varsayılan olarak gizlenir. citeturn943285search5turn542915search1
