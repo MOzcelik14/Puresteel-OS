@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#08111d">
+  <meta name="description" content="Puresteel Linux documentation: installation, rolling updates, Puresteel Center, hardware and troubleshooting.">
+  <title>Documentation · Puresteel</title>
+  <style>
+    :root{color-scheme:dark;--bg:#08111d;--panel:#0d1825;--panel2:#101f30;--line:#263749;--text:#f4f7fa;--muted:#a9bacb;--steel:#bfd0df;--accent:#8ac5f7}
+    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--text);font:15px/1.7 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
+    a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+    .topbar{position:sticky;top:0;z-index:20;background:rgba(8,17,29,.96);border-bottom:1px solid var(--line);backdrop-filter:blur(12px)}
+    .topinner{width:min(1470px,calc(100% - 48px));min-height:68px;margin:auto;display:flex;align-items:center;gap:16px;justify-content:space-between}
+    .brand{font-size:19px;font-weight:850;letter-spacing:-.04em;color:#fff}.brand span{color:var(--muted);font-size:14px;font-weight:500;letter-spacing:0}
+    .toplinks{display:flex;gap:18px;flex-wrap:wrap;font-size:13px;color:var(--muted)}.toplinks a{color:var(--steel)}
+    .shell{width:min(1470px,calc(100% - 48px));margin:34px auto;display:grid;grid-template-columns:260px minmax(0,1fr) 195px;align-items:start;gap:28px}
+    aside{position:sticky;top:98px;max-height:calc(100vh - 120px);overflow:auto}
+    .eyebrow{font-size:11px;color:var(--accent);letter-spacing:.11em;font-weight:800;text-transform:uppercase;margin:0 0 12px}
+    .search{width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:var(--panel);color:#fff;font:inherit;font-size:13px;margin-bottom:18px}
+    .docnav{display:grid;gap:5px}.docnav a{display:block;color:var(--muted);padding:9px 12px;border-radius:9px;font-size:14px}.docnav a[hidden]{display:none}.docnav a:hover,.docnav a.current{background:#172b40;color:#e7f4ff;text-decoration:none}.docnav a.current{box-shadow:inset 3px 0 0 var(--accent);font-weight:750}
+    .docbox{min-width:0;border:1px solid var(--line);border-radius:18px;background:var(--panel);padding:clamp(22px,4vw,48px);box-shadow:0 16px 60px rgba(0,0,0,.14)}
+    .crumbs{font-size:12px;color:var(--muted);margin-bottom:10px}.crumbs a{color:var(--steel)}
+    .dochead{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;border-bottom:1px solid var(--line);padding-bottom:17px;margin-bottom:25px}
+    .dochead span{font-size:12px;color:var(--muted)}.source{border:1px solid var(--line);padding:7px 11px;border-radius:9px;color:var(--steel);font-size:12px}
+    .md{color:#dbe6f0;overflow-wrap:anywhere}.md>:first-child{margin-top:0}.md h1,.md h2,.md h3,.md h4{letter-spacing:-.035em;line-height:1.25;color:#fff;scroll-margin-top:94px}
+    .md h1{font-size:clamp(27px,3.4vw,43px);margin:12px 0 23px}.md h2{font-size:26px;margin:38px 0 16px;border-top:1px solid var(--line);padding-top:26px}.md h3{font-size:20px;margin:28px 0 12px}.md h4{font-size:16px;margin:22px 0 10px}
+    .md p{margin:12px 0}.md strong{color:#fff}.md ul,.md ol{padding-left:24px;margin:12px 0}.md li{margin:5px 0}.md li>p{margin:4px 0}
+    .md blockquote{margin:18px 0;padding:12px 18px;border-left:3px solid var(--accent);background:#17283a;border-radius:0 8px 8px 0}.md blockquote p{margin:0}
+    .md code{background:#1a2b3c;color:#e0eefa;padding:2px 5px;border-radius:5px;font:13px/1.55 ui-monospace,SFMono-Regular,Consolas,monospace;word-break:break-word}
+    .md pre{background:#050c14;border:1px solid #304257;border-radius:12px;padding:20px 16px;overflow-x:auto;margin:19px 0;position:relative}
+    .md pre code{background:transparent;color:#e7edf5;padding:0;white-space:pre;word-break:normal;font-size:13px}
+    .md pre .copy-code{position:sticky;float:right;right:0;top:0;margin:-6px 0 8px 12px;background:#213c55;border:1px solid #375875;color:#ecf5ff;border-radius:7px;padding:6px 10px;font-size:11px;cursor:pointer}
+    .md table{display:block;width:100%;overflow-x:auto;border-collapse:collapse;margin:20px 0}.md th,.md td{border:1px solid var(--line);padding:9px 12px;text-align:left;min-width:95px}.md th{background:#193149;color:#f4f7fa}.md tr:nth-child(even){background:#112235}
+    .md img{max-width:100%;height:auto}.md hr{border:0;border-top:1px solid var(--line);margin:30px 0}.md input[type=checkbox]{accent-color:#8ac5f7}
+    .toc{border-left:1px solid var(--line);padding-left:16px}.toclinks{display:grid;gap:4px}.toclinks a{color:var(--muted);font-size:12px;line-height:1.5;padding:5px 3px}.toclinks a:hover{color:var(--accent)}.toclinks a.depth3{padding-left:12px}
+    .notice{border:1px solid var(--line);border-radius:10px;background:#14283d;padding:16px;color:var(--muted)}
+    .docbottom{margin-top:32px;padding-top:20px;border-top:1px solid var(--line);display:flex;justify-content:space-between;flex-wrap:wrap;gap:14px;font-size:13px}
+    @media(max-width:1050px){.shell{grid-template-columns:235px minmax(0,1fr)}.tocside{display:none}}
+    @media(max-width:700px){.topinner,.shell{width:min(100% - 28px,1470px)}.topinner{min-height:64px}.shell{display:block;margin-top:18px}.sidebar{position:static;max-height:none;margin-bottom:18px}.docnav{display:flex;overflow:auto;white-space:nowrap}.docnav a{flex-shrink:0}.search{margin-bottom:11px}.docbox{padding:22px}.toplinks{gap:10px}.brand span{display:none}}
+    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+  </style>
+  <script defer src="assets/vendor/showdown.min.js"></script>
+  <script defer src="assets/vendor/purify.min.js"></script>
+  <script defer src="assets/guide.js"></script>
+</head>
+<body>
+  <header class="topbar"><div class="topinner">
+    <a class="brand" href="index.html">Puresteel <span>/ Documentation</span></a>
+    <nav class="toplinks" aria-label="Site"><a href="index.html#download" data-tr="İndir">Download</a><a href="index.html#build" data-tr="ISO Oluştur">Build</a><a href="https://github.com/MOzcelik14/Puresteel-OS">GitHub</a></nav>
+  </div></header>
+  <div class="shell">
+    <aside class="sidebar" aria-label="Documentation pages"><p class="eyebrow" data-tr="Belgeler">Documentation</p><input id="doc-search" class="search" type="search" placeholder="Find a guide…" aria-label="Filter documentation"><nav id="docnav" class="docnav" aria-label="Documents"></nav></aside>
+    <main class="docbox" id="main">
+      <div class="crumbs"><a href="index.html" data-tr="Ana sayfa">Home</a> / <span id="crumb">Documentation</span></div>
+      <div class="dochead"><span id="docdate">Puresteel documentation · main</span><a id="source" class="source" href="https://github.com/MOzcelik14/Puresteel-OS/tree/main/docs" target="_blank" rel="noopener noreferrer" data-tr="GitHub'da görüntüle">View on GitHub ↗</a></div>
+      <article class="md" id="content" aria-live="polite"><div class="notice">Loading documentation…</div></article>
+      <div class="docbottom"><a href="index.html" data-tr="← Puresteel ana sayfa">← Puresteel home</a><a id="edit-link" href="https://github.com/MOzcelik14/Puresteel-OS/tree/main/docs" target="_blank" rel="noopener noreferrer" data-tr="Kaynağı GitHub'da görüntüle">View source on GitHub ↗</a></div>
+    </main>
+    <aside class="tocside" aria-label="On this page"><div class="toc"><p class="eyebrow" data-tr="Bu sayfada">On this page</p><nav id="toc" class="toclinks"></nav></div></aside>
+  </div>
+</body>
+</html>
