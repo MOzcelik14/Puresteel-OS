@@ -72,6 +72,14 @@ class DailyReleaseAudit(unittest.TestCase):
         self.assertIn('test -s "$iso" && test -s "$iso.sha256"', workflow)
         self.assertIn("## Automatic rolling ISO", read("docs/BUILD.md"))
 
+    def test_r2_publisher_uses_official_aws_cli_not_runner_apt_package(self):
+        workflow = read(".github/workflows/validate.yml")
+        self.assertNotIn("sudo apt-get install -y awscli", workflow)
+        self.assertIn("https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip", workflow)
+        self.assertIn("aws-cli-installer/aws/install", workflow)
+        self.assertIn('export PATH="$RUNNER_TEMP/aws-bin:$PATH"', workflow)
+        self.assertIn("aws --version", workflow)
+
     def test_tracked_python_caches_are_removed(self):
         # CI compileall creates ignored bytecode just before unittest. Inspect
         # the Git index instead of incorrectly treating runtime caches as tracked.
