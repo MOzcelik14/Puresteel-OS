@@ -23,3 +23,7 @@ __pycache__/
 *.pyc
 # ISO generator cache and console logs
 puresteel-bootstrap.log
+
+# Generated local package artifacts; signed published packages live under docs/apt/
+/build/packages/*.deb
+/config/packages.chroot/puresteel-*.deb
