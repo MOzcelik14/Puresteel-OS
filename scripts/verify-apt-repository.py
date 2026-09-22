@@ -108,11 +108,12 @@ def verify(require_current=False):
             fail("size mismatch for " + entry["Filename"])
         if hashlib.sha256(content).hexdigest() != entry["SHA256"].lower():
             fail("checksum mismatch for " + entry["Filename"])
-        installed = checked(["dpkg-deb", "-f", str(package),
-                             "Package", "Version", "Architecture"]).splitlines()
-        if len(installed) != 3 or tuple(installed) != (
-            entry["Package"], entry["Version"], entry.get("Architecture", "")):
-            fail("package metadata mismatch for " + entry["Filename"])
+        for field in ("Package", "Version", "Architecture"):
+            actual = checked(["dpkg-deb", "-f", str(package), field])
+            if actual != entry.get(field, ""):
+                fail(field + " metadata mismatch for " + entry["Filename"] +
+                     ": expected " + repr(entry.get(field, "")) +
+                     ", got " + repr(actual))
         if entry["Package"] == "puresteel-center":
             center_versions.append(entry["Version"])
 
