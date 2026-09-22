@@ -40,7 +40,7 @@ def fields(paragraph):
     )
 
 
-def verify(require_current=False):
+def verify(require_current=False, require_version=None):
     for target in (KEY, DIST / "InRelease", DIST / "Release",
                    DIST / "Release.gpg", INDEX, Path(str(INDEX) + ".gz")):
         if not target.is_file():
@@ -117,10 +117,10 @@ def verify(require_current=False):
         if entry["Package"] == "puresteel-center":
             center_versions.append(entry["Version"])
 
-    if require_current:
-        expected = (ROOT / "packages/puresteel-center/VERSION").read_text().strip()
+    if require_current or require_version:
+        expected = require_version or (ROOT / "packages/puresteel-center/VERSION").read_text().strip()
         if expected not in center_versions:
-            fail("current source version " + expected +
+            fail("required Center version " + expected +
                  " is not included in the signed Packages index")
 
     print("Puresteel APT signature, Release checksums, gzip index and " +
@@ -133,8 +133,10 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--require-current", action="store_true",
                         help="Require source Center version in the signed index")
+    parser.add_argument("--require-version", metavar="DEBIAN_VERSION",
+                        help="Require a specific signed Center version (rolling release)")
     args = parser.parse_args()
     try:
-        verify(args.require_current)
+        verify(args.require_current, args.require_version)
     except (OSError, ValueError, gzip.BadGzipFile) as error:
         fail(str(error))

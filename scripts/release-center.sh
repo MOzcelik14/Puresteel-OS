@@ -16,7 +16,7 @@ if [ "$#" -eq 1 ]; then
         exit 2
     fi
 else
-    VERSION="$(tr -d '[:space:]' < packages/puresteel-center/VERSION)"
+    VERSION="${PURESTEEL_PACKAGE_VERSION:-$(tr -d '[:space:]' < packages/puresteel-center/VERSION)}"
 fi
 
 APTROOT="docs/apt"
@@ -44,9 +44,11 @@ if [ -z "$PUBLISHED_FPR" ] || [ "$FPR" != "$PUBLISHED_FPR" ]; then
     echo "Signing private key does not match the published Puresteel APT public key." >&2
     exit 1
 fi
-if [ "$#" -eq 1 ]; then
+if [ "$#" -eq 1 ] && [[ -z "${PURESTEEL_PACKAGE_VERSION:-}" ]]; then
     printf '%s\n' "$VERSION" > packages/puresteel-center/VERSION
 fi
+# Every Center/metapackage/component must carry exactly the same Debian version.
+export PURESTEEL_PACKAGE_VERSION="$VERSION"
 
 DEB="$(scripts/build-center-package.sh)"
 META_OUTPUT="$(scripts/build-meta-packages.sh)"
@@ -70,6 +72,16 @@ for built in "${ALL_DEBS[@]}"; do
     cp -f "$built" config/packages.chroot/
 done
 
+# Keep the two newest rolling versions per package; preserve manual releases.
+# This caps GitHub Pages and repository history growth in routine rolling builds.
+if [[ -n "${PURESTEEL_ROLLING_RELEASE:-}" ]]; then
+    for directory in "$POOL_ROOT"/*; do
+        [[ -d "$directory" ]] || continue
+        mapfile -t obsolete < <(find "$directory" -maxdepth 1 -type f -name '*+git*_all.deb' | sort -Vr | tail -n +3)
+        if (( ${#obsolete[@]} )); then rm -f -- "${obsolete[@]}"; fi
+    done
+fi
+
 pushd "$APTROOT" >/dev/null
 
 apt-ftparchive packages pool/main > dists/stable/main/binary-amd64/Packages
@@ -86,10 +98,16 @@ apt-ftparchive \
   -o APT::FTPArchive::Release::Description="Puresteel package repository" \
   release dists/stable > dists/stable/Release
 
+# CI signs non-interactively using a passphrase file; local GPG release remains usable.
+GPG_FLAGS=(--batch --yes --local-user "$FPR")
+if [[ -n "${PURESTEEL_GPG_PASSPHRASE_FILE:-}" ]]; then
+    [[ -s "$PURESTEEL_GPG_PASSPHRASE_FILE" ]] || { echo "Missing signing passphrase file" >&2; exit 1; }
+    GPG_FLAGS+=(--pinentry-mode loopback --passphrase-file "$PURESTEEL_GPG_PASSPHRASE_FILE")
+fi
 rm -f dists/stable/InRelease dists/stable/Release.gpg
-gpg --yes --local-user "$FPR" \
+gpg "${GPG_FLAGS[@]}" \
   --clearsign -o dists/stable/InRelease dists/stable/Release
-gpg --yes --local-user "$FPR" \
+gpg "${GPG_FLAGS[@]}" \
   --armor --detach-sign -o dists/stable/Release.gpg dists/stable/Release
 
 popd >/dev/null
@@ -122,5 +140,9 @@ EOF
 echo
 echo "Prepared ${#ALL_DEBS[@]} signed-repository Puresteel packages at version $VERSION"
 echo "APT repo: ${PAGES_BASE}/apt"
-python3 scripts/verify-apt-repository.py --require-current
+if [[ -n "${PURESTEEL_ROLLING_RELEASE:-}" ]]; then
+    python3 scripts/verify-apt-repository.py --require-version "$VERSION"
+else
+    python3 scripts/verify-apt-repository.py --require-current
+fi
 echo "Publish docs/apt to Pages only after reviewing and testing the packages."

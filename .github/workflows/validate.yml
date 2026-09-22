@@ -4,6 +4,9 @@ on:
   pull_request:
   push:
     branches: [ main ]
+    # Signed-index-only publisher commits must not rebuild the ISO or republish APT.
+    paths-ignore:
+      - 'docs/apt/**'
   schedule:
     - cron: '17 3 * * *'
   workflow_dispatch:
