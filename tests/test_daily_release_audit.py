@@ -35,8 +35,13 @@ class DailyReleaseAudit(unittest.TestCase):
         self.assertIn('grep -Fxq i386', read("scripts/smoke-iso.sh"))
 
     def test_tracked_python_caches_are_removed(self):
-        for path in (ROOT / "packages").rglob("*.pyc"):
-            self.fail("Tracked package cache left in source tree: " + str(path))
+        # CI compileall creates ignored bytecode just before unittest. Inspect
+        # the Git index instead of incorrectly treating runtime caches as tracked.
+        import subprocess
+        result = subprocess.run(["git", "ls-files", "--", "packages"],
+                                cwd=ROOT, capture_output=True, text=True, check=True)
+        tracked = result.stdout.splitlines()
+        self.assertFalse([p for p in tracked if "/__pycache__/" in p or p.endswith(".pyc")])
         self.assertIn("__pycache__/", read(".gitignore"))
         self.assertIn("*.pyc", read(".gitignore"))
 
