@@ -17,3 +17,9 @@ build.log
 /Puresteel-OS-*.iso
 /Puresteel-OS-*.iso.sha256
 /Puresteel-OS-*-packages.txt
+
+# Developer-produced Python cache (not distributable source)
+__pycache__/
+*.pyc
+# ISO generator cache and console logs
+puresteel-bootstrap.log

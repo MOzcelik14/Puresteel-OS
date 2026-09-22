@@ -20,7 +20,7 @@ Run this from PowerShell:
 irm https://raw.githubusercontent.com/MOzcelik14/Puresteel-OS/main/windows-build.ps1 | iex
 ```
 
-The Windows helper uses WSL2. It looks for an existing Debian/Ubuntu WSL distribution and prepares it automatically. If none exists, it starts a Debian WSL installation. Windows may require one restart or first-launch Linux user creation; run the same command again afterwards.
+The Windows helper uses WSL2. Its PowerShell syntax is checked on Windows in CI. It looks for an existing Debian/Ubuntu WSL distribution and prepares it automatically. If none exists, it starts a Debian WSL installation. Windows may require one restart or first-launch Linux user creation; run the same command again afterwards.
 
 The actual build is performed inside the Linux filesystem for reliability and speed. The final ISO and SHA256 checksum are copied back to the Windows directory from which PowerShell was started.
 
@@ -39,6 +39,8 @@ curl -fsSL https://raw.githubusercontent.com/MOzcelik14/Puresteel-OS/main/bootst
 ```
 
 Use `--text-menu` for numbered menu input, `--check` for a read-only system check, or `--preview` to show the existing five build phases. Choosing Exit or cancelling never starts a build. The `curl` script **builds an ISO**, not an installation onto the current computer.
+
+The builder keeps each run in a unique source checkout under `~/.cache/puresteel-builder/run.XXXXXXXX/source`. **It never recursively deletes an existing user-selected path** or attempts to reuse root-owned files from a previous ISO build. Old run folders remain available for inspecting failure logs and consume disk space; after confirming you no longer need them, remove specific old `run.*` folders yourself. Custom `PURESTEEL_WORKDIR` locations must be under your home directory's `.cache`. The ISO and log are written to the configured output directory (the command's working directory by default).
 
 The Linux bootstrap script:
 

@@ -21,7 +21,8 @@ PACKS = {
         "flatpak": [],
     },
     "gaming": {
-        "apt": ["steam-installer", "wine", "winetricks", "gamemode", "mangohud"],
+        "apt": ["steam-installer", "steam-libs-i386", "wine", "winetricks", "gamemode", "mangohud",
+                "libvulkan1:i386", "mesa-vulkan-drivers:i386", "libgl1-mesa-dri:i386"],
         "flatpak": ["com.heroicgameslauncher.hgl", "net.davidotek.pupgui2"],
     },
 }
@@ -349,7 +350,7 @@ def main():
         pack = PACKS[sys.argv[2]]
         if pack["apt"]:
             if run(["apt-get", "update"]) != 0: return 1
-            if run(["apt-get", "install", "-y", *pack["apt"]]) != 0: return 1
+            if run(["apt-get", "install", "--no-remove", "-y", *pack["apt"]]) != 0: return 1
         if pack["flatpak"] and Path("/usr/bin/flatpak").exists():
             if run(["flatpak", "install", "--system", "-y", "flathub", *pack["flatpak"]]) != 0: return 1
         return 0

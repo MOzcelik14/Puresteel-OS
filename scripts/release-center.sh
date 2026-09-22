@@ -15,7 +15,6 @@ if [ "$#" -eq 1 ]; then
         echo "Invalid Debian version: $VERSION (example: 1.0.2-1)" >&2
         exit 2
     fi
-    printf '%s\n' "$VERSION" > packages/puresteel-center/VERSION
 else
     VERSION="$(tr -d '[:space:]' < packages/puresteel-center/VERSION)"
 fi
@@ -29,14 +28,31 @@ FPR="$(gpg --with-colons --list-secret-keys "$KEY_IDENTITY" 2>/dev/null \
     | awk -F: '$1=="fpr"{print $10;exit}')"
 
 if [ -z "$FPR" ]; then
-    echo "Puresteel archive signing key not found." >&2
-    echo "Run setup-puresteel-updates.sh again or create the key." >&2
+    echo "Puresteel archive signing key not found; no repository files were changed." >&2
+    echo "Import the ORIGINAL archive private key on this machine (do not create a replacement)." >&2
     exit 1
+fi
+# A new key under the same display name would strand existing installations.
+PUBLIC_KEY="$APTROOT/puresteel-archive-keyring.asc"
+if [ ! -s "$PUBLIC_KEY" ]; then
+    echo "Original published archive public key is missing. Refusing release." >&2
+    exit 1
+fi
+PUBLISHED_FPR="$(gpg --batch --with-colons --show-keys "$PUBLIC_KEY" 2>/dev/null |
+    awk -F: '$1=="fpr"{print $10;exit}')"
+if [ -z "$PUBLISHED_FPR" ] || [ "$FPR" != "$PUBLISHED_FPR" ]; then
+    echo "Signing private key does not match the published Puresteel APT public key." >&2
+    exit 1
+fi
+if [ "$#" -eq 1 ]; then
+    printf '%s\n' "$VERSION" > packages/puresteel-center/VERSION
 fi
 
 DEB="$(scripts/build-center-package.sh)"
-mapfile -t META_DEBS < <(scripts/build-meta-packages.sh)
-mapfile -t COMPONENT_DEBS < <(scripts/build-component-packages.sh)
+META_OUTPUT="$(scripts/build-meta-packages.sh)"
+COMPONENT_OUTPUT="$(scripts/build-component-packages.sh)"
+mapfile -t META_DEBS <<< "$META_OUTPUT"
+mapfile -t COMPONENT_DEBS <<< "$COMPONENT_OUTPUT"
 if [ "${#META_DEBS[@]}" -ne 5 ] || [ "${#COMPONENT_DEBS[@]}" -ne 4 ]; then
     echo "Incomplete Puresteel package build: refusing to sign repository." >&2
     exit 1
@@ -99,6 +115,7 @@ Types: deb
 URIs: ${PAGES_BASE}/apt
 Suites: stable
 Components: main
+Architectures: amd64
 Signed-By: /usr/share/keyrings/puresteel-archive-keyring.asc
 EOF
 

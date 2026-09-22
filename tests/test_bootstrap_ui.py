@@ -90,6 +90,27 @@ class BuilderInterfaceTests(unittest.TestCase):
             self.assertFalse(output.exists())
             self.assertFalse(clone.exists())
 
+    def test_unsafe_build_directory_rejected_before_sudo_or_output(self):
+        with tempfile.TemporaryDirectory() as root:
+            base = Path(root)
+            output = base / "output"
+            # A former implementation recursively removed WORKDIR; reject a
+            # parent of HOME before any log or build operation.
+            env = dict(os.environ, HOME=str(base / "home"),
+                       PURESTEEL_OUTPUT_DIR=str(output),
+                       PURESTEEL_WORKDIR=str(base),
+                       NO_COLOR="1")
+            result = call("--build", env=env)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("must be a directory under", result.stderr)
+            self.assertFalse(output.exists())
+
+    def test_repeat_build_never_recursively_deletes_selected_directory(self):
+        source = BUILDER.read_text(encoding="utf-8")
+        self.assertNotIn('rm -rf -- "$WORKDIR"', source)
+        self.assertIn('mktemp -d "$WORKDIR/run.XXXXXXXX"', source)
+        self.assertIn('run_logged git clone --depth=1 --branch "$REF" "$REPO" "$SOURCE_DIR"', source)
+
     def test_verbose_preview_and_invalid_flag(self):
         result = call("--verbose", "--preview")
         self.assertEqual(result.returncode, 0, result.stderr)

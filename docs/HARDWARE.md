@@ -44,7 +44,7 @@ Puresteel includes Debian's proprietary NVIDIA stack:
 - `nvidia-settings`
 - `firmware-nvidia-graphics`
 - `linux-headers-amd64`
-- 32-bit NVIDIA/Vulkan libraries for gaming compatibility
+- Optional matching 32-bit NVIDIA/Vulkan libraries via Debian APT for gaming
 - `switcheroo-control`
 
 The NVIDIA kernel modules are built through DKMS. Puresteel also includes its own NVIDIA module aliases/configuration needed by the current Debian driver packaging.
@@ -70,20 +70,17 @@ The exact offload behavior depends on the GPU combination, kernel, compositor an
 
 ## Vulkan and 32-bit compatibility
 
-Puresteel includes 64-bit and i386 Vulkan libraries needed for Steam/Wine gaming workloads.
+Puresteel enables the `i386` foreign architecture in the installed image, but **does not preload large 32-bit game libraries into the minimal ISO**. The opt-in Gaming Pack installs Debian's Steam/Wine tools with `steam-libs-i386`, `libvulkan1:i386`, `mesa-vulkan-drivers:i386` and `libgl1-mesa-dri:i386`.
 
-The gaming package set includes:
+On a proprietary NVIDIA system, install matching `nvidia-driver-libs:i386` and `nvidia-vulkan-icd:i386` from your **enabled Debian repository** after verifying `nvidia-driver` is healthy and APT offers a matching version:
 
-```text
-libvulkan1
-libvulkan1:i386
-mesa-vulkan-drivers
-mesa-vulkan-drivers:i386
-nvidia-driver-libs:i386
-nvidia-vulkan-icd:i386
+```bash
+sudo apt update
+apt-cache policy nvidia-driver nvidia-driver-libs:i386 nvidia-vulkan-icd:i386
+sudo apt-get -s install nvidia-driver-libs:i386 nvidia-vulkan-icd:i386
 ```
 
-This is important for 32-bit Windows games running through Wine/Proton.
+Only install them if the simulation does not propose removal or an unwanted NVIDIA driver change. Do not install vendor-specific NVIDIA libraries on Intel/AMD-only machines. The generic i386 Mesa libraries are provided on demand through the Gaming Pack.
 
 ## VA-API
 

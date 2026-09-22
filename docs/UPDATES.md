@@ -142,7 +142,7 @@ curl -fsSL \
 
 The public key belongs in the repository and installed system.
 
-The **private GPG signing key must never be committed to Git**. Keep an encrypted/offline backup. A developer setting up a new build machine must import the existing private key before publishing new repository metadata.
+The **private GPG signing key must never be committed to Git**. Keep an encrypted/offline backup. A developer setting up a new build machine must import the existing private key before publishing new repository metadata. The release script now verifies the private-key fingerprint against the already-published public key **before changing the version**; it refuses a new unrelated key so existing installations are not silently stranded.
 
 ```bash
 gpg --import Puresteel-APT-PRIVATE-KEY.asc

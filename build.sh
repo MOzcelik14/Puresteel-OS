@@ -6,6 +6,8 @@ cd "$(dirname "$0")"
 
 echo "[Puresteel] Cleaning..."
 sudo lb clean
+# Each bootstrap run now uses a fresh checkout; this keeps old root-owned
+# live-build artefacts from being reused across builds.
 
 echo "[Puresteel] Regenerating config..."
 lb config --bootappend-live "boot=live components quiet splash username=puresteel hostname=puresteel"
@@ -19,8 +21,12 @@ cp branding/grub-theme.cfg config/bootloaders/grub-pc/theme.cfg
 
 echo "[Puresteel] Building Puresteel packages..."
 CENTER_DEB="$(scripts/build-center-package.sh)"
-mapfile -t META_DEBS < <(scripts/build-meta-packages.sh)
-mapfile -t COMPONENT_DEBS < <(scripts/build-component-packages.sh)
+# Process substitution hides child exit codes. Capture output with command
+# substitution first so set -e fails the build if any package builder fails.
+META_OUTPUT="$(scripts/build-meta-packages.sh)"
+COMPONENT_OUTPUT="$(scripts/build-component-packages.sh)"
+mapfile -t META_DEBS <<< "$META_OUTPUT"
+mapfile -t COMPONENT_DEBS <<< "$COMPONENT_OUTPUT"
 mkdir -p config/packages.chroot
 find config/packages.chroot -maxdepth 1 -type f -name 'puresteel-*.deb' -delete
 cp -f "$CENTER_DEB" config/packages.chroot/

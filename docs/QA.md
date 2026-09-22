@@ -4,6 +4,10 @@ This is a release gate, not a list of assumptions. Do not publish a new Plasma I
 fresh ISO has been built and these tests have been recorded. A successful
 syntax/package workflow does not prove an installed system boots.
 
+## Current release-gate status
+
+Code/package CI and the read-only terminal-menu tests do not count as a tested Plasma release. The current public GitHub release contains no downloadable Plasma ISO. The QEMU and hardware boxes below remain intentionally unchecked until test evidence exists. The optional ISO smoke job is a static payload check, **not an automated Calamares GUI installation**. To opt into a full ISO build/static smoke test on a `main` push, include `[iso-smoke]` in its commit subject; it also supports `workflow_dispatch`. A successful job must not tick the QEMU/physical-hardware boxes without actual test records.
+
 ## Automated static checks
 
 ```sh
