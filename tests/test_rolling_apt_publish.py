@@ -44,6 +44,11 @@ class RollingAptTests(unittest.TestCase):
                       "git add docs/apt"):
             self.assertIn(guard, workflow)
         self.assertIn("'docs/apt/**'", source(".github/workflows/validate.yml"))
+        self.assertIn('gh pr create --repo "$GITHUB_REPOSITORY"', workflow)
+        self.assertIn('gh pr checks "$pr" --watch --fail-fast', workflow)
+        self.assertIn('gh pr merge "$pr" --merge', workflow)
+        self.assertNotIn('git push origin HEAD:main', workflow)
+        self.assertNotIn('gh pr merge "$pr" --admin', workflow)
         self.assertNotIn("PRIVATE KEY-----", workflow)
 
 

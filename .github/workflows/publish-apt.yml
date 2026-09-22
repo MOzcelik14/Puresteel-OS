@@ -47,6 +47,7 @@ jobs:
           fi
           sudo apt-get update
           sudo apt-get install -y apt-utils dpkg-dev gnupg python3
+          command -v gh >/dev/null || { echo 'GitHub CLI is missing on publisher runner'; exit 1; }
           umask 077
           export GNUPGHOME="$(mktemp -d "$RUNNER_TEMP/puresteel-apt-gnupg.XXXXXXXX")"
           passfile="$(mktemp "$RUNNER_TEMP/puresteel-apt-pass.XXXXXXXX")"
@@ -72,7 +73,23 @@ jobs:
           fi
           git -c user.name='Puresteel Release Bot' -c user.email='puresteel-release@users.noreply.github.com' \
             commit -m "chore(apt): publish signed rolling $PURESTEEL_PACKAGE_VERSION"
-          # GitHub Pages branch builds require a real maintainer token; GitHub's
-          # built-in GITHUB_TOKEN does not trigger the subsequent Pages workflow.
-          git push origin HEAD:main
-          echo "Signed packages published: $PURESTEEL_PACKAGE_VERSION"
+          # A protected main forbids direct pushes: publish through a checked PR.
+          # The scoped maintainer token is required to trigger PR CI and Pages.
+          export GH_TOKEN="$PUBLISH_TOKEN"
+          branch="release/apt-${VALIDATED_SHA:0:12}"
+          git push origin "HEAD:refs/heads/$branch"
+          pr="$(gh pr create --repo "$GITHUB_REPOSITORY" --base main --head "$branch" \
+            --title "chore(apt): publish signed rolling $PURESTEEL_PACKAGE_VERSION" \
+            --body "Automatically generated from validated main commit $VALIDATED_SHA. Original archive key verified; signed Release and package hashes checked.")"
+          echo "Signed APT release PR: $pr"
+          # PR checks verify this exact newly signed archive. No bypass is used.
+          gh pr checks "$pr" --watch --fail-fast --repo "$GITHUB_REPOSITORY"
+          # Never merge a release produced from an obsolete source commit.
+          git fetch origin main
+          if [[ "$(git rev-parse origin/main)" != "$VALIDATED_SHA" ]]; then
+            echo "::notice title=Outdated signed APT PR::main changed during release verification. Leaving PR unmerged for review."
+            exit 0
+          fi
+          gh pr merge "$pr" --merge --match-head-commit "$(git rev-parse HEAD)" \
+            --delete-branch --repo "$GITHUB_REPOSITORY"
+          echo "Signed packages published via checked PR: $PURESTEEL_PACKAGE_VERSION"
