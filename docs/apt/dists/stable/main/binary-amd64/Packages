@@ -1,3 +1,35 @@
+Package: puresteel-base
+Architecture: all
+Version: 2.0.0+git20260922202719.de9433c36301-1
+Priority: optional
+Section: metapackages
+Maintainer: Puresteel Project <repo@puresteel.local>
+Depends: systemd-sysv, network-manager, flatpak, zram-tools, puresteel-platform (>= 2.0.0+git20260922202719.de9433c36301-1)
+Filename: pool/main/p/puresteel-base/puresteel-base_2.0.0+git20260922202719.de9433c36301-1_all.deb
+Size: 636
+MD5sum: b32326150ce13df2f0fff851c162afd2
+SHA1: d465ae883cec0d4c6811c32ab003801ccc0e782e
+SHA256: d4e3ae8c42fe75f496a945672126b0f032dfa72f00744f388a1ea9fab1b57125
+SHA512: 65825df61fa7b47aae32e1ebc30625505df688702bc1efbdefadd0d71c227774fbf5126a284dfbf8112cf70dccea78402aa1f8a7c7251ee71f8cf1c5c31de8c0
+Description: Puresteel base system
+ Puresteel component metapackage used to keep the distribution roles explicit.
+
+Package: puresteel-branding
+Architecture: all
+Version: 2.0.0+git20260922202719.de9433c36301-1
+Priority: optional
+Section: admin
+Maintainer: Puresteel Project <repo@puresteel.local>
+Depends: breeze, kf6-breeze-icon-theme, sddm-theme-breeze
+Filename: pool/main/p/puresteel-branding/puresteel-branding_2.0.0+git20260922202719.de9433c36301-1_all.deb
+Size: 620420
+MD5sum: a319d513b4525121ebb7faf6ad2d3315
+SHA1: 19d9fd9ed12bdacc25aefc49676f8b9913aaa087
+SHA256: 6af25fcee8092416849ba4882e088efd02d49c331dd8918bff9b2bbf3515ac83
+SHA512: d3d07f8d8fe6228b20da947ee186a0a42a5307fc7fe872b469a84f3124ebfca187c6e17c33ffa99fe1c9698b791b930bf172c74fe56c181aff2399e4b56bccd0
+Description: Puresteel light KDE artwork, SDDM, icons and wallpapers
+ Puresteel maintained distribution component, upgradable through APT.
+
 Package: puresteel-center
 Architecture: all
 Version: 1.0.1-1
@@ -15,4 +47,134 @@ SHA512: 0ff9a54b701b5223df90dd5693b2a7ff08f0b08eff7866c2e5b754854bf42fd8130733e4
 Description: Puresteel system management center
  Puresteel Center manages updates, applications, graphics drivers,
  software sources, backups and system reports from one KDE application.
+
+Package: puresteel-center
+Architecture: all
+Version: 2.0.0+git20260922202719.de9433c36301-1
+Priority: optional
+Section: admin
+Maintainer: Puresteel Project <repo@puresteel.local>
+Depends: python3, python3-apt, python3-pyside6.qtcore, python3-pyside6.qtgui, python3-pyside6.qtwidgets, polkitd, pkexec, flatpak, pciutils, dkms, mesa-utils, vulkan-tools, vainfo
+Recommends: switcheroo-control, power-profiles-daemon
+Filename: pool/main/p/puresteel-center/puresteel-center_2.0.0+git20260922202719.de9433c36301-1_all.deb
+Size: 125408
+MD5sum: 02a484a791b2e7424d46781e29cef9aa
+SHA1: 969d5c42cc40c8c792f60958ab23d7c6d446ae1c
+SHA256: 7ae5c4b2db16498e75e5d9936e062b67ea70b0b21d045d4677bcc27ad2b43989
+SHA512: 1a9e061325fbfb3520d8a644abcdbf7de3c42c6838ba25d1498b11a3f0932555e0624bff756b4a42972a914f2192b621657c63fabc44bc6d6b4bac7de0a1b2be
+Description: Puresteel system management center
+ Puresteel Center manages updates, applications, graphics drivers,
+ profiles, software sources, backups and system reports from Plasma.
+
+Package: puresteel-creator
+Architecture: all
+Version: 2.0.0+git20260922202719.de9433c36301-1
+Priority: optional
+Section: metapackages
+Maintainer: Puresteel Project <repo@puresteel.local>
+Depends: ffmpeg, flatpak
+Filename: pool/main/p/puresteel-creator/puresteel-creator_2.0.0+git20260922202719.de9433c36301-1_all.deb
+Size: 592
+MD5sum: 9fbb6a134ead58affbccf7ad1fa29cd5
+SHA1: 8b948bd6a039173bbba56f82662bca417bc319f7
+SHA256: 77fc7829463d676bc825cb1854b33796810de1a227aba69f779327070d59f90f
+SHA512: 479a6aa73f862083edb8d6c2cf0817e8fecf4ee50bfbfcd79db26d9be601b79778bd3025ecf46474a4bf75592c8ae486864177c2c68c38b4cd35aa43a43aafa7
+Description: Puresteel creator stack
+ Puresteel component metapackage used to keep the distribution roles explicit.
+
+Package: puresteel-default-settings
+Architecture: all
+Version: 2.0.0+git20260922202719.de9433c36301-1
+Priority: optional
+Section: admin
+Maintainer: Puresteel Project <repo@puresteel.local>
+Depends: puresteel-branding (>= 2.0.0+git20260922202719.de9433c36301-1), sddm, plasma-desktop, fish
+Filename: pool/main/p/puresteel-default-settings/puresteel-default-settings_2.0.0+git20260922202719.de9433c36301-1_all.deb
+Size: 2058
+MD5sum: ae9ac675902ae0bdc9bbd5fdfead31e9
+SHA1: 30753306ed153ab0a0b520fbb3d7da6323d6ec58
+SHA256: 49a11bafe1431f469d7dcf19c71e99cc04ff2d866bfca560ade293467ed9c39a
+SHA512: 6acb4e39ffa95c63c0e8f1b07c88dfe0db0ff30cbf9b11c06418c8053602296dd561fb49367780d184d77afc245525b70385abfc8b76cdd5ccdc7963635d07d9
+Description: Puresteel Plasma, terminal and memory defaults
+ Puresteel maintained distribution component, upgradable through APT.
+
+Package: puresteel-desktop
+Architecture: all
+Version: 2.0.0+git20260922202719.de9433c36301-1
+Priority: optional
+Section: metapackages
+Maintainer: Puresteel Project <repo@puresteel.local>
+Depends: plasma-desktop, plasma-workspace, kwin-wayland, kwin-x11, sddm, plasma-nm, plasma-pa, libpam-kwallet5, puresteel-branding (>= 2.0.0+git20260922202719.de9433c36301-1), puresteel-default-settings (>= 2.0.0+git20260922202719.de9433c36301-1), puresteel-recovery (>= 2.0.0+git20260922202719.de9433c36301-1)
+Filename: pool/main/p/puresteel-desktop/puresteel-desktop_2.0.0+git20260922202719.de9433c36301-1_all.deb
+Size: 688
+MD5sum: b922bac1e02f50d5600d584fb67341c0
+SHA1: 4b88458621129b8b2979b6da88441ce6d7e69700
+SHA256: b2f77720cc93683b73fca919cb8ae337e0c92b1d2a3d8898ca4d4f55bcf0d6ac
+SHA512: 7b5b865309e3a2e71a0f07382a67cbaa69cb2db22408cde8648bcf8d291328fce72c9e712f2e376a699ca0ccd20c5bfa7de1fb27aa65befdacd0dc02a0ab8233
+Description: Puresteel minimal KDE Plasma desktop
+ Puresteel component metapackage used to keep the distribution roles explicit.
+
+Package: puresteel-developer
+Architecture: all
+Version: 2.0.0+git20260922202719.de9433c36301-1
+Priority: optional
+Section: metapackages
+Maintainer: Puresteel Project <repo@puresteel.local>
+Depends: build-essential, git, curl
+Filename: pool/main/p/puresteel-developer/puresteel-developer_2.0.0+git20260922202719.de9433c36301-1_all.deb
+Size: 602
+MD5sum: c6f1e6530b408569bcd60da79c26d9a1
+SHA1: 62a9b2cafde03e101cb81a35e42553837b340671
+SHA256: ea27afa4d21f6467e500bc5188d77a96e3a1d2f43dc8a6c1a53580757dfc5df4
+SHA512: 240dacd9452c236c26bc67580168e8f275b42a31d3e082e8980f0a567632c445286052987e76ed64a979d98ed9d7f43ab1121fa0205834072ad9b9dbad79d674
+Description: Puresteel developer stack
+ Puresteel component metapackage used to keep the distribution roles explicit.
+
+Package: puresteel-gaming
+Architecture: all
+Version: 2.0.0+git20260922202719.de9433c36301-1
+Priority: optional
+Section: metapackages
+Maintainer: Puresteel Project <repo@puresteel.local>
+Depends: steam-installer, steam-libs-i386, wine, winetricks, gamemode, mangohud, libvulkan1:i386, mesa-vulkan-drivers:i386, libgl1-mesa-dri:i386
+Filename: pool/main/p/puresteel-gaming/puresteel-gaming_2.0.0+git20260922202719.de9433c36301-1_all.deb
+Size: 664
+MD5sum: 3572500fd2cb08018b1b7380066a8734
+SHA1: 14ccadfd0415c5151e9a34dbc91c76d498bb426a
+SHA256: e44fec03e73793f5e3d325ca974ce63ec8e038490b63e15118b636714121a3a6
+SHA512: 209a6ff32411da064cff0268a7062049ec40d2c51f3c709c35911399ada805a0b95043e9945306607335aab3e0740010d51e2def1f7bb09820867d316e1449f8
+Description: Puresteel gaming stack
+ Puresteel component metapackage used to keep the distribution roles explicit.
+
+Package: puresteel-platform
+Architecture: all
+Version: 2.0.0+git20260922202719.de9433c36301-1
+Priority: optional
+Section: admin
+Maintainer: Puresteel Project <repo@puresteel.local>
+Depends: python3, python3-gi, gir1.2-gtk-3.0, puresteel-center (>= 2.0.0+git20260922202719.de9433c36301-1), polkitd, pkexec, pciutils
+Filename: pool/main/p/puresteel-platform/puresteel-platform_2.0.0+git20260922202719.de9433c36301-1_all.deb
+Size: 21484
+MD5sum: 2238ba68b9adfb40fffc9fad8acc0efa
+SHA1: 86e6d4c26a2009841ad9ac29c76c8174ef980357
+SHA256: ce25c8246b8932a619c9a94dbe94b65465c15bddb0653d5303e35a86074e5228
+SHA512: 9d2ed0d906ef0b0ffc06c7a36e3a62188dfe0e679ecca4cd51949c54eb9588970490c6e5d8e05466c283d89f36f14fe40904246fdcba9859d00a791486169b90
+Description: Puresteel tools, welcome, doctor and system control
+ Puresteel maintained distribution component, upgradable through APT.
+
+Package: puresteel-recovery
+Architecture: all
+Version: 2.0.0+git20260922202719.de9433c36301-1
+Priority: optional
+Section: admin
+Maintainer: Puresteel Project <repo@puresteel.local>
+Depends: puresteel-platform (>= 2.0.0+git20260922202719.de9433c36301-1), timeshift, initramfs-tools, grub-common
+Filename: pool/main/p/puresteel-recovery/puresteel-recovery_2.0.0+git20260922202719.de9433c36301-1_all.deb
+Size: 3514
+MD5sum: 781f56e9df69b335f72b1c40d1b560ed
+SHA1: c574a7e4399a2442bf2b1b787a9c5e1f2322a4da
+SHA256: 78c08b0b049d9e87251e1af4bf893a56e448fec09d91a1500f941e82d9d9cda9
+SHA512: 7db6fe3a8d3caa7d0943c6ed994eb9512dcdf5d178872d3a996e7ceb64b2eb30efe82690dfe000b0cf117a58d6aaf23c58aa3400cd7e3b0333332741f7ce055e
+Description: Puresteel recovery console and rollback
+ Puresteel maintained distribution component, upgradable through APT.
 
