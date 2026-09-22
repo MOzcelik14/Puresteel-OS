@@ -83,7 +83,7 @@ Release a new package version:
 ./scripts/release-center.sh 2.0.0-1
 ```
 
-The source package version is currently `2.0.0-1`, but the committed signed APT index still lists `puresteel-center` version `1.0.1-1`. Merging source code does not update installed systems. Publishing a new version requires the matching signing **private key**, regenerated component packages, signed indexes and a separate commit; do not publish unsigned or mismatched metadata. The release script performs the important packaging steps:
+The source package base version is `2.0.0-1`; the signed APT index contains the newer rolling `2.0.0+git...-1` release alongside the original `1.0.1-1`. Merging source code alone does not update installed systems. Publishing a new version requires the matching signing **private key**, regenerated component packages, signed indexes and a separate commit; do not publish unsigned or mismatched metadata. The release script performs the important packaging steps:
 
 1. updates `packages/puresteel-center/VERSION`,
 2. builds the `.deb`,
@@ -152,7 +152,7 @@ The command checks both OpenPGP signatures, signed Release/index SHA256 hashes, 
 python3 scripts/verify-apt-repository.py --require-current
 ```
 
-**Current release blocker:** the signed online index still advertises Puresteel Center `1.0.1-1`, while source is `2.0.0-1`. The original private key that matches `docs/apt/puresteel-archive-keyring.asc` is required to advance the signed archive. Do not commit a private key or replace the key with an unrelated one. Once the original key is available on a trusted maintainer machine, run `./scripts/release-center.sh 2.0.0-1`, inspect the changes, and publish only after release tests. Changing `main` alone cannot publish a valid signed APT release.
+**Release state:** the original archive signing key has been used to publish Center 2.0 rolling packages via checked PR #31. Further releases must continue using the same private signing key or an explicitly verified key rotation. Do not commit a private key or replace it with an unrelated one; changing `main` alone cannot publish a valid signed APT release.
 
 ## Protect the main branch
 
@@ -185,7 +185,7 @@ After a successful `main` push or manually dispatched validation build, [Publish
 
 - `PURESTEEL_APT_SIGNING_KEY_B64`: Base64 encoding of the **original** private archive signing key whose fingerprint matches `docs/apt/puresteel-archive-keyring.asc`. Export on your own trusted machine; never paste it into chat, a PR, an issue or source files.
 - `PURESTEEL_APT_SIGNING_PASSPHRASE`: passphrase protecting that private key. Do not publish it or put it in a command line argument.
-- `PURESTEEL_APT_PUBLISH_TOKEN`: a **fine-grained GitHub personal access token** restricted to `MOzcelik14/Puresteel-OS`, with **Contents read/write, Pull requests read/write, and Checks read**. The auto-publisher creates and merges a checked APT release PR. Set `main` branch protection with **zero required human approvals** if you want unattended releases; still require pull requests and the two CI checks. This token is necessary because pushes performed with the built-in `GITHUB_TOKEN` do not trigger the GitHub Pages branch build that serves the APT repository.
+- `PURESTEEL_APT_PUBLISH_TOKEN`: a **fine-grained GitHub personal access token** restricted to `MOzcelik14/Puresteel-OS`, with **Contents read/write and Pull requests read/write**. Fine-grained personal access tokens cannot request the Checks API permission: this workflow reads PR checks with its separate, narrowly scoped `GITHUB_TOKEN` (`checks: read`, `statuses: read`, `pull-requests: read`) and uses the maintainer PAT for branch pushes, PR creation and merge. The auto-publisher creates and merges a checked APT release PR. Set `main` branch protection with **zero required human approvals** if you want unattended releases; still require pull requests and the two CI checks. This token is necessary because pushes performed with the built-in `GITHUB_TOKEN` do not trigger the GitHub Pages branch build that serves the APT repository.
 
 To obtain the encoded key without showing it in the chat, find the original private key on the trusted maintainer device and export it locally to a protected file; paste its encoded contents directly into the **GitHub repository Secret** form. The workflow imports it into an ephemeral GPG home, checks the existing public-key fingerprint before changing release metadata, and deletes its local copy on completion. Keep an encrypted offline backup. If the original key is lost, **do not replace it silently**: installed systems trust only the existing public key and require a separate, verified key-rotation procedure.
 
