@@ -1,0 +1,42 @@
+name: One-time merged audit branch cleanup
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  prune:
+    if: "${{ github.event_name == 'push' && startsWith(github.event.head_commit.message, 'chore: prune merged daily audit branch') }}"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete exact merged branch ref
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          python3 - <<'PY'
+          import json, os, urllib.parse, urllib.request
+
+          branch = "fix/daily-audit-2026-09-22"
+          expected = "c5e0e5348ee78776b7da1ab1e63dadbf1ead7135"
+          root = "https://api.github.com/repos/" + os.environ["GH_REPO"]
+          headers = {
+              "Authorization": "Bearer " + os.environ["GH_TOKEN"],
+              "Accept": "application/vnd.github+json",
+              "X-GitHub-Api-Version": "2022-11-28",
+          }
+          path = "/git/ref/heads/" + urllib.parse.quote(branch, safe="/")
+          req = urllib.request.Request(root + path, headers=headers)
+          with urllib.request.urlopen(req, timeout=30) as res:
+              current = json.load(res)["object"]["sha"]
+          if current != expected:
+              raise SystemExit(f"Branch moved: {current}; refusing deletion")
+          req = urllib.request.Request(root + "/git/refs/heads/" + urllib.parse.quote(branch, safe="/"),
+                                       headers=headers, method="DELETE")
+          with urllib.request.urlopen(req, timeout=30):
+              pass
+          print("Deleted merged branch:", branch)
+          PY
