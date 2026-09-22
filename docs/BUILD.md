@@ -83,9 +83,7 @@ curl -fsSL https://raw.githubusercontent.com/MOzcelik14/Puresteel-OS/main/bootst
 ## Full-featured Plasma image
 
 The default image includes Steam launcher and controller rules, 32-bit and
-64-bit Wine, Vulkan/Mesa/NVIDIA 32-bit userspace, Gamemode/MangoHud, Heroic
-Games Launcher (preinstalled system Flatpak plus its runtime), Kdenlive,
-Audacity, FFmpeg, and C/C++/Python development tools. The upstream Steam
+64-bit Wine, Vulkan/Mesa/NVIDIA 32-bit userspace, Gamemode/MangoHud, Heroic Games Launcher, ProtonUp-Qt and ONLYOFFICE (preinstalled system Flatpaks plus their runtimes), Kdenlive, Audacity, FFmpeg and C/C++/Python development tools. The upstream Steam
 client may still fetch its own updates on first launch; games, Proton runners
 and proprietary content are not bundled. Heroic uses Flathub during ISO
 construction, so builds require access to Flathub as well as Debian mirrors.

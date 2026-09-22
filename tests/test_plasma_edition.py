@@ -50,7 +50,9 @@ class PlasmaEditionTests(unittest.TestCase):
                      "nvidia-driver-libs:i386", "mesa-vulkan-drivers:i386"):
             self.assertIn(name, multiarch)
         self.assertIn("dpkg --add-architecture i386", multiarch)
-        self.assertIn("com.heroicgameslauncher.hgl", flatpak)
+        for app in ("com.heroicgameslauncher.hgl", "net.davidotek.pupgui2",
+                    "org.onlyoffice.desktopeditors"):
+            self.assertIn(app, flatpak)
         self.assertIn("flatpak install --system", flatpak)
 
     def test_wifi_is_not_forced_into_plaintext(self):

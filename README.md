@@ -73,7 +73,7 @@ An earlier Cinnamon image was tested on an Intel + NVIDIA RTX 3050 laptop. The n
 
 ## Gaming and creative software
 
-The rolling ISO includes Steam launcher and 32-bit dependencies, Wine (32/64-bit), Winetricks, Heroic as a system Flatpak, Kdenlive, Audacity, FFmpeg and developer tools. Optional extras such as ProtonUp-Qt and ONLYOFFICE remain available through Puresteel Center or Flathub. Steam may download upstream client updates on first launch; games and Proton versions are not bundled.
+The rolling ISO includes Steam launcher and 32-bit dependencies, Wine (32/64-bit), Winetricks, Heroic as a system Flatpak, Kdenlive, Audacity, FFmpeg and developer tools. ProtonUp-Qt and ONLYOFFICE are also preinstalled as system Flatpaks. Steam may download upstream client updates on first launch; games and Proton versions are not bundled.
 
 ## Power-user defaults
 

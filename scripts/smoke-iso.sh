@@ -84,12 +84,12 @@ if missing:
 print("Full-edition APT packages and i386 gaming drivers verified in ISO.")
 PY
 
-# Heroic's system Flatpak and runtime must really be in the squashfs image,
-# not merely listed in build configuration or available to install later.
-if ! unsquashfs -ll "$SQUASH" var/lib/flatpak/app/com.heroicgameslauncher.hgl |
-    grep -Fq "com.heroicgameslauncher.hgl"; then
-    echo "Heroic system Flatpak missing inside ISO." >&2
-    exit 1
-fi
+# Full-edition system Flatpaks and runtimes must be physically in the ISO.
+for app in com.heroicgameslauncher.hgl net.davidotek.pupgui2 org.onlyoffice.desktopeditors; do
+    if ! unsquashfs -ll "$SQUASH" "var/lib/flatpak/app/$app" | grep -Fq "$app"; then
+        echo "Required system Flatpak missing inside ISO: $app" >&2
+        exit 1
+    fi
+done
 echo "Static ISO filesystem and installed-package checks PASSED."
 echo "Calamares and Recovery still require fresh-install QEMU testing."
