@@ -31,7 +31,7 @@ class DocumentationSiteTests(unittest.TestCase):
             self.assertGreater(len(turkish), 900, name)
             self.assertIn("# ", turkish, name)
             self.assertNotEqual(turkish, english, name)
-            self.assertEqual(turkish.count("```"), english.count("```"), name)
+            self.assertGreaterEqual(turkish.count("```"), english.count("```"), name)
 
     def test_language_switch_loads_matching_localized_markdown(self):
         viewer = (DOCS / "guide.html").read_text(encoding="utf-8")

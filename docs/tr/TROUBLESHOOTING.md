@@ -193,7 +193,11 @@ Disk bölümlerini değiştiren kurulumu tekrar denemeden önce önemli verileri
 
 ## ISO derlemesi başarısız oluyor
 
-`build.log` dosyasının son satırlarını incele.
+Şu dosyanın son satırlarını incele:
+
+```text
+build.log
+```
 
 Yararlı sözdizimi denetimleri:
 
