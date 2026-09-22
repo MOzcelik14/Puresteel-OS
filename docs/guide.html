@@ -13,6 +13,9 @@
     .topbar{position:sticky;top:0;z-index:20;background:rgba(8,17,29,.96);border-bottom:1px solid var(--line);backdrop-filter:blur(12px)}
     .topinner{width:min(1470px,calc(100% - 48px));min-height:68px;margin:auto;display:flex;align-items:center;gap:16px;justify-content:space-between}
     .brand{font-size:19px;font-weight:850;letter-spacing:-.04em;color:#fff}.brand span{color:var(--muted);font-size:14px;font-weight:500;letter-spacing:0}
+    .langswitch{display:flex;gap:3px;border:1px solid var(--line);border-radius:9px;padding:3px;background:var(--panel)}
+    .langswitch button{background:transparent;color:var(--muted);border:0;border-radius:6px;cursor:pointer;padding:6px 10px;font-size:12px;font-weight:800}
+    .langswitch button.active{background:var(--steel);color:#07101a}
     .toplinks{display:flex;gap:18px;flex-wrap:wrap;font-size:13px;color:var(--muted)}.toplinks a{color:var(--steel)}
     .shell{width:min(1470px,calc(100% - 48px));margin:34px auto;display:grid;grid-template-columns:260px minmax(0,1fr) 195px;align-items:start;gap:28px}
     aside{position:sticky;top:98px;max-height:calc(100vh - 120px);overflow:auto}
@@ -47,7 +50,7 @@
 <body>
   <header class="topbar"><div class="topinner">
     <a class="brand" href="index.html">Puresteel <span>/ Documentation</span></a>
-    <nav class="toplinks" aria-label="Site"><a href="index.html#download" data-tr="İndir">Download</a><a href="index.html#build" data-tr="ISO Oluştur">Build</a><a href="https://github.com/MOzcelik14/Puresteel-OS">GitHub</a></nav>
+    <nav class="toplinks" aria-label="Site"><a href="index.html#download" data-tr="İndir">Download</a><a href="index.html#build" data-tr="ISO Oluştur">Build</a><a href="https://github.com/MOzcelik14/Puresteel-OS">GitHub</a><div class="langswitch" role="group" aria-label="Documentation language"><button type="button" data-guide-lang="tr" aria-pressed="false">TR</button><button type="button" data-guide-lang="en" aria-pressed="false">EN</button></div></nav>
   </div></header>
   <div class="shell">
     <aside class="sidebar" aria-label="Documentation pages"><p class="eyebrow" data-tr="Belgeler">Documentation</p><input id="doc-search" class="search" type="search" placeholder="Find a guide…" aria-label="Filter documentation"><nav id="docnav" class="docnav" aria-label="Documents"></nav></aside>
