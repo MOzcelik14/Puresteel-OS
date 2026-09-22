@@ -138,6 +138,26 @@ curl -fsSL \
   | sed -n '/^Package: puresteel-center$/,/^$/p'
 ```
 
+## Check a signed release before publishing
+
+The public archive can be verified **without the private signing key**:
+
+```bash
+python3 scripts/verify-apt-repository.py
+```
+
+The command checks both OpenPGP signatures, signed Release/index SHA256 hashes, the gzip index, all referenced Debian package hashes/sizes and package control metadata. GitHub CI runs the same read-only check. To verify a newly prepared release matches the source version, use:
+
+```bash
+python3 scripts/verify-apt-repository.py --require-current
+```
+
+**Current release blocker:** the signed online index still advertises Puresteel Center `1.0.1-1`, while source is `1.4.0-1`. The original private key that matches `docs/apt/puresteel-archive-keyring.asc` is required to advance the signed archive. Do not commit a private key or replace the key with an unrelated one. Once the original key is available on a trusted maintainer machine, run `./scripts/release-center.sh 1.4.0-1`, inspect the changes, and publish only after release tests. Changing `main` alone cannot publish a valid signed APT release.
+
+## Protect the main branch
+
+Repository administrators must enable a GitHub branch protection rule or ruleset for `main`: require a pull request, require the `validate` and `windows-powershell-syntax` status checks, block force-pushes and branch deletion, and avoid bypassing the checks. Leave the optional nightly `iso-smoke` job **out** of required checks because ordinary pull requests deliberately skip it. This is a GitHub Settings permission, not a repository file; connected CI credentials do not have administration permission to set it.
+
 ## Signing key
 
 The public key belongs in the repository and installed system.

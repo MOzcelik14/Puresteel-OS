@@ -49,6 +49,16 @@ class DailyReleaseAudit(unittest.TestCase):
         self.assertNotIn("plasma-workspace-wayland", meta)
         self.assertIn("kwin-wayland", core)
 
+    def test_apt_release_integrity_gate_is_present(self):
+        verifier = read("scripts/verify-apt-repository.py")
+        workflow = read(".github/workflows/validate.yml")
+        publisher = read("scripts/release-center.sh")
+        self.assertIn('["gpgv", "--keyring"', verifier)
+        self.assertIn("gzip.decompress", verifier)
+        self.assertIn("dpkg-deb", verifier)
+        self.assertIn("Verify published APT signature and package integrity", workflow)
+        self.assertIn("verify-apt-repository.py --require-current", publisher)
+
     def test_tracked_python_caches_are_removed(self):
         # CI compileall creates ignored bytecode just before unittest. Inspect
         # the Git index instead of incorrectly treating runtime caches as tracked.
