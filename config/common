@@ -13,7 +13,7 @@ LB_APT_HTTP_PROXY=""
 LB_APT_PIPELINE=""
 
 # Set apt/aptitude recommends
-# Minimal Plasma: keep only explicitly selected optional components.
+# Full edition: explicitly install the chosen software without unrelated recommends.
 LB_APT_RECOMMENDS="false"
 
 # Set apt/aptitude security

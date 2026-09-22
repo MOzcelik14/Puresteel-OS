@@ -34,12 +34,26 @@ class PlasmaEditionTests(unittest.TestCase):
         self.assertIn("plasma-defaults-applied", init)
         self.assertIn("first-run-complete", init)
 
-    def test_iso_omits_optional_metapackages(self):
-        build = source("build.sh")
-        self.assertIn("puresteel-base_*.deb|puresteel-desktop_*.deb", build)
-        self.assertNotIn('cp -f "$DEB" config/packages.chroot/\ndone\necho', build)
-        self.assertNotIn("flatpak install --system",
-                         source("config/hooks/live/0200-puresteel-flatpak.hook.chroot"))
+    def test_full_iso_bundles_gaming_creator_developer_and_heroic(self):
+        gaming = source("config/package-lists/puresteel-gaming.list.chroot")
+        creator = source("config/package-lists/puresteel-creator.list.chroot")
+        developer = source("config/package-lists/puresteel-developer.list.chroot")
+        multiarch = source("config/hooks/live/0015-puresteel-multiarch.hook.chroot")
+        flatpak = source("config/hooks/live/0200-puresteel-flatpak.hook.chroot")
+        for name in ("wine", "wine64", "winetricks", "gamemode", "mangohud"):
+            self.assertIn(name + "\n", gaming)
+        for name in ("kdenlive", "audacity", "ffmpeg"):
+            self.assertIn(name + "\n", creator)
+        for name in ("build-essential", "cmake", "python3-venv", "gdb"):
+            self.assertIn(name + "\n", developer)
+        for name in ("steam-installer", "steam-libs-i386", "wine32:i386",
+                     "nvidia-driver-libs:i386", "mesa-vulkan-drivers:i386"):
+            self.assertIn(name, multiarch)
+        self.assertIn("dpkg --add-architecture i386", multiarch)
+        for app in ("com.heroicgameslauncher.hgl", "net.davidotek.pupgui2",
+                    "org.onlyoffice.desktopeditors"):
+            self.assertIn(app, flatpak)
+        self.assertIn("flatpak install --system", flatpak)
 
     def test_wifi_is_not_forced_into_plaintext(self):
         script = source("config/includes.chroot/usr/local/bin/puresteel-wifi")

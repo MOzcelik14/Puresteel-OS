@@ -74,11 +74,23 @@ curl -fsSL https://raw.githubusercontent.com/MOzcelik14/Puresteel-OS/main/bootst
 
 The builder does **not** install Puresteel on the host; it creates a bootable installer ISO. ANSI colors are used only on a terminal and can be disabled with `NO_COLOR=1`.
 
-By default the bootstrap script builds `main` (the current minimal Plasma edition). To build a specific tag or branch instead:
+By default the bootstrap script builds `main` (the full-featured rolling Plasma edition). To build a specific tag or branch instead:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/MOzcelik14/Puresteel-OS/main/bootstrap.sh | PURESTEEL_REF=v1.0.0 bash
 ```
+
+## Full-featured Plasma image
+
+The default image includes Steam launcher and controller rules, 32-bit and
+64-bit Wine, Vulkan/Mesa/NVIDIA 32-bit userspace, Gamemode/MangoHud, Heroic Games Launcher, ProtonUp-Qt and ONLYOFFICE (preinstalled system Flatpaks plus their runtimes), Kdenlive, Audacity, FFmpeg and C/C++/Python development tools. The upstream Steam
+client may still fetch its own updates on first launch; games, Proton runners
+and proprietary content are not bundled. Heroic uses Flathub during ISO
+construction, so builds require access to Flathub as well as Debian mirrors.
+
+The full edition needs more disk space and longer GitHub Actions runtime
+than the previous 2.5 GB minimal image. No ISO size is guaranteed until
+the full GitHub smoke-build completes.
 
 ## Automatic rolling ISO
 

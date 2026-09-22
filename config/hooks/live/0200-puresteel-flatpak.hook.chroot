@@ -1,4 +1,11 @@
 #!/bin/sh
-set -e
-echo "[Puresteel] Configuring Flathub; apps are installed on demand from Puresteel Center."
+set -eu
+echo "[Puresteel] Installing gaming and creator system Flatpaks."
 flatpak remote-add --system --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+# Do not silently ship a full ISO with missing applications if Flathub fails.
+flatpak install --system --noninteractive --assumeyes flathub \
+    com.heroicgameslauncher.hgl net.davidotek.pupgui2 org.onlyoffice.desktopeditors
+for app in com.heroicgameslauncher.hgl net.davidotek.pupgui2 org.onlyoffice.desktopeditors; do
+    flatpak info --system "$app" >/dev/null
+done
+echo "[Puresteel] Heroic, ProtonUp-Qt and ONLYOFFICE installed with required Flatpak runtimes."

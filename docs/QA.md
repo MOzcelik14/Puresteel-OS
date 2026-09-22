@@ -6,7 +6,7 @@ syntax/package workflow does not prove an installed system boots.
 
 ## Current release-gate status
 
-Code/package CI and the read-only terminal-menu tests do not count as a tested Plasma release. The current public GitHub release contains no downloadable Plasma ISO. The QEMU and hardware boxes below remain intentionally unchecked until test evidence exists. The ISO smoke job is a static payload check, **not an automated Calamares GUI installation**. It runs after every `main` push (and nightly), once code/package/Windows CI checks pass; it also supports `workflow_dispatch`. A successful rolling ISO build is still not an automated Calamares GUI install. A successful job must not tick the QEMU/physical-hardware boxes without actual test records.
+Code/package CI and the read-only terminal-menu tests do not count as a tested Plasma release. The current public GitHub release contains no downloadable Plasma ISO. The QEMU and hardware boxes below remain intentionally unchecked until test evidence exists. The ISO smoke job now verifies installed full-edition APT packages, i386 drivers and Heroic, ProtonUp-Qt and ONLYOFFICE system Flatpaks; it remains a static payload check, **not an automated Calamares GUI installation**. It runs after every `main` push (and nightly), once code/package/Windows CI checks pass; it also supports `workflow_dispatch`. A successful rolling ISO build is still not an automated Calamares GUI install. A successful job must not tick the QEMU/physical-hardware boxes without actual test records.
 
 ## Automated static checks
 
@@ -48,10 +48,10 @@ UEFI/OVMF with a fresh virtual disk if firmware/EFI coverage is required.
 - [ ] SDDM password login opens a matching-password kdewallet via PAM; no Wi-Fi prompt repeats after login.
 - [ ] Existing agent-owned Wi-Fi connections can be migrated only with user consent; `puresteelctl wifi` leaks no PSK.
 - [ ] Plasma X11 fallback remains available for NVIDIA testing.
-- [ ] No KDE PIM/Akonadi/Discover or large creator/gaming apps are preinstalled.
+- [ ] No KDE PIM/Akonadi/Discover is preinstalled. Steam, Wine32/64, Heroic, ProtonUp-Qt, ONLYOFFICE, Kdenlive, Audacity and development tools are present.
 - [ ] Puresteel Center and all cards remain accessible at 1366x768.
 - [ ] Profile apply/reboot persists; Doctor displays both swap and ZRAM.
-- [ ] The seven ISO-selected Puresteel packages are registered with dpkg; optional role metapackages are not preinstalled.
+- [ ] The seven ISO-selected Puresteel packages are registered with dpkg; full-edition app packages and all three required system Flatpaks are available.
 - [ ] `puresteelctl snapshot create` creates a listed, restorable snapshot.
 - [ ] Safe Update aborts if Timeshift fails (use a THROWAWAY VM to force failure).
 - [ ] Safe Update records one real snapshot ID in last-update-snapshot JSON.

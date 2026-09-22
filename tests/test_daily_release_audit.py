@@ -80,6 +80,20 @@ class DailyReleaseAudit(unittest.TestCase):
         self.assertIn('export PATH="$RUNNER_TEMP/aws-bin:$PATH"', workflow)
         self.assertIn("aws --version", workflow)
 
+    def test_full_iso_smoke_checks_real_package_database_and_heroic(self):
+        smoke = read("scripts/smoke-iso.sh")
+        workflow = read(".github/workflows/validate.yml")
+        self.assertIn('fields.get("Status") != "install ok installed"', smoke)
+        for package in ("steam-installer", "wine32", "kdenlive", "audacity",
+                        "build-essential", "nvidia-vulkan-icd"):
+            self.assertIn(package, smoke)
+        self.assertIn('"var/lib/flatpak/app/$app"', smoke)
+        for app in ("com.heroicgameslauncher.hgl", "net.davidotek.pupgui2",
+                    "org.onlyoffice.desktopeditors"):
+            self.assertIn(app, read("config/hooks/live/0200-puresteel-flatpak.hook.chroot"))
+        self.assertIn("github.event.pull_request.title, '[iso-smoke]'", workflow)
+        self.assertIn("if: github.ref == 'refs/heads/main'", workflow)
+
     def test_tracked_python_caches_are_removed(self):
         # CI compileall creates ignored bytecode just before unittest. Inspect
         # the Git index instead of incorrectly treating runtime caches as tracked.

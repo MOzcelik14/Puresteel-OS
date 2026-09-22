@@ -12,7 +12,7 @@
 
 Puresteel is an independent Debian 13 (Trixie) based Linux distribution focused on a clean desktop, gaming and creator tooling, broad graphics support, a graphical installer, and Puresteel's own system-management and update infrastructure.
 
-The current Puresteel desktop stack is **minimal KDE Plasma 6 + SDDM + Breeze Light, Wayland with X11 fallback**.
+The current Puresteel desktop stack is **KDE Plasma 6 + SDDM + Breeze Light, Wayland with X11 fallback**, shipped with a full gaming, creator and developer toolkit.
 
 ## Build the ISO with one command
 
@@ -46,7 +46,7 @@ For manual and development builds, see [docs/BUILD.md](docs/BUILD.md).
 |---|---|
 | **Base** | Debian 13 (Trixie) |
 | **Architecture** | amd64 + i386 multiarch |
-| **Desktop** | minimal Plasma 6 / SDDM / Wayland + X11 |
+| **Desktop** | Plasma 6 / SDDM / Wayland + X11 |
 | **Installer** | Calamares |
 | **Init** | systemd |
 | **Graphics** | Intel, AMD and NVIDIA; hybrid-GPU support |
@@ -73,7 +73,7 @@ An earlier Cinnamon image was tested on an Intel + NVIDIA RTX 3050 laptop. The n
 
 ## Gaming and creative software
 
-The minimal image includes core desktop and graphics tooling, Firefox ESR, VLC and Audacious. Gaming and creator applications such as Steam, Wine, Heroic, ProtonUp-Qt, Kdenlive, Audacity and ONLYOFFICE are optional packs installed through Puresteel Center; Flatpak/Flathub is configured but large apps are not preinstalled.
+The rolling ISO includes Steam launcher and 32-bit dependencies, Wine (32/64-bit), Winetricks, Heroic as a system Flatpak, Kdenlive, Audacity, FFmpeg and developer tools. ProtonUp-Qt and ONLYOFFICE are also preinstalled as system Flatpaks. Steam may download upstream client updates on first launch; games and Proton versions are not bundled.
 
 ## Power-user defaults
 
@@ -81,7 +81,7 @@ Puresteel includes Fish, Starship, Fastfetch, btop, htop, Git, curl, wget, Vim, 
 
 ## Desktop and branding
 
-Puresteel uses minimal KDE Plasma 6 with SDDM and a Puresteel Breeze Light default, branded wallpaper, icons, GRUB, Plymouth and Calamares. An X11 session is retained for GPU compatibility. System language switching is available through Puresteel Language Settings.
+Puresteel uses KDE Plasma 6 with SDDM and a Puresteel Breeze Light default, branded wallpaper, icons, GRUB, Plymouth and Calamares. An X11 session is retained for GPU compatibility. System language switching is available through Puresteel Language Settings.
 
 ## Installation
 

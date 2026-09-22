@@ -1,9 +1,14 @@
 #!/bin/sh
-set -e
-# The lean ISO does not bundle 32-bit Steam/Wine libraries, but enabling the
-# architecture now lets the opt-in Gaming Pack fetch them after installation.
-# Live-build runs chroot hooks before the squashfs is generated.
-if [ "$(dpkg --print-architecture)" = "amd64" ]; then
-    dpkg --add-architecture i386
-    echo "[Puresteel] Enabled i386 multiarch for optional gaming."
-fi
+set -eu
+# The initial package list stage runs before .hook.chroot. Enable multiarch
+# here and install Steam/Wine i386 dependencies only after apt indexes refresh.
+[ "$(dpkg --print-architecture)" = "amd64" ] || { echo "amd64 required" >&2; exit 1; }
+dpkg --add-architecture i386
+apt-get update
+export DEBIAN_FRONTEND=noninteractive
+echo "[Puresteel] Bundling Steam, Wine32 and 32-bit Mesa/NVIDIA graphics."
+apt-get install --yes --no-remove --no-install-recommends \
+    steam-installer steam-libs-i386 wine32:i386 \
+    libvulkan1:i386 mesa-vulkan-drivers:i386 libgl1-mesa-dri:i386 \
+    nvidia-driver-libs:i386 nvidia-vulkan-icd:i386
+echo "[Puresteel] Full gaming stack installed into live filesystem."

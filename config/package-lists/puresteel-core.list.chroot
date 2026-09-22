@@ -1,4 +1,4 @@
-# Puresteel minimal KDE Plasma 6, explicitly curated instead of kde-standard/kde-full
+# Puresteel Plasma 6 desktop with full gaming/creator/developer tooling in separate lists.
 systemd
 systemd-sysv
 live-config

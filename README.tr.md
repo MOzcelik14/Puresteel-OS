@@ -12,7 +12,7 @@
 
 Puresteel; temiz bir masaüstü deneyimi, oyun ve içerik üretimi araçları, geniş ekran kartı desteği, grafiksel kurulum aracı ve kendi sistem yönetimi/güncelleme altyapısına odaklanan Debian 13 (Trixie) tabanlı bağımsız bir Linux dağıtımıdır.
 
-Puresteel'in güncel masaüstü yığını **minimal KDE Plasma 6 + SDDM + Breeze Light; Wayland ve X11 alternatifi** şeklindedir.
+Puresteel'in güncel masaüstü yığını **KDE Plasma 6 + SDDM + Breeze Light; Wayland ve X11 alternatifi** şeklindedir. ISO oyun, içerik üretimi ve geliştirme uygulamalarını hazır sunar.
 
 ## ISO'yu tek komutla oluştur
 
@@ -42,7 +42,7 @@ Elle veya geliştirme amaçlı build için [docs/BUILD.md](docs/BUILD.md) belges
 |---|---|
 | **Taban** | Debian 13 (Trixie) |
 | **Mimari** | amd64 + i386 multiarch |
-| **Masaüstü** | minimal Plasma 6 / SDDM / Wayland + X11 |
+| **Masaüstü** | Plasma 6 / SDDM / Wayland + X11 |
 | **Kurulum** | Calamares |
 | **Init** | systemd |
 | **Grafik** | Intel, AMD ve NVIDIA; hibrit GPU desteği |
@@ -69,7 +69,7 @@ Puresteel kendi Qt 6 / PySide6 sistem yönetim uygulamasıyla gelir. Güncelleme
 
 ## Oyun ve içerik üretimi
 
-Minimal imaj temel masaüstü ve grafik araçları, Firefox ESR, VLC ve Audacious içerir. Steam, Wine, Heroic, ProtonUp-Qt, Kdenlive, Audacity ve ONLYOFFICE gibi oyun/içerik üretimi yazılımları Puresteel Center üzerinden isteğe bağlı paketlerle kurulur; Flatpak/Flathub hazır gelir ancak büyük uygulamalar önden yüklenmez.
+Tam donanımlı ISO; Steam başlatıcısı, Wine 32/64-bit, Winetricks, 32-bit Vulkan/Mesa/NVIDIA kullanıcı alanı, Heroic Games Launcher, ProtonUp-Qt, Kdenlive, Audacity, FFmpeg, ONLYOFFICE ve geliştirme araçlarını içerir. Heroic, ProtonUp-Qt ve ONLYOFFICE sistem Flatpak olarak önceden kurulur. Steam istemcisi ilk açılışta güncellemelerini indirebilir; oyunlar ve Proton sürümleri ISO'ya dahil değildir.
 
 ## Power-user varsayılanları
 
@@ -77,7 +77,7 @@ Puresteel; Fish, Starship, Fastfetch, btop, htop, Git, curl, wget, Vim, Nano, fz
 
 ## Masaüstü ve branding
 
-Puresteel minimal KDE Plasma 6, SDDM, açık Breeze Light teması, Puresteel duvar kağıdı, ikonları, GRUB, Plymouth ve Calamares kimliğini kullanır. NVIDIA uyumluluğu için X11 oturumu da korunur. Sistem dili Puresteel Language Settings üzerinden değiştirilebilir.
+Puresteel KDE Plasma 6, SDDM, açık Breeze Light teması, Puresteel duvar kağıdı, ikonları, GRUB, Plymouth ve Calamares kimliğini kullanır. NVIDIA uyumluluğu için X11 oturumu da korunur. Sistem dili Puresteel Language Settings üzerinden değiştirilebilir.
 
 ## Kurulum
 
@@ -99,7 +99,7 @@ Oluşturulan hybrid ISO'yu USB belleğe yazın, UEFI modunda Puresteel live orta
 
 ## Sürüm geçmişi
 
-Yayınlanmış `v1.0.0` etiketi, ilk Puresteel 1.0 "Burak" sürümünün tarihsel kaydı olarak korunur. Güncel minimal Plasma sürümü `main` dalında geliştirilir; eski sürüm geçmişi yeniden yazılmaz.
+Yayınlanmış `v1.0.0` etiketi, ilk Puresteel 1.0 "Burak" sürümünün tarihsel kaydı olarak korunur. Güncel tam donanımlı Plasma sürümü `main` dalında geliştirilir; eski sürüm geçmişi yeniden yazılmaz.
 
 ## Lisanslama
 
