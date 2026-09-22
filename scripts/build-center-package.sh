@@ -17,6 +17,7 @@ cp -a "$ROOTFS/." "$STAGE/"
 find "$STAGE" -type d -name '__pycache__' -prune -exec rm -rf {} +
 find "$STAGE" -type f -name '*.pyc' -delete
 mkdir -p "$STAGE/DEBIAN" "$STAGE/usr/share/puresteel-center"
+chmod 755 "$STAGE/DEBIAN"
 printf '%s\n' "$VERSION" > "$STAGE/usr/share/puresteel-center/PACKAGE_VERSION"
 
 cat > "$STAGE/DEBIAN/control" <<EOF
