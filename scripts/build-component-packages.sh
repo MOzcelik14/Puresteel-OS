@@ -12,6 +12,7 @@ build_component() {
     local name="$1" deps="$2" description="$3" stage path relative
     stage="$(mktemp -d)"
     mkdir -p "$stage/DEBIAN"
+    chmod 755 "$stage/DEBIAN"
 
     copy() {
         for path in "$@"; do

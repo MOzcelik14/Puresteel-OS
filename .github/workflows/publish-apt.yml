@@ -55,6 +55,9 @@ jobs:
           printf '%s' "$SIGNING_KEY" | base64 --decode | gpg --batch --import
           printf '%s' "$SIGNING_PASSPHRASE" > "$passfile"
           unset SIGNING_KEY SIGNING_PASSPHRASE
+          # Keep the imported key home (0700) and passfile (0600) private, but
+          # generate public Debian archive files with standard readable modes.
+          umask 022
           export PURESTEEL_GPG_PASSPHRASE_FILE="$passfile"
           export PURESTEEL_ROLLING_RELEASE=1
           export PURESTEEL_PACKAGE_VERSION="$(./scripts/rolling-apt-version.sh)"

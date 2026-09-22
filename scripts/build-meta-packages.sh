@@ -11,6 +11,7 @@ build_meta() {
     local stage
     stage="$(mktemp -d)"
     mkdir -p "$stage/DEBIAN"
+    chmod 755 "$stage/DEBIAN"
     cat > "$stage/DEBIAN/control" <<EOF
 Package: $name
 Version: $VERSION

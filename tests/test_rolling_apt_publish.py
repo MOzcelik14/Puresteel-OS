@@ -31,6 +31,30 @@ class RollingAptTests(unittest.TestCase):
         self.assertIn('PUBLISHED_FPR', release)
         self.assertIn('"$FPR" != "$PUBLISHED_FPR"', release)
 
+    def test_packages_build_under_restrictive_umask(self):
+        command = (
+            "set -euo pipefail; umask 077; "
+            "./scripts/build-center-package.sh >/dev/null; "
+            "./scripts/build-meta-packages.sh >/dev/null; "
+            "./scripts/build-component-packages.sh >/dev/null; "
+            "for deb in build/packages/puresteel-*.deb; do "
+            "dpkg-deb --info \"$deb\" >/dev/null || exit 1; done"
+        )
+        subprocess.run(["bash", "-c", command], cwd=ROOT, check=True,
+                       stdout=subprocess.DEVNULL, stderr=subprocess.PIPE,
+                       text=True)
+
+    def test_public_archive_does_not_inherit_private_umask(self):
+        workflow = source(".github/workflows/publish-apt.yml")
+        self.assertIn("umask 077", workflow)
+        self.assertIn("umask 022", workflow)
+        self.assertLess(workflow.index("umask 077"),
+                        workflow.index("umask 022"))
+        for filename in ("scripts/build-center-package.sh",
+                         "scripts/build-meta-packages.sh",
+                         "scripts/build-component-packages.sh"):
+            self.assertIn("chmod 755", source(filename))
+
     def test_publisher_does_not_run_from_unvalidated_pull_requests(self):
         workflow = source(".github/workflows/publish-apt.yml")
         for guard in ("workflow_run.conclusion == 'success'",
