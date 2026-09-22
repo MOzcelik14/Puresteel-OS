@@ -80,6 +80,12 @@ By default the bootstrap script builds `main` (the current minimal Plasma editio
 curl -fsSL https://raw.githubusercontent.com/MOzcelik14/Puresteel-OS/main/bootstrap.sh | PURESTEEL_REF=v1.0.0 bash
 ```
 
+## Automatic rolling ISO
+
+Every push to `main` triggers code and package validation, then an ISO build and static smoke test. Artifacts from the GitHub Actions run remain available for seven days. Once the owner configures Cloudflare R2, the same job uploads `Puresteel-Latest.iso`, its checksum and JSON metadata to a public bucket after the tests pass. An unsuccessful build does not intentionally delete the previously published ISO.
+
+See [ROLLING.md](ROLLING.md) for setup, limitations and the distinction between creating an ISO and updating an already installed system.
+
 ## Manual Linux build
 
 Install the common dependencies:
