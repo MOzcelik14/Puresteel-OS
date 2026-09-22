@@ -111,6 +111,48 @@ class BuilderInterfaceTests(unittest.TestCase):
         self.assertIn('mktemp -d "$WORKDIR/run.XXXXXXXX"', source)
         self.assertIn('run_logged git clone --depth=1 --branch "$REF" "$REPO" "$SOURCE_DIR"', source)
 
+    def test_ref_validation_accepts_main_and_common_git_refs_without_sudo(self):
+        # Runs real --build preflight, not --preview, without any apt/sudo/git
+        # commands available. A passing ref must reach the missing apt-get
+        # check; no directories are written or dependencies installed.
+        import shutil
+        realpath = shutil.which("realpath")
+        self.assertIsNotNone(realpath)
+        with tempfile.TemporaryDirectory() as root:
+            parent = Path(root)
+            fakebin = parent / "bin"
+            fakebin.mkdir()
+            (fakebin / "realpath").symlink_to(realpath)
+            output = parent / "output"
+            home = parent / "home"
+            env = dict(os.environ, PATH=str(fakebin), HOME=str(home),
+                       PURESTEEL_OUTPUT_DIR=str(output), NO_COLOR="1")
+            for ref in ("main", "feat/terminal-ui", "v1.4.0-1"):
+                with self.subTest(ref=ref):
+                    result = call("--build", env=dict(env, PURESTEEL_REF=ref))
+                    self.assertNotEqual(result.returncode, 0)
+                    self.assertNotIn("Invalid PURESTEEL_REF", result.stderr)
+                    self.assertIn("Required command missing: apt-get", result.stderr)
+                    self.assertFalse(output.exists())
+
+    def test_ref_validation_reports_hidden_bad_characters_without_sudo(self):
+        import shutil
+        realpath = shutil.which("realpath")
+        self.assertIsNotNone(realpath)
+        with tempfile.TemporaryDirectory() as root:
+            parent = Path(root)
+            fakebin = parent / "bin"
+            fakebin.mkdir()
+            (fakebin / "realpath").symlink_to(realpath)
+            env = dict(os.environ, PATH=str(fakebin), HOME=str(parent / "home"),
+                       PURESTEEL_OUTPUT_DIR=str(parent / "output"), NO_COLOR="1",
+                       PURESTEEL_REF="main\\r")
+            result = call("--build", env=env)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("Invalid PURESTEEL_REF", result.stderr)
+            self.assertIn("main", result.stderr)
+            self.assertFalse((parent / "output").exists())
+
     def test_verbose_preview_and_invalid_flag(self):
         result = call("--verbose", "--preview")
         self.assertEqual(result.returncode, 0, result.stderr)
