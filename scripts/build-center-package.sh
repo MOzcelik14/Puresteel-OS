@@ -16,7 +16,8 @@ cp -a "$ROOTFS/." "$STAGE/"
 # Source-tree Python caches are not release artifacts.
 find "$STAGE" -type d -name '__pycache__' -prune -exec rm -rf {} +
 find "$STAGE" -type f -name '*.pyc' -delete
-mkdir -p "$STAGE/DEBIAN"
+mkdir -p "$STAGE/DEBIAN" "$STAGE/usr/share/puresteel-center"
+printf '%s\n' "$VERSION" > "$STAGE/usr/share/puresteel-center/PACKAGE_VERSION"
 
 cat > "$STAGE/DEBIAN/control" <<EOF
 Package: puresteel-center

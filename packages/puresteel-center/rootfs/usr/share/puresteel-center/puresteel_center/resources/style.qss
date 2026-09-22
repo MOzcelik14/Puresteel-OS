@@ -13,6 +13,8 @@ QPushButton#LanguageButton:checked{background:#2778c7;color:#fff;border-color:#2
 QLabel#VersionLabel{background:transparent;color:#627e98;font-size:11px}
 QStackedWidget#Pages,QWidget#ContentPage{background:#f5f8fc}
 QFrame#HeroPanel{background:#fff;border:1px solid #d9e5f0;border-radius:18px}
+QFrame#ReleasePanel{background:#e9f4fc;border:1px solid #b8d9f0;border-radius:13px}
+QLabel#ReleaseText{background:transparent;color:#183b59;font-size:14px;font-weight:800}
 QLabel#Eyebrow{background:transparent;color:#2571b5;font-size:11px;font-weight:800}
 QLabel#PageTitle{background:transparent;color:#183b59;font-size:33px;font-weight:800}
 QLabel#Lead{background:transparent;color:#526b83;font-size:15px}
