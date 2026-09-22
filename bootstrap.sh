@@ -390,9 +390,8 @@ esac
 case "$OUTPUT_DIR/" in
     "$WORKDIR/"*) fail "Output directory must not be inside the build cache." ;;
 esac
-case "$WORKDIR/" in
-    "$OUTPUT_DIR/"*) fail "Build cache must not be inside the output directory." ;;
-esac
+# The cache may be inside a broad destination such as the user's home;
+# only the reverse (publishing the ISO inside a disposable build cache) is unsafe.
 valid_iso_name "$ISO_NAME" ||
     fail "PURESTEEL_ISO_NAME must be a filename ending in .iso, without directories or a leading dash."
 mkdir -p -- "$OUTPUT_DIR" "$WORKDIR"
