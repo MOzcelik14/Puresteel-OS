@@ -146,7 +146,7 @@ class BuilderInterfaceTests(unittest.TestCase):
             (fakebin / "realpath").symlink_to(realpath)
             env = dict(os.environ, PATH=str(fakebin), HOME=str(parent / "home"),
                        PURESTEEL_OUTPUT_DIR=str(parent / "output"), NO_COLOR="1",
-                       PURESTEEL_REF="main\\r")
+                       PURESTEEL_REF="main\r")
             result = call("--build", env=env)
             self.assertNotEqual(result.returncode, 0)
             self.assertIn("Invalid PURESTEEL_REF", result.stderr)
