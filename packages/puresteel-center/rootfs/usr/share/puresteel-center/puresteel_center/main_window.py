@@ -49,8 +49,15 @@ class MainWindow(QMainWindow):
         if self.settings:self.settings.setValue("language",lang)
         self.apply_language()
 
+    @staticmethod
+    def package_version():
+        try:
+            return (Path(__file__).resolve().parents[1] / "PACKAGE_VERSION").read_text().strip()
+        except OSError:
+            return "2.0.0 (dev)"
+
     def apply_language(self):
-        self.setWindowTitle(t(self.language,"app_title"));self.lang_label.setText(t(self.language,"language"));self.ver.setText("Puresteel Center 1.4.0")
+        self.setWindowTitle(t(self.language,"app_title"));self.lang_label.setText(t(self.language,"language"));self.ver.setText("Puresteel Center " + self.package_version())
         self.trb.setChecked(self.language=="tr");self.enb.setChecked(self.language=="en")
         keys=["home","puresteel","updates","applications","drivers","profiles","sources","backup","reports","about"];cur=self.nav.currentRow();self.nav.clear()
         for k in keys:
