@@ -227,8 +227,14 @@ ask_setting() {
 pause_menu() { read_tty $'\n  Press Enter to return... ' || true; }
 
 valid_ref() {
-    [[ "$1" =~ ^[a-zA-Z0-9][a-zA-Z0-9._/-]*$ ]] &&
-        [[ "$1" != *'..'* && "$1" != */ && "$1" != *.lock ]]
+    # Shell glob matching is sufficient here; unlike locale-sensitive regular
+    # expression ranges, an ordinary name like "main" must pass consistently.
+    local candidate="${1-}"
+    [[ -n "$candidate" ]] || return 1
+    case "$candidate" in
+        [!a-zA-Z0-9]*|*[!a-zA-Z0-9._/-]*|*..*|*/|*.lock) return 1 ;;
+    esac
+    return 0
 }
 
 valid_iso_name() {
@@ -392,7 +398,10 @@ case "$OUTPUT_DIR/" in
 esac
 # The cache may be inside a broad destination such as the user's home;
 # only the reverse (publishing the ISO inside a disposable build cache) is unsafe.
-valid_ref "$REF" || fail "Invalid PURESTEEL_REF; use a branch/tag without spaces, .. or leading dashes."
+if ! valid_ref "$REF"; then
+    printf -v REF_ESCAPED '%q' "$REF"
+    fail "Invalid PURESTEEL_REF: ${REF_ESCAPED}; use a branch/tag without spaces, control characters, .. or leading dashes."
+fi
 valid_iso_name "$ISO_NAME" ||
     fail "PURESTEEL_ISO_NAME must be a filename ending in .iso, without directories or a leading dash."
 for cmd in apt-get sudo git df sha256sum mktemp; do
