@@ -24,6 +24,9 @@ class DailyReleaseAudit(unittest.TestCase):
         self.assertIn("Parser]::ParseFile", workflow)
         self.assertIn("branches: [ main ]", workflow)
         self.assertNotIn("branches: [ main, puresteel-platform-tools", workflow)
+        self.assertIn("cron: '17 3 * * *'", workflow)
+        self.assertIn("github.event_name == 'schedule'", workflow)
+        self.assertIn("Report signed APT repository freshness", workflow)
 
     def test_i386_enabled_on_iso_and_gaming_pack_installs_32bit_libraries(self):
         hook = read("config/hooks/live/0015-puresteel-multiarch.hook.chroot")

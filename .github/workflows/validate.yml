@@ -4,6 +4,8 @@ on:
   pull_request:
   push:
     branches: [ main ]
+  schedule:
+    - cron: '17 3 * * *'
   workflow_dispatch:
 
 jobs:
@@ -47,6 +49,29 @@ jobs:
           done
       - name: Platform safety unit tests
         run: python3 -m unittest discover -s tests -v
+      - name: Report signed APT repository freshness
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          source = Path("packages/puresteel-center/VERSION").read_text().strip()
+          packages = Path("docs/apt/dists/stable/main/binary-amd64/Packages").read_text()
+          published = ""
+          in_center = False
+          for line in packages.splitlines():
+              if line == "Package: puresteel-center":
+                  in_center = True
+              elif in_center and line.startswith("Version: "):
+                  published = line.split(": ", 1)[1].strip()
+                  break
+              elif in_center and not line.strip():
+                  break
+          if not published:
+              raise SystemExit("Puresteel APT index has no puresteel-center version")
+          if source != published:
+              print(f"::warning title=Puresteel APT repository is behind source::source={source}, published={published}. Publish only with the existing private signing key.")
+          else:
+              print(f"Puresteel APT repository matches source version {source}")
+          PY
 
   windows-powershell-syntax:
     runs-on: windows-latest
@@ -68,8 +93,8 @@ jobs:
           Write-Host 'Windows ISO builder syntax OK'
 
   iso-smoke:
-    # Opt in on a deliberate main push using [iso-smoke]. Normal PRs stay fast.
-    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && contains(github.event.head_commit.message, '[iso-smoke]'))
+    # Manual and nightly full-image smoke builds; normal PRs stay fast.
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule' || (github.event_name == 'push' && contains(github.event.head_commit.message, '[iso-smoke]'))
     runs-on: ubuntu-latest
     timeout-minutes: 120
     steps:
