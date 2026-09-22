@@ -115,6 +115,7 @@ Types: deb
 URIs: ${PAGES_BASE}/apt
 Suites: stable
 Components: main
+Architectures: amd64
 Signed-By: /usr/share/keyrings/puresteel-archive-keyring.asc
 EOF
 

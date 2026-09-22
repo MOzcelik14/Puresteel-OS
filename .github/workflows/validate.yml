@@ -68,18 +68,25 @@ jobs:
           Write-Host 'Windows ISO builder syntax OK'
 
   iso-smoke:
-    if: github.event_name == 'workflow_dispatch'
+    # Opt in on a deliberate main push using [iso-smoke]. Normal PRs stay fast.
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && contains(github.event.head_commit.message, '[iso-smoke]'))
     runs-on: ubuntu-latest
     timeout-minutes: 120
     steps:
       - uses: actions/checkout@v4
       - name: Install live-build
-        run: sudo apt-get update && sudo apt-get install -y live-build debootstrap squashfs-tools xorriso isolinux syslinux-common
+        run: sudo apt-get update && sudo apt-get install -y debootstrap squashfs-tools xorriso isolinux syslinux syslinux-common grub-pc-bin grub-efi-amd64-bin mtools dosfstools rsync dpkg-dev apt-utils gnupg po4a ca-certificates wget git make python3 && git clone --depth=1 https://salsa.debian.org/live-team/live-build.git /tmp/puresteel-live-build && sudo make -C /tmp/puresteel-live-build install
       - name: Build ISO
         run: sudo ./build.sh
       - name: Validate generated ISO filesystem and package database
         run: |
-          for iso in ./*.iso; do ./scripts/smoke-iso.sh "$iso"; done
+          shopt -s nullglob
+          isos=(./*.iso)
+          test "${#isos[@]}" -eq 1
+          ./scripts/smoke-iso.sh "${isos[0]}"
+          ./scripts/release-artifacts.sh "${isos[0]}"
+          test -s "${isos[0]}.sha256"
+          test -s "${isos[0]%.iso}-packages.txt" || test -s "${isos[0]%.iso}-packages.txt"
       - name: Checksums
         run: sha256sum *.iso | tee puresteel-ci.sha256
       - uses: actions/upload-artifact@v4

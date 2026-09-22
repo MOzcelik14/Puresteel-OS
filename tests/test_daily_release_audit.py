@@ -33,6 +33,8 @@ class DailyReleaseAudit(unittest.TestCase):
             self.assertIn('"' + name + '"', helper)
         self.assertIn('"install", "--no-remove", "-y", *pack["apt"]', helper)
         self.assertIn('grep -Fxq i386', read("scripts/smoke-iso.sh"))
+        self.assertIn("Architectures: amd64", read("config/includes.chroot/etc/apt/sources.list.d/puresteel.sources"))
+        self.assertIn("Architectures: amd64", read("scripts/release-center.sh"))
 
     def test_tracked_python_caches_are_removed(self):
         # CI compileall creates ignored bytecode just before unittest. Inspect
