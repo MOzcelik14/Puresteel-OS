@@ -36,6 +36,16 @@ class DailyReleaseAudit(unittest.TestCase):
         self.assertIn("Architectures: amd64", read("config/includes.chroot/etc/apt/sources.list.d/puresteel.sources"))
         self.assertIn("Architectures: amd64", read("scripts/release-center.sh"))
 
+    def test_trixie_package_selection_does_not_block_the_requested_browser(self):
+        core = read("config/package-lists/puresteel-core.list.chroot")
+        meta = read("scripts/build-meta-packages.sh")
+        pins = read("config/archives/puresteel-no-stock-browsers.pref.chroot")
+        self.assertIn("firefox-esr", core)
+        self.assertNotIn("firefox-esr", pins)
+        self.assertNotIn("plasma-workspace-wayland", core)
+        self.assertNotIn("plasma-workspace-wayland", meta)
+        self.assertIn("kwin-wayland", core)
+
     def test_tracked_python_caches_are_removed(self):
         # CI compileall creates ignored bytecode just before unittest. Inspect
         # the Git index instead of incorrectly treating runtime caches as tracked.

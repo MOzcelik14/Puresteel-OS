@@ -31,7 +31,6 @@ btop
 # Plasma desktop essentials: X11 fallback for NVIDIA + Wayland session
 plasma-desktop
 plasma-workspace
-plasma-workspace-wayland
 kwin-wayland
 kwin-x11
 xserver-xorg
