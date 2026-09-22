@@ -381,20 +381,26 @@ done
 OUTPUT_DIR="$(realpath -m -- "$OUTPUT_DIR")"
 WORKDIR="$(realpath -m -- "$WORKDIR")"
 HOME_REAL="$(realpath -m -- "$HOME")"
-if [[ "$WORKDIR" == "/" || "$WORKDIR" == "$HOME_REAL" || "$WORKDIR" == "$OUTPUT_DIR" ]]; then
-    fail "Unsafe PURESTEEL_WORKDIR: $WORKDIR"
-fi
-case "$OUTPUT_DIR/" in
-    "$WORKDIR/"*) fail "Output directory must not be inside the disposable build directory." ;;
+# Only work below the user's cache. Never recursively delete a caller-chosen
+# location, including an old clone from a previous build or a symlink target.
+case "$WORKDIR/" in
+    "$HOME_REAL/.cache/"*) ;;
+    *) fail "PURESTEEL_WORKDIR must be a directory under $HOME_REAL/.cache (got: $WORKDIR)." ;;
 esac
-[[ "$ISO_NAME" == *.iso && "$ISO_NAME" != */* && "$ISO_NAME" != "." && "$ISO_NAME" != ".." ]] ||
-    fail "PURESTEEL_ISO_NAME must be a filename ending in .iso, without directories."
-mkdir -p -- "$OUTPUT_DIR" "$(dirname -- "$WORKDIR")"
+case "$OUTPUT_DIR/" in
+    "$WORKDIR/"*) fail "Output directory must not be inside the build cache." ;;
+esac
+case "$WORKDIR/" in
+    "$OUTPUT_DIR/"*) fail "Build cache must not be inside the output directory." ;;
+esac
+valid_iso_name "$ISO_NAME" ||
+    fail "PURESTEEL_ISO_NAME must be a filename ending in .iso, without directories or a leading dash."
+mkdir -p -- "$OUTPUT_DIR" "$WORKDIR"
 LOG="$OUTPUT_DIR/puresteel-bootstrap.log"
 : > "$LOG"
 note "Log: $LOG"
 sudo -v
-for location in "$OUTPUT_DIR" "$(dirname -- "$WORKDIR")"; do
+for location in "$OUTPUT_DIR" "$WORKDIR"; do
     AVAILABLE_KB="$(df -Pk -- "$location" | awk 'NR==2 {print $4}')"
     [[ "${AVAILABLE_KB:-0}" =~ ^[0-9]+$ && "$AVAILABLE_KB" -ge 31457280 ]] ||
         fail "At least 30 GiB free space is required on the output and build filesystems ($location)."
@@ -430,14 +436,17 @@ step_ok 2 "Build dependencies"
 
 step 3 "Puresteel source"
 note "Cloning ref: $REF"
-rm -rf -- "$WORKDIR"
-run_logged git clone --depth=1 --branch "$REF" "$REPO" "$WORKDIR"
+# Fresh unique checkout: previous root-owned live-build files are never reused
+# or recursively removed. Keeping the checkout makes failures inspectable.
+BUILD_DIR="$(mktemp -d "$WORKDIR/run.XXXXXXXX")"
+SOURCE_DIR="$BUILD_DIR/source"
+run_logged git clone --depth=1 --branch "$REF" "$REPO" "$SOURCE_DIR"
 step_ok 3 "Puresteel source"
 
 step 4 "ISO build"
-note "Working directory: $WORKDIR"
+note "Working directory: $SOURCE_DIR"
 note "This is a REAL build; progress is recorded in $LOG."
-cd -- "$WORKDIR"
+cd -- "$SOURCE_DIR"
 run_logged bash ./build.sh
 [[ -s live-image-amd64.hybrid.iso ]] || fail "Build finished without a nonempty live-image-amd64.hybrid.iso."
 step_ok 4 "ISO build"
@@ -455,5 +464,6 @@ printf '%s  PURESTEEL ISO BUILD COMPLETE%s\n' "$C_BOLD$C_GREEN" "$C_RESET"
 printf '  ISO       %s/%s\n' "$OUTPUT_DIR" "$ISO_NAME"
 printf '  SHA256    %s/%s.sha256\n' "$OUTPUT_DIR" "$ISO_NAME"
 printf '  Log       %s\n' "$LOG"
-printf '  Build log %s/build.log\n' "$WORKDIR"
+printf '  Build log %s/build.log\n' "$SOURCE_DIR"
+printf '  Build cache %s (old runs are retained; remove only after checking)\n' "$WORKDIR"
 printf '%s  ───────────────────────────────────────────%s\n\n' "$C_GREEN" "$C_RESET"
