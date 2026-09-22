@@ -122,4 +122,5 @@ EOF
 echo
 echo "Prepared ${#ALL_DEBS[@]} signed-repository Puresteel packages at version $VERSION"
 echo "APT repo: ${PAGES_BASE}/apt"
+python3 scripts/verify-apt-repository.py --require-current
 echo "Publish docs/apt to Pages only after reviewing and testing the packages."

@@ -14,7 +14,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Install validation tools
-        run: sudo apt-get update && sudo apt-get install -y shellcheck python3 python3-yaml dpkg-dev
+        run: sudo apt-get update && sudo apt-get install -y shellcheck python3 python3-yaml dpkg-dev gnupg
       - name: Shell syntax
         run: |
           find scripts config -type f \( -name '*.sh' -o -name '*.hook.chroot' \) -print0 | xargs -0 -r shellcheck -S error
@@ -49,6 +49,8 @@ jobs:
           done
       - name: Platform safety unit tests
         run: python3 -m unittest discover -s tests -v
+      - name: Verify published APT signature and package integrity
+        run: python3 scripts/verify-apt-repository.py
       - name: Report signed APT repository freshness
         run: |
           python3 - <<'PY'
