@@ -375,8 +375,8 @@ if [[ "$PREVIEW" -eq 1 ]]; then
 fi
 
 step 1 "System checks"
-for cmd in apt-get sudo git df realpath sha256sum; do
-    command -v "$cmd" >/dev/null 2>&1 || fail "Required command missing: $cmd (APT-based hosts only)."
+for cmd in realpath; do
+    command -v "$cmd" >/dev/null 2>&1 || fail "Required command missing: $cmd."
 done
 OUTPUT_DIR="$(realpath -m -- "$OUTPUT_DIR")"
 WORKDIR="$(realpath -m -- "$WORKDIR")"
@@ -392,8 +392,12 @@ case "$OUTPUT_DIR/" in
 esac
 # The cache may be inside a broad destination such as the user's home;
 # only the reverse (publishing the ISO inside a disposable build cache) is unsafe.
+valid_ref "$REF" || fail "Invalid PURESTEEL_REF; use a branch/tag without spaces, .. or leading dashes."
 valid_iso_name "$ISO_NAME" ||
     fail "PURESTEEL_ISO_NAME must be a filename ending in .iso, without directories or a leading dash."
+for cmd in apt-get sudo git df sha256sum mktemp; do
+    command -v "$cmd" >/dev/null 2>&1 || fail "Required command missing: $cmd (APT-based hosts only)."
+done
 mkdir -p -- "$OUTPUT_DIR" "$WORKDIR"
 LOG="$OUTPUT_DIR/puresteel-bootstrap.log"
 : > "$LOG"
