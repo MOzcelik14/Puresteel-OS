@@ -155,8 +155,21 @@ jobs:
             echo "::error title=Incomplete R2 configuration::Set all four R2 secrets or none."
             exit 1
           fi
-          sudo apt-get update
-          sudo apt-get install -y awscli
+          # Ubuntu's GitHub-hosted runner may not offer an apt awscli candidate.
+          # Install the official AWS CLI v2 into the runner's temporary directory.
+          if ! command -v unzip >/dev/null 2>&1; then
+            sudo apt-get update
+            sudo apt-get install -y unzip
+          fi
+          curl --fail --silent --show-error --location --retry 3 \
+            --output "$RUNNER_TEMP/awscliv2.zip" \
+            https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip
+          unzip -q "$RUNNER_TEMP/awscliv2.zip" -d "$RUNNER_TEMP/aws-cli-installer"
+          "$RUNNER_TEMP/aws-cli-installer/aws/install" \
+            --install-dir "$RUNNER_TEMP/aws-cli" \
+            --bin-dir "$RUNNER_TEMP/aws-bin"
+          export PATH="$RUNNER_TEMP/aws-bin:$PATH"
+          aws --version
           export AWS_ACCESS_KEY_ID="$R2_ACCESS_KEY_ID"
           export AWS_SECRET_ACCESS_KEY="$R2_SECRET_ACCESS_KEY"
           endpoint="https://${R2_ACCOUNT_ID}.r2.cloudflarestorage.com"
