@@ -200,6 +200,8 @@ jobs:
               "commit": os.environ["GITHUB_SHA"],
               "generated_utc": datetime.datetime.now(datetime.timezone.utc).isoformat(),
               "iso": "Puresteel-Latest.iso",
+              "bytes": Path("live-image-amd64.hybrid.iso").stat().st_size,
+              "sha256": Path("Puresteel-Latest.iso.sha256").read_text(encoding="utf-8").split()[0],
               "checksum": "Puresteel-Latest.iso.sha256",
               "validation": "static-ISO-smoke",
           }, indent=2) + "\n", encoding="utf-8")

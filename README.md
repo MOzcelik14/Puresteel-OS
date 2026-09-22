@@ -56,7 +56,7 @@ For manual and development builds, see [docs/BUILD.md](docs/BUILD.md).
 
 ## Puresteel Center
 
-Puresteel ships its own Qt 6 / PySide6 system management application with modules for updates, applications, drivers, sources, backup and system reports. Turkish and English interfaces are supported.
+Puresteel ships its own Qt 6 / PySide6 Center 2.0 system management application with modules for updates, applications, drivers, sources, backup and system reports. Turkish and English interfaces are supported.
 
 [Puresteel Center documentation →](docs/PURESTEEL_CENTER.md)
 
@@ -67,7 +67,7 @@ Puresteel ships its own Qt 6 / PySide6 system management application with module
 - **NVIDIA** — Debian proprietary driver stack, DKMS, Vulkan and hybrid graphics integration
 - **Hybrid systems** — Intel + NVIDIA, AMD + NVIDIA and other multi-GPU layouts supported by the Linux graphics stack
 
-An earlier Cinnamon image was tested on an Intel + NVIDIA RTX 3050 laptop. The new minimal Plasma edition still requires separate fresh-install and hardware verification.
+An earlier Cinnamon image was tested on an Intel + NVIDIA RTX 3050 laptop. The full Plasma rolling edition still requires separate fresh-install and hardware verification.
 
 [Hardware documentation →](docs/HARDWARE.md)
 
