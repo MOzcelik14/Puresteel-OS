@@ -68,6 +68,23 @@ class RollingAptTests(unittest.TestCase):
         )
         self.assertIn('gh pr merge "$pr" --merge', workflow)
 
+    def test_publisher_waits_for_required_checks_to_register(self):
+        workflow = source(".github/workflows/publish-apt.yml")
+        self.assertIn('release_sha="$(git rev-parse HEAD)"', workflow)
+        self.assertIn('commits/$release_sha/check-runs', workflow)
+        self.assertIn('index("validate") != null', workflow)
+        self.assertIn('index("windows-powershell-syntax") != null', workflow)
+        self.assertIn('for attempt in $(seq 1 60)', workflow)
+        self.assertIn('if [[ "$checks_ready" != "true" ]]', workflow)
+        self.assertLess(
+            workflow.index('commits/$release_sha/check-runs'),
+            workflow.index('gh pr checks "$pr" --watch --fail-fast'),
+        )
+        self.assertLess(
+            workflow.index('gh pr checks "$pr" --watch --fail-fast'),
+            workflow.index('gh pr merge "$pr" --merge'),
+        )
+
     def test_publisher_does_not_run_from_unvalidated_pull_requests(self):
         workflow = source(".github/workflows/publish-apt.yml")
         for guard in ("workflow_run.conclusion == 'success'",
