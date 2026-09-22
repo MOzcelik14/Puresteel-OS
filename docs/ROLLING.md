@@ -68,7 +68,7 @@ Automatic ISO publishing updates the install/download media. Existing
 Puresteel machines still need newer versions in the signed Puresteel APT
 repository to receive updated Puresteel-owned files via `apt upgrade`.
 The current signed APT index advertises Center `1.0.1-1`, while source is
-`1.4.0-1`. Publishing package updates needs the ORIGINAL private signing key.
+`2.0.0-1`. Publishing package updates needs the ORIGINAL private signing key.
 Do not confuse ISO publication with automatic package releases or
 claim every installed user receives every commit. See [UPDATES.md](UPDATES.md)
 and [release-owner checklist](https://github.com/MOzcelik14/Puresteel-OS/issues/17).

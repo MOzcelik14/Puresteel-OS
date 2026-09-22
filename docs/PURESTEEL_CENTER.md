@@ -6,10 +6,11 @@ Puresteel Center is Puresteel's Qt 6 / PySide6 system-management application. It
 
 ### Home
 
-Shows quick access to the most common tasks and summarizes the main management areas.
+Shows quick access to the most common tasks, plus a read-only rolling-release panel: installed Center package version, cached APT candidate, kernel, and whether the source/key files are present. Checking status does not fetch a live index or install updates.
 
 ### Updates
 
+- separates Puresteel-owned signed APT updates from other Debian package updates
 - checks APT updates
 - checks Flatpak updates
 - can install system package updates through a privileged helper
@@ -127,7 +128,7 @@ Puresteel Center is maintained as a Debian package source inside:
 packages/puresteel-center/
 ```
 
-Current version information is stored in:
+The base package version is now 2.0.0-1. Automatic signed releases append a commit-stamped +git suffix, and the installed Center reads the actual package version from its own payload. Base version information is stored in:
 
 ```text
 packages/puresteel-center/VERSION
@@ -142,7 +143,7 @@ Build the package:
 Publish a new version into the Puresteel APT repository:
 
 ```bash
-./scripts/release-center.sh 1.4.0-1
+./scripts/release-center.sh 2.0.0-1
 ```
 
 This script requires the private Puresteel archive signing key. It rebuilds Center and component packages, signs the APT repository, and also stages the current `.deb` files in `config/packages.chroot/` so future ISO builds include matching package versions locally. The committed online repository still contains older signed packages until a separate signed release is published. Never publish unsigned metadata.

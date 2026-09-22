@@ -80,10 +80,10 @@ Build without publishing:
 Release a new package version:
 
 ```bash
-./scripts/release-center.sh 1.4.0-1
+./scripts/release-center.sh 2.0.0-1
 ```
 
-The source package version is currently `1.4.0-1`, but the committed signed APT index still lists `puresteel-center` version `1.0.1-1`. Merging source code does not update installed systems. Publishing a new version requires the matching signing **private key**, regenerated component packages, signed indexes and a separate commit; do not publish unsigned or mismatched metadata. The release script performs the important packaging steps:
+The source package version is currently `2.0.0-1`, but the committed signed APT index still lists `puresteel-center` version `1.0.1-1`. Merging source code does not update installed systems. Publishing a new version requires the matching signing **private key**, regenerated component packages, signed indexes and a separate commit; do not publish unsigned or mismatched metadata. The release script performs the important packaging steps:
 
 1. updates `packages/puresteel-center/VERSION`,
 2. builds the `.deb`,
@@ -99,7 +99,7 @@ Then commit and push the changed repository files:
 
 ```bash
 git add -A
-git commit -m "Release Puresteel components 1.4.0"
+git commit -m "Release Puresteel components 2.0.0"
 git push
 ```
 
@@ -152,7 +152,7 @@ The command checks both OpenPGP signatures, signed Release/index SHA256 hashes, 
 python3 scripts/verify-apt-repository.py --require-current
 ```
 
-**Current release blocker:** the signed online index still advertises Puresteel Center `1.0.1-1`, while source is `1.4.0-1`. The original private key that matches `docs/apt/puresteel-archive-keyring.asc` is required to advance the signed archive. Do not commit a private key or replace the key with an unrelated one. Once the original key is available on a trusted maintainer machine, run `./scripts/release-center.sh 1.4.0-1`, inspect the changes, and publish only after release tests. Changing `main` alone cannot publish a valid signed APT release.
+**Current release blocker:** the signed online index still advertises Puresteel Center `1.0.1-1`, while source is `2.0.0-1`. The original private key that matches `docs/apt/puresteel-archive-keyring.asc` is required to advance the signed archive. Do not commit a private key or replace the key with an unrelated one. Once the original key is available on a trusted maintainer machine, run `./scripts/release-center.sh 2.0.0-1`, inspect the changes, and publish only after release tests. Changing `main` alone cannot publish a valid signed APT release.
 
 ## Protect the main branch
 
@@ -179,7 +179,7 @@ If the package repository is unavailable, existing Debian packages remain usable
 
 ## Automated signed rolling releases
 
-After a successful `main` push build, [Publish signed Puresteel APT](../.github/workflows/publish-apt.yml) produces a Debian version such as `1.4.0+git20260922143000.abcdef123456-1`, builds Center and nine other Puresteel-owned packages, verifies both signed Release formats and indexed .deb hashes, then commits the signed `docs/apt` archive. A docs/apt-only commit does not start another ISO build. Each package retains the two newest rolling artifacts; ordinary/manual releases are preserved.
+After a successful `main` push or manually dispatched validation build, [Publish signed Puresteel APT](../.github/workflows/publish-apt.yml) produces a Debian version such as `2.0.0+git20260922143000.abcdef123456-1`, builds Center and nine other Puresteel-owned packages, verifies both signed Release formats and indexed .deb hashes, then commits the signed `docs/apt` archive. A docs/apt-only commit does not start another ISO build. Each package retains the two newest rolling artifacts; ordinary/manual releases are preserved.
 
 **The publisher is intentionally inactive until the maintainer sets these GitHub Actions repository secrets:**
 
@@ -192,3 +192,5 @@ To obtain the encoded key without showing it in the chat, find the original priv
 The release source `packages/puresteel-center/VERSION` remains the base version; each validated main commit has its own monotonically time-stamped `+git` Debian version. The ISO still bundles its own Puresteel packages without requiring network access to the online archive. Signed APT publication affects **already installed** machines on their next APT update, not just newly downloaded ISOs. Base Debian package upgrades and Flatpak app updates remain separate.
 
 The automatic publisher makes no claim of success until a workflow run shows the `Signed packages published` message and Pages serves the new signed `InRelease`. If the required secrets are absent, it reports a notice and leaves the previous repository untouched. A protected main branch may require a dedicated publishing policy for the scoped token.
+
+Once the three secrets are configured, go to [Puresteel validation → Run workflow](https://github.com/MOzcelik14/Puresteel-OS/actions/workflows/validate.yml) and run it on `main`. On success, the APT publisher will run for that exact validated commit. A nightly scheduled ISO rebuild alone does **not** publish a redundant new package version; routine package releases follow source changes or explicit manual validation.

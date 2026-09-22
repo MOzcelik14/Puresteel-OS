@@ -173,10 +173,10 @@ Build the current Center package without publishing it:
 Release a new Center version and update APT metadata:
 
 ```bash
-./scripts/release-center.sh 1.4.0-1
+./scripts/release-center.sh 2.0.0-1
 ```
 
-The source package version is currently `1.4.0-1`; the signed online repository still lists the historical `1.0.1-1` Center package until a separate signed release. An ISO build does not publish APT packages. See [UPDATES.md](UPDATES.md) before publishing package updates.
+The source package version is currently `2.0.0-1`; the signed online repository still lists the historical `1.0.1-1` Center package until a separate signed release. An ISO build does not publish APT packages. See [UPDATES.md](UPDATES.md) before publishing package updates.
 
 ## Test the ISO in QEMU
 
