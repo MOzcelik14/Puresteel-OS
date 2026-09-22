@@ -10,6 +10,9 @@ on:
 
 permissions:
   contents: read
+  pull-requests: read
+  checks: read
+  statuses: read
 
 jobs:
   publish:
@@ -35,6 +38,7 @@ jobs:
           SIGNING_KEY: ${{ secrets.PURESTEEL_APT_SIGNING_KEY_B64 }}
           SIGNING_PASSPHRASE: ${{ secrets.PURESTEEL_APT_SIGNING_PASSPHRASE }}
           PUBLISH_TOKEN: ${{ secrets.PURESTEEL_APT_PUBLISH_TOKEN }}
+          CHECKS_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           if [[ -z "$SIGNING_KEY" || -z "$SIGNING_PASSPHRASE" || -z "$PUBLISH_TOKEN" ]]; then
@@ -85,8 +89,10 @@ jobs:
             --title "chore(apt): publish signed rolling $PURESTEEL_PACKAGE_VERSION" \
             --body "Automatically generated from validated main commit $VALIDATED_SHA. Original archive key verified; signed Release and package hashes checked.")"
           echo "Signed APT release PR: $pr"
+          # Fine-grained PATs cannot request Checks API access. Use the limited
+          # Actions token for CI reads; retain maintainer PAT for PR create/merge.
           # PR checks verify this exact newly signed archive. No bypass is used.
-          gh pr checks "$pr" --watch --fail-fast --repo "$GITHUB_REPOSITORY"
+          GH_TOKEN="$CHECKS_TOKEN" gh pr checks "$pr" --watch --fail-fast --repo "$GITHUB_REPOSITORY"
           # Never merge a release produced from an obsolete source commit.
           git fetch origin main
           if [[ "$(git rev-parse origin/main)" != "$VALIDATED_SHA" ]]; then
