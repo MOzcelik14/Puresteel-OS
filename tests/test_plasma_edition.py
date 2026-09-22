@@ -17,7 +17,7 @@ class PlasmaEditionTests(unittest.TestCase):
         core = source("config/package-lists/puresteel-core.list.chroot").splitlines()
         active = set(line.strip() for line in core if line.strip() and not line.lstrip().startswith("#"))
         self.assertTrue({"plasma-desktop", "sddm", "plasma-nm", "libpam-kwallet5", "kwin-x11",
-                         "plasma-workspace-wayland", "xdg-desktop-portal-kde"}.issubset(active))
+                         "plasma-workspace", "kwin-wayland", "xdg-desktop-portal-kde"}.issubset(active))
         self.assertTrue({"cinnamon", "cinnamon-core", "lightdm", "slick-greeter",
                          "kde-full", "kde-standard", "plasma-discover", "nemo"}.isdisjoint(active))
 

@@ -29,7 +29,7 @@ EOF
 }
 
 build_meta puresteel-base "systemd-sysv, network-manager, flatpak, zram-tools, puresteel-platform (>= $VERSION)" "Puresteel base system"
-build_meta puresteel-desktop "plasma-desktop, plasma-workspace, plasma-workspace-wayland, kwin-x11, sddm, plasma-nm, plasma-pa, libpam-kwallet5, puresteel-branding (>= $VERSION), puresteel-default-settings (>= $VERSION), puresteel-recovery (>= $VERSION)" "Puresteel minimal KDE Plasma desktop"
+build_meta puresteel-desktop "plasma-desktop, plasma-workspace, kwin-wayland, kwin-x11, sddm, plasma-nm, plasma-pa, libpam-kwallet5, puresteel-branding (>= $VERSION), puresteel-default-settings (>= $VERSION), puresteel-recovery (>= $VERSION)" "Puresteel minimal KDE Plasma desktop"
 build_meta puresteel-gaming "steam-installer, steam-libs-i386, wine, winetricks, gamemode, mangohud, libvulkan1:i386, mesa-vulkan-drivers:i386, libgl1-mesa-dri:i386" "Puresteel gaming stack"
 build_meta puresteel-creator "ffmpeg, flatpak" "Puresteel creator stack"
 build_meta puresteel-developer "build-essential, git, curl" "Puresteel developer stack"
