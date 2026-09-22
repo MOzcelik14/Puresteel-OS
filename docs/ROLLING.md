@@ -13,6 +13,14 @@ cannot publish ISOs. GitHub Actions may queue builds during busy periods.
 
 [Puresteel ISO Actions](https://github.com/MOzcelik14/Puresteel-OS/actions/workflows/validate.yml)
 
+The R2 bucket now has a temporary public development URL:
+
+- [Latest ISO](https://pub-6bd67d084cc74faa8573569db4b21336.r2.dev/Puresteel-Latest.iso)
+- [Matching SHA256](https://pub-6bd67d084cc74faa8573569db4b21336.r2.dev/Puresteel-Latest.iso.sha256)
+- [Build metadata](https://pub-6bd67d084cc74faa8573569db4b21336.r2.dev/Puresteel-Latest.json)
+
+Cloudflare rate-limits `r2.dev` development URLs; a custom R2 domain is needed for production-scale public distribution. Download access does not expose the private R2 S3 upload credentials.
+
 Until R2 is configured, select a successful `main` run and download its
 `puresteel-iso` artifact. Artifacts are ZIP archives, can require GitHub login,
 and expire after **7 days**. They are not permanent public download URLs.

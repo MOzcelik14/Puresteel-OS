@@ -34,6 +34,8 @@ irm https://raw.githubusercontent.com/MOzcelik14/Puresteel-OS/main/windows-build
 
 The Windows builder uses WSL2 and a Debian/Ubuntu environment automatically. If WSL is not installed yet, the first run starts the Windows WSL/Debian setup. Windows may ask for one restart or initial Linux-user setup; afterwards, run the same command again.
 
+**Direct ISO download (temporary public R2 development URL):** [Puresteel-Latest.iso](https://pub-6bd67d084cc74faa8573569db4b21336.r2.dev/Puresteel-Latest.iso) · [SHA256](https://pub-6bd67d084cc74faa8573569db4b21336.r2.dev/Puresteel-Latest.iso.sha256). The `r2.dev` address is rate-limited; use a custom R2 domain before broad public distribution.
+
 **Rolling ISO:** every merge to `main` triggers a full GitHub Actions ISO build once CI passes. [See the latest successful ISO artifact](https://github.com/MOzcelik14/Puresteel-OS/actions/workflows/validate.yml). Permanent public downloads require a Cloudflare R2 bucket configured by the repository owner. [Rolling build and R2 setup →](docs/ROLLING.md)
 
 For manual and development builds, see [docs/BUILD.md](docs/BUILD.md).

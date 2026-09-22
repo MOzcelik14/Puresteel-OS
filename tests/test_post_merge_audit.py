@@ -34,6 +34,15 @@ class PostMergeAuditTests(unittest.TestCase):
         self.assertIn("Güncel main · Plasma 6", html)
         self.assertIn("Wayland + X11", html)
 
+    def test_rolling_iso_website_has_matching_public_downloads(self):
+        html = source("docs/index.html")
+        url = "https://pub-6bd67d084cc74faa8573569db4b21336.r2.dev"
+        self.assertIn(url + "/Puresteel-Latest.iso\"", html)
+        self.assertIn(url + "/Puresteel-Latest.iso.sha256\"", html)
+        self.assertIn("downloadIso:'Güncel ISO indir'", html)
+        self.assertIn("downloadIso:'Download latest ISO'", html)
+        self.assertIn("r2.dev", source("docs/ROLLING.md"))
+
     def test_iso_build_does_not_claim_to_publish_signed_apt(self):
         for path in ("build.sh", ".github/workflows/validate.yml"):
             self.assertNotIn("release-center.sh", source(path))
