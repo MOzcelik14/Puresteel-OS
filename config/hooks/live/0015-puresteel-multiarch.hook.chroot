@@ -1,0 +1,9 @@
+#!/bin/sh
+set -e
+# The lean ISO does not bundle 32-bit Steam/Wine libraries, but enabling the
+# architecture now lets the opt-in Gaming Pack fetch them after installation.
+# Live-build runs chroot hooks before the squashfs is generated.
+if [ "$(dpkg --print-architecture)" = "amd64" ]; then
+    dpkg --add-architecture i386
+    echo "[Puresteel] Enabled i386 multiarch for optional gaming."
+fi

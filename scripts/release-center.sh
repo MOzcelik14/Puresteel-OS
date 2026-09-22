@@ -35,8 +35,10 @@ if [ -z "$FPR" ]; then
 fi
 
 DEB="$(scripts/build-center-package.sh)"
-mapfile -t META_DEBS < <(scripts/build-meta-packages.sh)
-mapfile -t COMPONENT_DEBS < <(scripts/build-component-packages.sh)
+META_OUTPUT="$(scripts/build-meta-packages.sh)"
+COMPONENT_OUTPUT="$(scripts/build-component-packages.sh)"
+mapfile -t META_DEBS <<< "$META_OUTPUT"
+mapfile -t COMPONENT_DEBS <<< "$COMPONENT_OUTPUT"
 if [ "${#META_DEBS[@]}" -ne 5 ] || [ "${#COMPONENT_DEBS[@]}" -ne 4 ]; then
     echo "Incomplete Puresteel package build: refusing to sign repository." >&2
     exit 1
