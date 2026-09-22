@@ -179,7 +179,7 @@ If the package repository is unavailable, existing Debian packages remain usable
 
 ## Automated signed rolling releases
 
-After a successful `main` push build, [Publish signed Puresteel APT](../.github/workflows/publish-apt.yml) produces a Debian version such as `1.4.0+git20260922143000.abcdef123456-1`, builds Center and the nine Puresteel-owned packages, verifies both signed Release formats and indexed .deb hashes, then commits the signed `docs/apt` archive. A docs/apt-only commit does not start another ISO build. Each package retains the two newest rolling artifacts; ordinary/manual releases are preserved.
+After a successful `main` push build, [Publish signed Puresteel APT](../.github/workflows/publish-apt.yml) produces a Debian version such as `1.4.0+git20260922143000.abcdef123456-1`, builds Center and nine other Puresteel-owned packages, verifies both signed Release formats and indexed .deb hashes, then commits the signed `docs/apt` archive. A docs/apt-only commit does not start another ISO build. Each package retains the two newest rolling artifacts; ordinary/manual releases are preserved.
 
 **The publisher is intentionally inactive until the maintainer sets these GitHub Actions repository secrets:**
 
