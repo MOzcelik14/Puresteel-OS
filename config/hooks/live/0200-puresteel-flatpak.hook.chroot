@@ -1,4 +1,8 @@
 #!/bin/sh
-set -e
-echo "[Puresteel] Configuring Flathub; apps are installed on demand from Puresteel Center."
+set -eu
+echo "[Puresteel] Installing Heroic Games Launcher as a system Flatpak."
 flatpak remote-add --system --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+# Do not silently ship a 'full' ISO without Heroic if the network fails.
+flatpak install --system --noninteractive --assumeyes flathub com.heroicgameslauncher.hgl
+flatpak info --system com.heroicgameslauncher.hgl >/dev/null
+echo "[Puresteel] Heroic and its required Flatpak runtime installed."

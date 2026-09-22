@@ -48,10 +48,10 @@ UEFI/OVMF with a fresh virtual disk if firmware/EFI coverage is required.
 - [ ] SDDM password login opens a matching-password kdewallet via PAM; no Wi-Fi prompt repeats after login.
 - [ ] Existing agent-owned Wi-Fi connections can be migrated only with user consent; `puresteelctl wifi` leaks no PSK.
 - [ ] Plasma X11 fallback remains available for NVIDIA testing.
-- [ ] No KDE PIM/Akonadi/Discover or large creator/gaming apps are preinstalled.
+- [ ] No KDE PIM/Akonadi/Discover is preinstalled. Steam, Wine32/64, Heroic, Kdenlive, Audacity and development tools are present.
 - [ ] Puresteel Center and all cards remain accessible at 1366x768.
 - [ ] Profile apply/reboot persists; Doctor displays both swap and ZRAM.
-- [ ] The seven ISO-selected Puresteel packages are registered with dpkg; optional role metapackages are not preinstalled.
+- [ ] The seven ISO-selected Puresteel packages are registered with dpkg; full-edition app packages and Heroic system Flatpak are available.
 - [ ] `puresteelctl snapshot create` creates a listed, restorable snapshot.
 - [ ] Safe Update aborts if Timeshift fails (use a THROWAWAY VM to force failure).
 - [ ] Safe Update records one real snapshot ID in last-update-snapshot JSON.

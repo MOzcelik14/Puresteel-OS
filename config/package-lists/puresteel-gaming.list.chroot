@@ -1,1 +1,9 @@
-# Opt-in Gaming Pack is installed from Puresteel Center, not in the minimal ISO.
+# Native gaming apps. Steam + i386 libraries are installed after multiarch
+# is enabled by config/hooks/live/0015-puresteel-multiarch.hook.chroot.
+wine
+wine64
+winetricks
+steam-devices
+gamemode
+mangohud
+cabextract
