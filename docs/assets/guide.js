@@ -17,8 +17,12 @@
     ["TROUBLESHOOTING", "Troubleshooting", "Sorun giderme"]
   ];
   const known = new Set(docs.map(function (d) { return d[0]; }));
-  const lang = localStorage.getItem("puresteel-lang") === "tr" ||
-    (!localStorage.getItem("puresteel-lang") && navigator.language.toLowerCase().startsWith("tr")) ? "tr" : "en";
+  const requestedLang = new URLSearchParams(location.search).get("lang");
+  const preferredLang = localStorage.getItem("puresteel-lang");
+  const lang = requestedLang === "tr" || requestedLang === "en" ? requestedLang :
+    (preferredLang === "tr" || preferredLang === "en" ? preferredLang :
+      (navigator.language.toLowerCase().startsWith("tr") ? "tr" : "en"));
+  localStorage.setItem("puresteel-lang", lang);
   document.documentElement.lang = lang;
   const tr = lang === "tr";
   const params = new URLSearchParams(location.search);
@@ -33,17 +37,26 @@
   const label = tr ? definition[2] : definition[1];
   document.title = label + " · Puresteel";
   document.getElementById("crumb").textContent = label;
-  const original = github + "docs/" + current + ".md";
+  const original = github + "docs/" + (tr ? "tr/" : "") + current + ".md";
   document.getElementById("source").href = original;
   document.getElementById("edit-link").href = original;
   search.placeholder = tr ? "Belge ara…" : "Find a guide…";
   for (const node of document.querySelectorAll("[data-tr]")) {
     if (tr) node.textContent = node.getAttribute("data-tr");
   }
+  for (const button of document.querySelectorAll("[data-guide-lang]")) {
+    const choice = button.getAttribute("data-guide-lang");
+    button.classList.toggle("active", choice === lang);
+    button.setAttribute("aria-pressed", String(choice === lang));
+    button.addEventListener("click", function () {
+      localStorage.setItem("puresteel-lang", choice);
+      location.href = "guide.html?doc=" + encodeURIComponent(current) + "&lang=" + choice + location.hash;
+    });
+  }
 
   for (const entry of docs) {
     const link = document.createElement("a");
-    link.href = "guide.html?doc=" + encodeURIComponent(entry[0]);
+    link.href = "guide.html?doc=" + encodeURIComponent(entry[0]) + "&lang=" + lang;
     link.textContent = tr ? entry[2] : entry[1];
     if (entry[0] === current) {
       link.classList.add("current");
@@ -68,7 +81,7 @@
     const match = href.match(/^(?:\.\/)?(?:docs\/)?([A-Za-z0-9_-]+)\.md(#[A-Za-z0-9_-]+)?$/i);
     if (match) {
       const stem = match[1].toUpperCase();
-      if (known.has(stem)) return "guide.html?doc=" + encodeURIComponent(stem) + (match[2] || "");
+      if (known.has(stem)) return "guide.html?doc=" + encodeURIComponent(stem) + "&lang=" + lang + (match[2] || "");
       if (stem === "README") return github + "README.md" + (match[2] || "");
     }
     if (/^\.\.\/README(?:\.tr)?\.md(?:#.*)?$/i.test(href)) return github + href.slice(3);
@@ -88,7 +101,7 @@
     box.appendChild(a);
     content.appendChild(box);
   }
-  fetch(current + ".md", {cache:"no-cache"}).then(function (response) {
+  fetch((tr ? "tr/" : "") + current + ".md", {cache:"no-cache"}).then(function (response) {
     if (!response.ok) throw Error("HTTP " + response.status);
     return response.text();
   }).then(function (markdown) {
