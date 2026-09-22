@@ -6,7 +6,7 @@ cd "$REPO"
 
 PKGROOT="packages/puresteel-center"
 ROOTFS="$PKGROOT/rootfs"
-VERSION="$(tr -d '[:space:]' < "$PKGROOT/VERSION")"
+VERSION="${PURESTEEL_PACKAGE_VERSION:-$(tr -d '[:space:]' < "$REPO/packages/puresteel-center/VERSION")}"
 OUTDIR="build/packages"
 STAGE="$(mktemp -d)"
 trap 'rm -rf "$STAGE"' EXIT

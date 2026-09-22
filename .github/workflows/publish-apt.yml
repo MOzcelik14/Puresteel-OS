@@ -1,0 +1,77 @@
+name: Publish signed Puresteel APT
+
+# Trust only a successful, validated main push. PRs never receive signing secrets.
+on:
+  workflow_run:
+    workflows: ["Puresteel validation"]
+    branches: [main]
+    types: [completed]
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    if: >-
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'push' &&
+      github.event.workflow_run.head_branch == 'main' &&
+      github.event.workflow_run.head_repository.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    concurrency:
+      group: puresteel-signed-apt-main
+      cancel-in-progress: false
+    steps:
+      - name: Check out latest main with publish identity
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          token: ${{ secrets.PURESTEEL_APT_PUBLISH_TOKEN || github.token }}
+      - name: Publish only validated head with original archive key
+        env:
+          VALIDATED_SHA: ${{ github.event.workflow_run.head_sha }}
+          SIGNING_KEY: ${{ secrets.PURESTEEL_APT_SIGNING_KEY_B64 }}
+          SIGNING_PASSPHRASE: ${{ secrets.PURESTEEL_APT_SIGNING_PASSPHRASE }}
+          PUBLISH_TOKEN: ${{ secrets.PURESTEEL_APT_PUBLISH_TOKEN }}
+        run: |
+          set -euo pipefail
+          if [[ -z "$SIGNING_KEY" || -z "$SIGNING_PASSPHRASE" || -z "$PUBLISH_TOKEN" ]]; then
+            echo "::notice title=Signed APT not configured::Add the ORIGINAL key, its passphrase and a scoped Pages publishing token in Actions secrets. Existing signed index is unchanged."
+            exit 0
+          fi
+          if [[ "$(git rev-parse HEAD)" != "$VALIDATED_SHA" ]]; then
+            echo "::notice title=Superseded build::main moved since validation. Newer main must be validated before publishing."
+            exit 0
+          fi
+          sudo apt-get update
+          sudo apt-get install -y apt-utils dpkg-dev gnupg python3
+          umask 077
+          export GNUPGHOME="$(mktemp -d "$RUNNER_TEMP/puresteel-apt-gnupg.XXXXXXXX")"
+          passfile="$(mktemp "$RUNNER_TEMP/puresteel-apt-pass.XXXXXXXX")"
+          trap 'rm -rf "$GNUPGHOME"; rm -f "$passfile"' EXIT
+          printf '%s' "$SIGNING_KEY" | base64 --decode | gpg --batch --import
+          printf '%s' "$SIGNING_PASSPHRASE" > "$passfile"
+          unset SIGNING_KEY SIGNING_PASSPHRASE
+          export PURESTEEL_GPG_PASSPHRASE_FILE="$passfile"
+          export PURESTEEL_ROLLING_RELEASE=1
+          export PURESTEEL_PACKAGE_VERSION="$(./scripts/rolling-apt-version.sh)"
+          ./scripts/release-center.sh
+          python3 scripts/verify-apt-repository.py --require-version "$PURESTEEL_PACKAGE_VERSION"
+          # Confirm a newer push did not supersede us while packages were built.
+          git fetch origin main
+          if [[ "$(git rev-parse origin/main)" != "$VALIDATED_SHA" ]]; then
+            echo "::notice title=Superseded before commit::main moved during publishing; leaving it unchanged."
+            exit 0
+          fi
+          git add docs/apt
+          if git diff --cached --quiet; then
+            echo "Signed APT repository is already up to date."
+            exit 0
+          fi
+          git -c user.name='Puresteel Release Bot' -c user.email='puresteel-release@users.noreply.github.com' \
+            commit -m "chore(apt): publish signed rolling $PURESTEEL_PACKAGE_VERSION"
+          # GitHub Pages branch builds require a real maintainer token; GitHub's
+          # built-in GITHUB_TOKEN does not trigger the subsequent Pages workflow.
+          git push origin HEAD:main
+          echo "Signed packages published: $PURESTEEL_PACKAGE_VERSION"

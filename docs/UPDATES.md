@@ -176,3 +176,19 @@ Losing the private key does not destroy the source code, but it prevents future 
 APT verifies repository metadata against the Puresteel public key referenced by `Signed-By`. Users should not disable TLS or APT signature verification to work around repository errors.
 
 If the package repository is unavailable, existing Debian packages remain usable; only Puresteel-owned package updates are affected until the repository returns.
+
+## Automated signed rolling releases
+
+After a successful `main` push build, [Publish signed Puresteel APT](../.github/workflows/publish-apt.yml) produces a Debian version such as `1.4.0+git20260922143000.abcdef123456-1`, builds Center and nine other Puresteel-owned packages, verifies both signed Release formats and indexed .deb hashes, then commits the signed `docs/apt` archive. A docs/apt-only commit does not start another ISO build. Each package retains the two newest rolling artifacts; ordinary/manual releases are preserved.
+
+**The publisher is intentionally inactive until the maintainer sets these GitHub Actions repository secrets:**
+
+- `PURESTEEL_APT_SIGNING_KEY_B64`: Base64 encoding of the **original** private archive signing key whose fingerprint matches `docs/apt/puresteel-archive-keyring.asc`. Export on your own trusted machine; never paste it into chat, a PR, an issue or source files.
+- `PURESTEEL_APT_SIGNING_PASSPHRASE`: passphrase protecting that private key. Do not publish it or put it in a command line argument.
+- `PURESTEEL_APT_PUBLISH_TOKEN`: a **fine-grained GitHub personal access token** restricted to `MOzcelik14/Puresteel-OS`, with Contents read/write. This is necessary because pushes performed with the built-in `GITHUB_TOKEN` do not trigger the GitHub Pages branch build that serves the APT repository.
+
+To obtain the encoded key without showing it in the chat, find the original private key on the trusted maintainer device and export it locally to a protected file; paste its encoded contents directly into the **GitHub repository Secret** form. The workflow imports it into an ephemeral GPG home, checks the existing public-key fingerprint before changing release metadata, and deletes its local copy on completion. Keep an encrypted offline backup. If the original key is lost, **do not replace it silently**: installed systems trust only the existing public key and require a separate, verified key-rotation procedure.
+
+The release source `packages/puresteel-center/VERSION` remains the base version; each validated main commit has its own monotonically time-stamped `+git` Debian version. The ISO still bundles its own Puresteel packages without requiring network access to the online archive. Signed APT publication affects **already installed** machines on their next APT update, not just newly downloaded ISOs. Base Debian package upgrades and Flatpak app updates remain separate.
+
+The automatic publisher makes no claim of success until a workflow run shows the `Signed packages published` message and Pages serves the new signed `InRelease`. If the required secrets are absent, it reports a notice and leaves the previous repository untouched. A protected main branch may require a dedicated publishing policy for the scoped token.
