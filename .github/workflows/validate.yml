@@ -86,9 +86,16 @@ jobs:
           ./scripts/smoke-iso.sh "${isos[0]}"
           ./scripts/release-artifacts.sh "${isos[0]}"
           test -s "${isos[0]}.sha256"
-          test -s "${isos[0]%.iso}-packages.txt" || test -s "${isos[0]%.iso}-packages.txt"
+          test -s "${isos[0]%.iso}-packages.txt"
       - name: Checksums
         run: sha256sum *.iso | tee puresteel-ci.sha256
+      - name: Upload ISO build logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: puresteel-iso-build-logs
+          path: build.log
+          if-no-files-found: ignore
       - uses: actions/upload-artifact@v4
         with:
           name: puresteel-iso
