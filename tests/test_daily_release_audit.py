@@ -87,7 +87,10 @@ class DailyReleaseAudit(unittest.TestCase):
         for package in ("steam-installer", "wine32", "kdenlive", "audacity",
                         "build-essential", "nvidia-vulkan-icd"):
             self.assertIn(package, smoke)
-        self.assertIn("var/lib/flatpak/app/com.heroicgameslauncher.hgl", smoke)
+        self.assertIn('"var/lib/flatpak/app/$app"', smoke)
+        for app in ("com.heroicgameslauncher.hgl", "net.davidotek.pupgui2",
+                    "org.onlyoffice.desktopeditors"):
+            self.assertIn(app, read("config/hooks/live/0200-puresteel-flatpak.hook.chroot"))
         self.assertIn("github.event.pull_request.title, '[iso-smoke]'", workflow)
         self.assertIn("if: github.ref == 'refs/heads/main'", workflow)
 

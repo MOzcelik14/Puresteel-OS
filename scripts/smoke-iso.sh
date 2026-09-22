@@ -31,8 +31,8 @@ for file in \
         exit 1
     fi
 done
-# i386 foreign architecture must survive into installed systems for optional
-# Steam/Proton/Wine packages; packages are intentionally NOT preinstalled.
+# i386 foreign architecture and preinstalled gaming libraries must survive
+# into the installed systems; the installed-package check below verifies them.
 if ! unsquashfs -cat "$SQUASH" var/lib/dpkg/arch > "$TEMP/dpkg-arch"; then
     echo "Missing dpkg multiarch registry in live filesystem." >&2
     exit 1
