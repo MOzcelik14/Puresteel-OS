@@ -55,6 +55,19 @@ class RollingAptTests(unittest.TestCase):
                          "scripts/build-component-packages.sh"):
             self.assertIn("chmod 755", source(filename))
 
+    def test_pr_checks_use_actions_token_not_fine_grained_pat(self):
+        workflow = source(".github/workflows/publish-apt.yml")
+        self.assertIn("  checks: read", workflow)
+        self.assertIn("  statuses: read", workflow)
+        self.assertIn("  pull-requests: read", workflow)
+        self.assertIn("CHECKS_TOKEN: ${{ github.token }}", workflow)
+        self.assertIn('export GH_TOKEN="$PUBLISH_TOKEN"', workflow)
+        self.assertIn(
+            'GH_TOKEN="$CHECKS_TOKEN" gh pr checks "$pr" --watch --fail-fast',
+            workflow,
+        )
+        self.assertIn('gh pr merge "$pr" --merge', workflow)
+
     def test_publisher_does_not_run_from_unvalidated_pull_requests(self):
         workflow = source(".github/workflows/publish-apt.yml")
         for guard in ("workflow_run.conclusion == 'success'",
