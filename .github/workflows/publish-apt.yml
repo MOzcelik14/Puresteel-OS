@@ -91,6 +91,27 @@ jobs:
           echo "Signed APT release PR: $pr"
           # Fine-grained PATs cannot request Checks API access. Use the limited
           # Actions token for CI reads; retain maintainer PAT for PR create/merge.
+          # GitHub registers PR check runs asynchronously: an immediate
+          # gh pr checks exits 1 with "no checks reported" before CI starts.
+          # Wait for BOTH required checks on the exact signed release commit,
+          # then use gh to require their successful completion. Never skip CI.
+          release_sha="$(git rev-parse HEAD)"
+          checks_ready=false
+          for attempt in $(seq 1 60); do
+            required_checks_present="$(GH_TOKEN="$CHECKS_TOKEN" gh api \
+              "repos/$GITHUB_REPOSITORY/commits/$release_sha/check-runs" \
+              --jq '[.check_runs[].name] | (index("validate") != null and index("windows-powershell-syntax") != null)')"
+            if [[ "$required_checks_present" == "true" ]]; then
+              checks_ready=true
+              break
+            fi
+            echo "Waiting for required PR checks to register ($attempt/60)"
+            sleep 10
+          done
+          if [[ "$checks_ready" != "true" ]]; then
+            echo "::error title=PR checks timed out::Required checks did not appear for $release_sha; leaving PR unmerged."
+            exit 1
+          fi
           # PR checks verify this exact newly signed archive. No bypass is used.
           GH_TOKEN="$CHECKS_TOKEN" gh pr checks "$pr" --watch --fail-fast --repo "$GITHUB_REPOSITORY"
           # Never merge a release produced from an obsolete source commit.
