@@ -52,7 +52,7 @@ Elle veya geliştirme amaçlı build için [docs/BUILD.md](docs/BUILD.md) belges
 
 ## Puresteel Center
 
-Puresteel kendi Qt 6 / PySide6 sistem yönetim uygulamasıyla gelir. Güncellemeler, uygulamalar, sürücüler, kaynaklar, yedekleme ve sistem raporlarını tek arayüzde toplar. Türkçe ve İngilizce arayüz desteklenir.
+Puresteel kendi Qt 6 / PySide6 Center 2.0 sistem yönetim uygulamasıyla gelir. Güncellemeler, uygulamalar, sürücüler, kaynaklar, yedekleme ve sistem raporlarını tek arayüzde toplar. Türkçe ve İngilizce arayüz desteklenir.
 
 [Puresteel Center dokümantasyonu →](docs/PURESTEEL_CENTER.md)
 

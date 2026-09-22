@@ -49,7 +49,7 @@ Once configured, the next successful `main` ISO job publishes these objects:
 | --- | --- |
 | `Puresteel-Latest.iso` | Current rolling installation ISO |
 | `Puresteel-Latest.iso.sha256` | Checksum matching the public ISO filename |
-| `Puresteel-Latest.json` | Git commit, publication time and file names |
+| `Puresteel-Latest.json` | Git commit, publication time, ISO byte count/SHA256 and file names (on builds after the site update) |
 
 The manifest is uploaded last. A failed build leaves the previous public ISO
 in place. Missing all R2 secrets skips external publishing without failing the
