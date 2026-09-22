@@ -6,7 +6,7 @@ syntax/package workflow does not prove an installed system boots.
 
 ## Current release-gate status
 
-Code/package CI and the read-only terminal-menu tests do not count as a tested Plasma release. The current public GitHub release contains no downloadable Plasma ISO. The QEMU and hardware boxes below remain intentionally unchecked until test evidence exists. The ISO smoke job is a static payload check, **not an automated Calamares GUI installation**. It runs after every `main` push (and nightly), once code/package/Windows CI checks pass; it also supports `workflow_dispatch`. A successful rolling ISO build is still not an automated Calamares GUI install. A successful job must not tick the QEMU/physical-hardware boxes without actual test records.
+Code/package CI and the read-only terminal-menu tests do not count as a tested Plasma release. The current public GitHub release contains no downloadable Plasma ISO. The QEMU and hardware boxes below remain intentionally unchecked until test evidence exists. The ISO smoke job now verifies installed full-edition APT packages, i386 drivers and Heroic system Flatpak; it remains a static payload check, **not an automated Calamares GUI installation**. It runs after every `main` push (and nightly), once code/package/Windows CI checks pass; it also supports `workflow_dispatch`. A successful rolling ISO build is still not an automated Calamares GUI install. A successful job must not tick the QEMU/physical-hardware boxes without actual test records.
 
 ## Automated static checks
 
