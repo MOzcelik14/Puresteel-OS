@@ -59,6 +59,19 @@ class DailyReleaseAudit(unittest.TestCase):
         self.assertIn("Verify published APT signature and package integrity", workflow)
         self.assertIn("verify-apt-repository.py --require-current", publisher)
 
+    def test_rolling_iso_publishes_only_after_main_ci_and_smoke(self):
+        workflow = read(".github/workflows/validate.yml")
+        self.assertIn("needs: [validate, windows-powershell-syntax]", workflow)
+        self.assertIn("github.ref == 'refs/heads/main'", workflow)
+        self.assertIn("github.event_name == 'push'", workflow)
+        self.assertIn("cancel-in-progress: false", workflow)
+        self.assertIn("retention-days: 7", workflow)
+        self.assertIn("R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}", workflow)
+        self.assertIn("Puresteel-Latest.iso", workflow)
+        self.assertIn("Manifest last", workflow.replace("Publish manifest last", "Manifest last"))
+        self.assertIn('test -s "$iso" && test -s "$iso.sha256"', workflow)
+        self.assertIn("## Automatic rolling ISO", read("docs/BUILD.md"))
+
     def test_tracked_python_caches_are_removed(self):
         # CI compileall creates ignored bytecode just before unittest. Inspect
         # the Git index instead of incorrectly treating runtime caches as tracked.
