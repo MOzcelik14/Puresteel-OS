@@ -28,7 +28,7 @@ jobs:
       cancel-in-progress: false
     steps:
       - name: Check out latest main with publish identity
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           ref: main
           token: ${{ secrets.PURESTEEL_APT_PUBLISH_TOKEN || github.token }}

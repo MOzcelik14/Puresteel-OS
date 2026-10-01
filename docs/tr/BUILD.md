@@ -174,7 +174,7 @@ Center ve APT deposu için yeni sürüm hazırla:
 ./scripts/release-center.sh 2.0.0-1
 ```
 
-Kaynak paket temel sürümü `2.0.0-1`'dir. Ayrı bir imzalı yayın yapılana kadar çevrimiçi depo eski `1.0.1-1` Center paketini gösterebilir. ISO derlemesi kendi başına APT paketi yayımlamaz. Güncelleme yayımlamadan önce [Güncellemeler / APT deposu](UPDATES.md) belgesini oku.
+Kaynak paket temel sürümü `2.0.0-1`'dir. İmzalı çevrimiçi depo şu anda özgün `1.0.1-1` sürümünün yanında rolling `2.0.0+git...-1` Center sürümlerini de içerir; kurulu sistemler daha yeni rolling sürümü tercih eder. ISO derlemesi kendi başına APT paketi yayımlamaz; bunu başarılı doğrulama sonrasında imzalı rolling yayın akışı yapar. Güncelleme yayımlamadan önce [Güncellemeler / APT deposu](UPDATES.md) belgesini oku.
 
 ## ISO'yu QEMU'da test et
 
