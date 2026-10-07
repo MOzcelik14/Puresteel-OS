@@ -176,7 +176,7 @@ Release a new Center version and update APT metadata:
 ./scripts/release-center.sh 2.0.0-1
 ```
 
-The source package version is currently `2.0.0-1`; the signed online repository still lists the historical `1.0.1-1` Center package until a separate signed release. An ISO build does not publish APT packages. See [UPDATES.md](UPDATES.md) before publishing package updates.
+The source package base version is `2.0.0-1`. The signed online repository currently contains the rolling `2.0.0+git...-1` Center releases alongside the original `1.0.1-1`; installed systems prefer the newer rolling version. An ISO build does not publish APT packages; the signed rolling publisher does so after successful validation. See [UPDATES.md](UPDATES.md) before publishing package updates.
 
 ## Test the ISO in QEMU
 

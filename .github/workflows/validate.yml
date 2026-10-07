@@ -15,7 +15,7 @@ jobs:
   validate:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Install validation tools
         run: sudo apt-get update && sudo apt-get install -y shellcheck python3 python3-yaml dpkg-dev gnupg
       - name: Shell syntax
@@ -83,7 +83,7 @@ jobs:
   windows-powershell-syntax:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Parse Windows ISO builder as PowerShell
         shell: pwsh
         run: |
@@ -109,7 +109,7 @@ jobs:
       group: puresteel-rolling-iso-main
       cancel-in-progress: false
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Install live-build
         run: sudo apt-get update && sudo apt-get install -y debian-archive-keyring debootstrap squashfs-tools xorriso isolinux syslinux syslinux-common grub-pc-bin grub-efi-amd64-bin mtools dosfstools rsync dpkg-dev apt-utils gnupg po4a ca-certificates wget git make python3 && git clone --depth=1 https://salsa.debian.org/live-team/live-build.git /tmp/puresteel-live-build && sudo make -C /tmp/puresteel-live-build install
       - name: Free unused runner toolchains for full ISO
@@ -131,12 +131,12 @@ jobs:
         run: sha256sum *.iso | tee puresteel-ci.sha256
       - name: Upload ISO build logs on failure
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: puresteel-iso-build-logs
           path: build.log
           if-no-files-found: ignore
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: puresteel-iso
           retention-days: 7
