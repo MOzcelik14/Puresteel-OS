@@ -1,10 +1,12 @@
 #!/bin/sh
 set -e
 echo "[Puresteel] Configuring minimal KDE Plasma and SDDM..."
-# Keep first login safe: never auto-log in when KWallet is used for secrets.
+# Installed systems keep password login for KWallet/PAM.
+# A boot=live-only unit prepares the ephemeral live login before SDDM.
 mkdir -p /etc/sddm.conf.d
 if [ -x /usr/bin/systemctl ]; then
     systemctl enable sddm.service
+    systemctl enable puresteel-live-session.service
     systemctl set-default graphical.target
 fi
 if [ -x /usr/bin/update-alternatives ]; then

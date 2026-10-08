@@ -1,0 +1,13 @@
+[Unit]
+Description=Prepare Puresteel live session before display manager
+ConditionKernelCommandLine=boot=live
+Wants=live-config.service
+After=live-config.service
+Before=display-manager.service sddm.service
+
+[Service]
+Type=oneshot
+ExecStart=/bin/sh /usr/local/libexec/puresteel-live-session
+
+[Install]
+WantedBy=graphical.target

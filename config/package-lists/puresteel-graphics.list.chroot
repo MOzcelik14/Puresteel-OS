@@ -1,4 +1,5 @@
 nvidia-driver
+nvidia-smi
 nvidia-settings
 switcheroo-control
 firmware-nvidia-graphics

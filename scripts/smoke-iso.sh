@@ -22,6 +22,10 @@ for file in \
     etc/grub.d/09_puresteel_recovery \
     usr/lib/puresteel-center/puresteel-helper \
     etc/sddm.conf.d/10-puresteel.conf \
+    etc/systemd/system/puresteel-live-session.service \
+    usr/local/libexec/puresteel-live-session \
+    usr/local/bin/puresteel-profile-menu \
+    usr/share/applications/puresteel-install-profile.desktop \
     etc/skel/.config/kdeglobals \
     usr/share/sddm/themes/breeze/theme.conf.user \
     usr/local/bin/puresteel-wifi \
@@ -70,6 +74,7 @@ expected = {
     "steam-devices", "wine", "wine64", "winetricks",
     "gamemode", "mangohud", "kdenlive", "audacity", "ffmpeg",
     "build-essential", "cmake", "ninja-build", "python3-venv", "git-lfs",
+    "firmware-sof-signed", "pipewire-audio", "nvidia-smi",
 }
 missing = sorted(name for name in expected
                  if not any(p == name for p, _ in installed))

@@ -21,6 +21,8 @@ firmware-linux
 firmware-linux-free
 firmware-linux-nonfree
 firmware-misc-nonfree
+# Intel Smart Sound Technology (SOF) DSP firmware for laptop audio.
+firmware-sof-signed
 
 pciutils
 usbutils

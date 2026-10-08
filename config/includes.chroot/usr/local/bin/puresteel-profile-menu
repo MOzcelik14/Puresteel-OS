@@ -1,0 +1,38 @@
+#!/bin/sh
+# Terminal-based launcher for Puresteel's optional software packs.
+set -eu
+
+printf '%s\n' 'Puresteel Software Profiles / Yazilim Profilleri' ''
+printf '%s\n' '  1) Creator    - Kdenlive, Audacity and media tools'
+printf '%s\n' '  2) Gaming     - Steam, Wine and gaming tools'
+printf '%s\n' '  3) Developer  - Development tools'
+printf '%s\n' '  4) Standard   - Keep existing system'
+printf '%s\n' '  5) Minimal    - Keep base packages'
+printf '\n%s' 'Select a profile [1-5] or q to quit: '
+IFS= read -r choice || exit 0
+
+case "$choice" in
+    1) profile=creator ;;
+    2) profile=gaming ;;
+    3) profile=developer ;;
+    4) profile=standard ;;
+    5) profile=minimal ;;
+    q|Q) exit 0 ;;
+    *) printf '\n%s\n' 'Invalid choice / Gecersiz secim.' >&2; exit 2 ;;
+esac
+
+case " $(cat /proc/cmdline) " in
+    *' boot=live '*)
+        printf '\n%s\n' 'Live mode: software changes will not survive reboot.'
+        ;;
+esac
+
+printf '\nSelected / Secilen: %s\n' "$profile"
+printf '%s' 'Continue / Devam [y/N]? '
+IFS= read -r confirm || exit 0
+case "$confirm" in
+    y|Y|yes|YES|e|E|evet|EVET) ;;
+    *) printf '%s\n' 'Cancelled / Iptal edildi.'; exit 0 ;;
+esac
+
+exec /usr/local/bin/puresteel-install-profile "$profile"

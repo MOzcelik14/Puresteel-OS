@@ -22,6 +22,7 @@ jobs:
         run: |
           find scripts config -type f \( -name '*.sh' -o -name '*.hook.chroot' \) -print0 | xargs -0 -r shellcheck -S error
           shellcheck -S error build.sh bootstrap.sh config/includes.chroot/usr/bin/puresteel-installer
+          shellcheck -S error config/includes.chroot/usr/local/libexec/puresteel-live-session config/includes.chroot/usr/local/bin/puresteel-profile-menu
       - name: Documentation renderer syntax
         run: node --check docs/assets/guide.js
       - name: Python syntax

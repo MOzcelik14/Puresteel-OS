@@ -55,6 +55,22 @@ class PlasmaEditionTests(unittest.TestCase):
             self.assertIn(app, flatpak)
         self.assertIn("flatpak install --system", flatpak)
 
+    def test_iso_declares_audio_firmware_and_nvidia_tool(self):
+        core = source("config/package-lists/puresteel-core.list.chroot")
+        graphics = source("config/package-lists/puresteel-graphics.list.chroot")
+        self.assertIn("firmware-sof-signed\n", core)
+        self.assertIn("pipewire-audio\n", core)
+        self.assertIn("nvidia-driver\n", graphics)
+        self.assertIn("nvidia-smi\n", graphics)
+
+    def test_profile_launcher_uses_konsole_and_selection_menu(self):
+        launcher = source("config/includes.chroot/usr/share/applications/puresteel-install-profile.desktop")
+        menu = source("config/includes.chroot/usr/local/bin/puresteel-profile-menu")
+        self.assertIn("Exec=konsole --hold -e /bin/sh /usr/local/bin/puresteel-profile-menu", launcher)
+        self.assertNotIn("gnome-terminal", launcher)
+        self.assertIn("puresteel-install-profile", menu)
+        self.assertIn("Continue / Devam", menu)
+
     def test_wifi_is_not_forced_into_plaintext(self):
         script = source("config/includes.chroot/usr/local/bin/puresteel-wifi")
         self.assertNotIn("--show-secrets", script)

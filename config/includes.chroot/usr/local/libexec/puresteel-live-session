@@ -1,0 +1,50 @@
+#!/bin/sh
+set -eu
+
+# Only the ephemeral boot=live image should be modified.
+case " $(cat /proc/cmdline) " in
+    *' boot=live '*) ;;
+    *) exit 0 ;;
+esac
+
+LIVE_USER=puresteel
+
+# Usually handled by Debian live-config user-setup. Repair missing accounts
+# if that component did not complete before the display manager started.
+if ! id "$LIVE_USER" >/dev/null 2>&1; then
+    useradd --create-home --user-group --shell /bin/bash "$LIVE_USER"
+fi
+
+if [ -x /usr/bin/fish ]; then
+    usermod --shell /usr/bin/fish "$LIVE_USER"
+fi
+for group in sudo audio video plugdev netdev render bluetooth; do
+    if getent group "$group" >/dev/null 2>&1; then
+        usermod -aG "$group" "$LIVE_USER"
+    fi
+done
+
+install -d -o "$LIVE_USER" -g "$LIVE_USER" -m 0755 "/home/$LIVE_USER/.config"
+if [ -d /etc/skel/.config ]; then
+    cp -an /etc/skel/.config/. "/home/$LIVE_USER/.config/"
+    chown -R "$LIVE_USER:$LIVE_USER" "/home/$LIVE_USER/.config"
+fi
+
+if [ -f /usr/share/wayland-sessions/plasma.desktop ]; then
+    session=plasma.desktop
+elif [ -f /usr/share/xsessions/plasmax11.desktop ]; then
+    session=plasmax11.desktop
+else
+    echo '[Puresteel] No Plasma session available for autologin.' >&2
+    exit 0
+fi
+
+# Generated at runtime on the live overlay; NOT embedded into the installed
+# system image, where the normal password login must remain enabled.
+install -d -m 0755 /etc/sddm.conf.d
+cat > /etc/sddm.conf.d/90-puresteel-live.conf <<END
+[Autologin]
+User=$LIVE_USER
+Session=$session
+Relogin=false
+END
