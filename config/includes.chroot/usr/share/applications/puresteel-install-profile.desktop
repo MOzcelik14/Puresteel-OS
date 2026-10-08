@@ -1,7 +1,10 @@
 [Desktop Entry]
 Type=Application
 Name=Puresteel Software Profile
-Comment=Prepare Creator, Gaming or Developer software
-Exec=gnome-terminal -- sh -lc "echo 'puresteel-install-profile creator|gaming|developer'; exec fish"
+Name[tr]=Puresteel Yazılım Profili
+Comment=Select and install Creator, Gaming or Developer software
+Comment[tr]=İçerik üretimi, oyun veya geliştirici yazılımlarını seçip kurun
+Exec=konsole --hold -e /bin/sh /usr/local/bin/puresteel-profile-menu
+Terminal=false
 Icon=system-software-install
 Categories=System;Settings;
