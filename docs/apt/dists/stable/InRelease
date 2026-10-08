@@ -4,38 +4,38 @@ Hash: SHA512
 Architectures: amd64 all
 Codename: stable
 Components: main
-Date: Wed, 07 Oct 2026 15:39:32 +0000
+Date: Thu, 08 Oct 2026 19:14:43 +0000
 Description: Puresteel package repository
 Label: Puresteel
 Origin: Puresteel
 Suite: stable
 MD5Sum:
- 9a8da83b1c003023278c5ce19b54a8da              188 Release
- a8a1ffef0315ea8058445b138c21918f            18120 main/binary-amd64/Packages
- 24945c870ce59d0d449f621ea46f4b5a             5127 main/binary-amd64/Packages.gz
+ 6e210c93561bbac57ee4ff25e6bc7a37              188 Release
+ 99f6d74975b987df22462796399a76a9            18120 main/binary-amd64/Packages
+ 090564188bfd6316fc5d930082f01d66             5120 main/binary-amd64/Packages.gz
 SHA1:
- eb6e5acba78859aefc9786ccfa03b25558d3b2da              188 Release
- 707e68720def009c8806beec98abf0e03422d586            18120 main/binary-amd64/Packages
- 1a6a023b9ff1a9b7b0544ccca931bb77bbb833c0             5127 main/binary-amd64/Packages.gz
+ 5a372fa604905ef0e43a50e33478d74a45b0245f              188 Release
+ ece7645b28d825df6a4f8a157d1ee475289e1cc3            18120 main/binary-amd64/Packages
+ bb62234eca3901ddfa456b4a97da8de3006004fb             5120 main/binary-amd64/Packages.gz
 SHA256:
- 2f744e3dca3397199d9e5c898e34f491ae78df422ae1301f736fc028f7e92d0b              188 Release
- c57298ec3fd7b7abd0b37f52fd8a7000e17f36775236d90ec05a961826def035            18120 main/binary-amd64/Packages
- 660ad1aeca9e07c0fb507c7dd4f4fffe1bb14a793c6dea72e3fa67299e41bc24             5127 main/binary-amd64/Packages.gz
+ f7822748cde634d2780e1924c6f2169eae423ac9ab57504a941f6c45e76fc1bd              188 Release
+ dba4844693ac9204a97b41673f39fc1e7ad387405ff8add205495009cc0d8d6e            18120 main/binary-amd64/Packages
+ c79292eb640a5cdd41283c2b52207404472217a3b9891b73110b4e22858ed1ba             5120 main/binary-amd64/Packages.gz
 SHA512:
- 70ec2f6acce6fa1a26d4a60ac49204e290fe70116c613112726b71befe8175bd9d74da97de77bee67c1c4a54ba74a39edd60ebcbd32491be4db8520b9b200a8a              188 Release
- ebb25c17082531f542dc6b1b44a5d7c9d46a932d1b7b106210f4832d584a3f0d92033240518fdc71bb0e4c64e9cb4186e2e9cebd4333bd6c43ae3cd98ea59c88            18120 main/binary-amd64/Packages
- 78e372e593982a9626d879ede0a9fe891d8a6d08770e8f0d490231f22c3287d6100fa740bf1d6ca55956e6591fca9a700ff79abb9d32e26beb4cc05b633bf34f             5127 main/binary-amd64/Packages.gz
+ dc8728c6998d333ad2bab441916e443a704c6b54ed570dff9e74ce27d5966e19e8acc638a380c677a8117593feb6d5c443379072de767c0cdff2cc295337610b              188 Release
+ 92353f63350309056a6a71f4ab57b38161cf780e379f92f71afe9121964c33145f092a5216a027dfc735c0de188673b4ff743290f524300d7f99c383199cb3e4            18120 main/binary-amd64/Packages
+ d79ceddc918fbbe3271f5fd2a84d7914d63c9c7d36f4c482201ffe726394111b68850413d232bb433746c9b667a33b89e5214efd8216dd1255a5cbebdc1017d9             5120 main/binary-amd64/Packages.gz
 -----BEGIN PGP SIGNATURE-----
 
-iQGzBAEBCgAdFiEE5pKVphvQPwkCVZE8yxVhO/96rhAFAmrGZ7QACgkQyxVhO/96
-rhBC+QwAw4Hpq3O89Ta0CAe9cdm+gbEkkFMyMp+uOPvuE+WZdCxerd81z1r6uJjP
-0orxKDeGf4Y5vz2mJ74vCNASQgWbjEr1JL3RvBEMiPVHMvT+W9A7Bouhy8wAR2bI
-5eNma/NfBkBJVD6XTCg5wuaTX7X28hEFxbicsqwx06MxeW+cbUBVSHXjL+c0IW1Z
-5lEeNKlwFl8KeK/47X6unkCs553O+aZlDDiK39c2vOv6AUhEaSTO+XaM8fQDaYxs
-0acoSXL2l0RAuVLH33Por8IZQgvvJTaPN9Q1yxd6dAPbPxQCIX35ij48Z9HwvCyj
-34ymoGMsi4TuLo+YUbCt33lj2m2rm+TbIs1pSnCqy9LMOFTqbh+QTHJ/DIrydW83
-8h2VQZ/6X7mtMJV4Nnm/mtGVF/GEuWlMm8cE9Th8079xuv9AxP37P3vQf7kCFwEz
-EuzSB/T6vMAxJNgZd/KBWpMY52b9kMBon1OXVx8EZmgcbiKWLDJVr+1UgDWbvILI
-SCbNeZGY
-=iFq1
+iQGzBAEBCgAdFiEE5pKVphvQPwkCVZE8yxVhO/96rhAFAmrH66MACgkQyxVhO/96
+rhBQogv+PRFbaqtUObi7McMLH4KOwsrPKEJ5y/W8dr2GpC4lwCvpCxp7JpMXLDCY
+7PTFDv1TcZ3B3NNSqEkotqzlt4I1v58vcTOcwXuA7ImbIDLc0flPm35Tg/vXbN9p
+FeFbAadTjELjxF/skZyRQRJ3PQYnngmaxedXqOug2XngtDbkDXlVi8blsbf5LHC9
+ib+UdRqSs2cgu3u14iGcxHE+S8nQnXaCfdtRn0zDs+WtOuUrQQ3KTX2dMHt2Chu6
+X/ufZn70/kcYI0KEA47ZDy8XoQlKoi37asxAxFZgAvCoM9fNKcZIjTPg7VqTtK0f
+ZU35wPaMmbRqqstAq389DNoVDvu1/o8GtoLPZYXuOKURcvYK0trKkkf+HxSQJFjQ
+NnOuJHxzbyahgNNJXq5QlQI+H1yC9acesrH6sW5Z9c7e5CTdYGLxPkeedWwqIxJm
+asEZZXgqwBxXu2U9HoxqPPBxlTph/XPsEASDHErKBrwjNidKFV+6fcRjXXeV8itc
+26koc7Mi
+=LsuK
 -----END PGP SIGNATURE-----
