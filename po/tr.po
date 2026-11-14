@@ -15,3 +15,30 @@ msgstr "Snapshot oluştur"
 
 msgid "System health"
 msgstr "Sistem sağlığı"
+
+msgid "Puresteel Snapshots"
+msgstr "Puresteel Anlık Görüntüler"
+
+msgid "Puresteel Profiles"
+msgstr "Puresteel Profilleri"
+
+msgid "Puresteel Welcome"
+msgstr "Puresteel'e Hoş Geldiniz"
+
+msgid "Puresteel First Run"
+msgstr "Puresteel İlk Kurulum"
+
+msgid "Export Support Bundle (.tar.gz)"
+msgstr "Destek Paketi (.tar.gz)"
+
+msgid "Safe Update"
+msgstr "Güvenli Güncelle"
+
+msgid "Battery Health"
+msgstr "Pil Sağlığı"
+
+msgid "Secure Boot"
+msgstr "Secure Boot"
+
+msgid "Firmware"
+msgstr "Donanım Yazılımı"

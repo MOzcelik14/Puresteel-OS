@@ -51,7 +51,7 @@ TRANSLATIONS = {
         "backup_done":"Yedek oluşturuldu: {path}","backup_error":"Yedekleme hatası: {error}",
 
         "reports_title":"Sistem Raporları","reports_intro":"Sistem sağlığı ve hata ayıklama bilgilerini topla.",
-        "generate_report":"Rapor oluştur","save_report":"Raporu kaydet",
+        "generate_report":"Rapor oluştur","save_report":"Raporu kaydet","export_bundle":"Destek Paketi (.tar.gz)","bundle_saved":"Destek paketi kaydedildi: {path}",
         "report_ready":"Rapor hazır.","report_sections":"Kernel, disk, bellek, GPU, başarısız servisler ve journal hataları toplanır.",
 
         "about_title":"Puresteel hakkında",
@@ -113,7 +113,7 @@ TRANSLATIONS = {
         "backup_done":"Backup created: {path}","backup_error":"Backup error: {error}",
 
         "reports_title":"System Reports","reports_intro":"Collect system health and troubleshooting information.",
-        "generate_report":"Generate report","save_report":"Save report",
+        "generate_report":"Generate report","save_report":"Save report","export_bundle":"Export Support Bundle (.tar.gz)","bundle_saved":"Support bundle saved: {path}",
         "report_ready":"Report ready.","report_sections":"Collects kernel, disk, memory, GPU, failed services and journal errors.",
 
         "about_title":"About Puresteel",
