@@ -1,24 +1,24 @@
 Architectures: amd64 all
 Codename: stable
 Components: main
-Date: Thu, 08 Oct 2026 19:14:43 +0000
+Date: Sat, 14 Nov 2026 08:19:05 +0000
 Description: Puresteel package repository
 Label: Puresteel
 Origin: Puresteel
 Suite: stable
 MD5Sum:
- 6e210c93561bbac57ee4ff25e6bc7a37              188 Release
- 99f6d74975b987df22462796399a76a9            18120 main/binary-amd64/Packages
- 090564188bfd6316fc5d930082f01d66             5120 main/binary-amd64/Packages.gz
+ bfb22773b2510428e1c4d439cffa334f              188 Release
+ 3306ff0837655ba25aa950c451a6168d            18120 main/binary-amd64/Packages
+ 63e1785b079f542576384d6167b65d09             5138 main/binary-amd64/Packages.gz
 SHA1:
- 5a372fa604905ef0e43a50e33478d74a45b0245f              188 Release
- ece7645b28d825df6a4f8a157d1ee475289e1cc3            18120 main/binary-amd64/Packages
- bb62234eca3901ddfa456b4a97da8de3006004fb             5120 main/binary-amd64/Packages.gz
+ 63898a5a5d0a16150b78457a190da92c54e9e7b9              188 Release
+ 71f5a474c346668e37d3ec4b627084986e5f474a            18120 main/binary-amd64/Packages
+ 9b2072f291c4b7586f989008b619057e8ff05dcd             5138 main/binary-amd64/Packages.gz
 SHA256:
- f7822748cde634d2780e1924c6f2169eae423ac9ab57504a941f6c45e76fc1bd              188 Release
- dba4844693ac9204a97b41673f39fc1e7ad387405ff8add205495009cc0d8d6e            18120 main/binary-amd64/Packages
- c79292eb640a5cdd41283c2b52207404472217a3b9891b73110b4e22858ed1ba             5120 main/binary-amd64/Packages.gz
+ 41a8300c5670dffd3e5dc995f6b5f2856c4ac435e9e092e27890a97853a29a57              188 Release
+ bb526826074ab21812d4742c5304368ce0b22d14fa9e09a0aab739b0a3b8f018            18120 main/binary-amd64/Packages
+ edb48c6b91639bb1c59586d666575122bbb1b47156ea4150857d59206e1fc4ed             5138 main/binary-amd64/Packages.gz
 SHA512:
- dc8728c6998d333ad2bab441916e443a704c6b54ed570dff9e74ce27d5966e19e8acc638a380c677a8117593feb6d5c443379072de767c0cdff2cc295337610b              188 Release
- 92353f63350309056a6a71f4ab57b38161cf780e379f92f71afe9121964c33145f092a5216a027dfc735c0de188673b4ff743290f524300d7f99c383199cb3e4            18120 main/binary-amd64/Packages
- d79ceddc918fbbe3271f5fd2a84d7914d63c9c7d36f4c482201ffe726394111b68850413d232bb433746c9b667a33b89e5214efd8216dd1255a5cbebdc1017d9             5120 main/binary-amd64/Packages.gz
+ a907a57ab5b34e893ff8e3708e7c531047391590f8c14c06d90a72b5d6573d670ad241dfc69e2abf3b9d36dce470d799d28e9f283105cc333e1cb1bac18b8304              188 Release
+ e1012246d2f17d76f3a9897c1985334992249918184f92c4f68098e472fa6652b55e9448cb85228aa53c800fdcd1f04e568c43491877111a9626109d9a1a0496            18120 main/binary-amd64/Packages
+ 44f723b2b67807982e98dc762c4d3ae1fdcd122f66f7302bdc873e72a0b637ee040a14adbfc566e4443b936ffa6d9774ae5957a84e087168f2c31a9e1e304bcd             5138 main/binary-amd64/Packages.gz
