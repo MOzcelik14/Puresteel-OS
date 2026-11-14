@@ -13,7 +13,7 @@ def call(*args, env=None):
     return subprocess.run(
         ["/bin/bash", str(BUILDER), *args],
         capture_output=True, text=True, check=False, timeout=12,
-        env=env,
+        env=env, start_new_session=True,
     )
 
 
