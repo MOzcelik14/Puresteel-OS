@@ -15,3 +15,30 @@ msgstr ""
 
 msgid "System health"
 msgstr ""
+
+msgid "Puresteel Snapshots"
+msgstr ""
+
+msgid "Puresteel Profiles"
+msgstr ""
+
+msgid "Puresteel Welcome"
+msgstr ""
+
+msgid "Puresteel First Run"
+msgstr ""
+
+msgid "Export Support Bundle (.tar.gz)"
+msgstr ""
+
+msgid "Safe Update"
+msgstr ""
+
+msgid "Battery Health"
+msgstr ""
+
+msgid "Secure Boot"
+msgstr ""
+
+msgid "Firmware"
+msgstr ""

@@ -1,3 +1,4 @@
+import json
 import subprocess
 from pathlib import Path
 
@@ -6,7 +7,7 @@ from PySide6.QtWidgets import (
     QFrame, QGridLayout, QLabel, QMessageBox, QPushButton,
     QScrollArea, QVBoxLayout, QWidget,
 )
-from ..services.common import privileged
+from ..services.common import command_exists, privileged
 from .base import page_header
 
 
@@ -97,13 +98,43 @@ class PuresteelPage(QWidget):
                 return fallback
         return read("profile", "balanced"), read("channel", "stable"), read("hardware-mode", "auto")
 
+    def health_summary(self):
+        if not command_exists("puresteel-doctor"):
+            return None
+        try:
+            proc = subprocess.run(
+                ["puresteel-doctor", "--json"],
+                text=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.DEVNULL,
+                timeout=8,
+                check=False,
+            )
+            if proc.returncode != 0 or not proc.stdout.strip():
+                return None
+            return json.loads(proc.stdout)
+        except (OSError, subprocess.TimeoutExpired, ValueError):
+            return None
+
     def set_language(self, lang):
         self.lang = lang
         tr = lang == "tr"
         self.title.setText("Puresteel Sistemi" if tr else "Puresteel System")
         self.subtitle.setText("Puresteel bakım, donanım ve güvenlik araçları." if tr else "Puresteel maintenance, hardware and security tools.")
         p, c, h = self.current_status()
-        self.status.setText(f"Profil: {p}   •   Kanal: {c}   •   Donanım modu: {h}" if tr else f"Profile: {p}   •   Channel: {c}   •   Hardware mode: {h}")
+        status_text = f"Profil: {p}   •   Kanal: {c}   •   Donanım modu: {h}" if tr else f"Profile: {p}   •   Channel: {c}   •   Hardware mode: {h}"
+        summary = self.health_summary()
+        if isinstance(summary, dict):
+            failed = summary.get("failed_unit_count")
+            disk = summary.get("root_disk_use_percent")
+            extras = []
+            if isinstance(failed, int):
+                extras.append(f"Hatalı servis: {failed}" if tr else f"Failed services: {failed}")
+            if isinstance(disk, int):
+                extras.append(f"Kök disk: %{disk}" if tr else f"Root disk: {disk}%")
+            if extras:
+                status_text += "   •   " + "   •   ".join(extras)
+        self.status.setText(status_text)
         texts = {
             "welcome": (("Hoş Geldin", "Puresteel araçları ve belgeleri."), ("Welcome", "Puresteel tools and documentation.")),
             "snapshot": (("Snapshot", "Timeshift geri dönüş noktalarını yönet."), ("Snapshots", "Manage Timeshift restore points.")),

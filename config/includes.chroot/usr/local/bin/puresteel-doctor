@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 import argparse
+import json
 import os
 import shutil
 import subprocess
@@ -167,14 +168,52 @@ def build_report():
     return "\n".join(chunks) + "\n"
 
 
+def build_json_summary():
+    os_lines = os_info().splitlines()
+    code, failed_out = run(
+        [command_path("systemctl") or "systemctl", "--failed", "--no-legend", "--no-pager", "--plain"],
+        15,
+    )
+    failed_units = []
+    if code == 0 and failed_out:
+        for line in failed_out.splitlines():
+            parts = line.split()
+            if parts:
+                failed_units.append(parts[0])
+    root_use_pct = None
+    df_code, df_out = run([command_path("df") or "df", "-P", "/"], 10)
+    if df_code == 0:
+        lines = df_out.splitlines()
+        if len(lines) >= 2:
+            cols = lines[1].split()
+            if len(cols) >= 5 and cols[4].endswith("%"):
+                try:
+                    root_use_pct = int(cols[4].rstrip("%"))
+                except ValueError:
+                    root_use_pct = None
+    tools = {
+        name: exists(name)
+        for name in ("flatpak", "timeshift", "fwupdmgr", "mokutil", "nvidia-smi", "smartctl")
+    }
+    return {
+        "os": os_lines[0] if os_lines else "Linux",
+        "kernel": os_lines[1] if len(os_lines) > 1 else "",
+        "failed_units": failed_units,
+        "failed_unit_count": len(failed_units),
+        "root_disk_use_percent": root_use_pct,
+        "tools": tools,
+    }
+
+
 def main():
     parser = argparse.ArgumentParser(description="Puresteel system health report")
     parser.add_argument("--save", metavar="PATH", help="also save the report to a file")
+    parser.add_argument("--json", action="store_true", help="output a structured JSON health summary")
     args = parser.parse_args()
-    report = build_report()
-    print(report, end="")
+    output = json.dumps(build_json_summary(), indent=2) + "\n" if args.json else build_report()
+    print(output, end="")
     if args.save:
-        Path(args.save).expanduser().write_text(report)
+        Path(args.save).expanduser().write_text(output)
         print(f"Saved: {Path(args.save).expanduser()}")
     return 0
 
