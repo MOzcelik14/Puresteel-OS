@@ -2,4 +2,5 @@
 set -e
 
 echo "[Puresteel] Enabling platform tools..."
+systemctl enable NetworkManager.service 2>/dev/null || true
 systemctl enable puresteel-recovery.service 2>/dev/null || true
