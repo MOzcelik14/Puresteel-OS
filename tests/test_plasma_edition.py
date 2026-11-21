@@ -63,6 +63,25 @@ class PlasmaEditionTests(unittest.TestCase):
         self.assertIn("nvidia-driver\n", graphics)
         self.assertIn("nvidia-smi\n", graphics)
 
+    def test_iso_declares_wifi_stack_and_firmware(self):
+        core = source("config/package-lists/puresteel-core.list.chroot")
+        smoke = source("scripts/smoke-iso.sh")
+        for pkg in (
+            "network-manager",
+            "wpasupplicant",
+            "wireless-regdb",
+            "rfkill",
+            "iw",
+            "firmware-iwlwifi",
+            "firmware-realtek",
+            "firmware-atheros",
+            "firmware-brcm80211",
+            "firmware-mediatek",
+        ):
+            self.assertIn(pkg + "\n", core)
+        for pkg in ("wpasupplicant", "wireless-regdb", "firmware-iwlwifi", "firmware-realtek", "firmware-mediatek"):
+            self.assertIn(f'"{pkg}"', smoke)
+
     def test_profile_launcher_uses_konsole_and_selection_menu(self):
         launcher = source("config/includes.chroot/usr/share/applications/puresteel-install-profile.desktop")
         menu = source("config/includes.chroot/usr/local/bin/puresteel-profile-menu")

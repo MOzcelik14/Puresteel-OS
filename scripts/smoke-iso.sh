@@ -75,6 +75,9 @@ expected = {
     "gamemode", "mangohud", "kdenlive", "audacity", "ffmpeg",
     "build-essential", "cmake", "ninja-build", "python3-venv", "git-lfs",
     "firmware-sof-signed", "pipewire-audio", "nvidia-smi",
+    "network-manager", "wpasupplicant", "wireless-regdb",
+    "firmware-iwlwifi", "firmware-realtek", "firmware-atheros",
+    "firmware-brcm80211", "firmware-mediatek",
 }
 missing = sorted(name for name in expected
                  if not any(p == name for p, _ in installed))

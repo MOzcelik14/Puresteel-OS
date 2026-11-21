@@ -5,6 +5,10 @@ live-config
 live-config-systemd
 dbus-user-session
 network-manager
+wpasupplicant
+wireless-regdb
+rfkill
+iw
 
 sudo
 curl
@@ -21,6 +25,14 @@ firmware-linux
 firmware-linux-free
 firmware-linux-nonfree
 firmware-misc-nonfree
+# Wi-Fi firmware (separate from firmware-linux-nonfree in Debian non-free-firmware)
+firmware-iwlwifi
+firmware-realtek
+firmware-atheros
+firmware-brcm80211
+firmware-mediatek
+firmware-libertas
+firmware-zd1211
 # Intel Smart Sound Technology (SOF) DSP firmware for laptop audio.
 firmware-sof-signed
 
